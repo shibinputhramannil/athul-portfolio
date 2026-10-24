@@ -1,0 +1,9 @@
+{
+  "showreel": null,
+  "videos": [
+    { "id": "video-01", "public": false },
+    { "id": "video-02", "public": false },
+    { "id": "video-03", "public": false },
+    { "id": "video-04", "public": false }
+  ]
+}

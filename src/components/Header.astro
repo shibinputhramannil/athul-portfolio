@@ -1,0 +1,72 @@
+---
+import { profile } from "../content/profile";
+interface Props {
+  nav: { id: string; label: string }[];
+}
+const { nav } = Astro.props;
+---
+
+<header class="site-header">
+  <div class="wrap site-header__inner">
+    <a class="label site-header__name" href="#top">
+      {profile.name}
+    </a>
+    <nav aria-label="Sections">
+      <ul>
+        {nav.map((item) => (
+          <li>
+            <a class="label" href={`#${item.id}`}>
+              {item.label}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<style>
+  .site-header {
+    position: fixed;
+    inset: 0 0 auto 0;
+    z-index: 50;
+    background: rgb(8 17 15 / 0.82);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--line);
+  }
+  .site-header__inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    height: var(--header-h);
+  }
+  .site-header a {
+    color: var(--mist);
+    text-decoration: none;
+    letter-spacing: 0.16em;
+  }
+  .site-header a:hover {
+    color: var(--seafoam);
+  }
+  ul {
+    display: flex;
+    gap: clamp(14px, 3vw, 40px);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  @media (max-width: 520px) {
+    .site-header__name {
+      display: none;
+    }
+    .site-header__inner {
+      justify-content: flex-end;
+    }
+    ul {
+      width: 100%;
+      justify-content: space-between;
+    }
+  }
+</style>

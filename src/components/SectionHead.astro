@@ -1,0 +1,74 @@
+---
+interface Props {
+  number: string;
+  title: string;
+  id: string;
+}
+const { number, title, id } = Astro.props;
+---
+
+<header class="sh" data-reveal>
+  <span class="label sh__num">{number}</span>
+  <h2 class="sh__title" id={id}>
+    <span class="rl">
+      <span>
+        <span data-stretch>{title}</span>
+      </span>
+    </span>
+    <span class="sh__cut" aria-hidden="true"></span>
+  </h2>
+</header>
+
+<style>
+  .sh {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    align-items: end;
+    gap: 0 var(--gutter);
+    padding-bottom: clamp(24px, 4vw, 48px);
+    border-bottom: 1px solid var(--line);
+    margin-bottom: clamp(32px, 5vw, 64px);
+  }
+  .sh__num {
+    padding-bottom: 0.6em;
+    color: var(--crimson);
+  }
+  .sh__title {
+    position: relative;
+    margin: 0;
+    font-weight: 800;
+    font-stretch: 75%;
+    font-size: clamp(2.5rem, 7vw, 6rem);
+    line-height: 0.9;
+    letter-spacing: -0.015em;
+    text-transform: uppercase;
+  }
+  .sh__cut {
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 100%;
+    background: var(--crimson);
+    transform: scaleX(0);
+    pointer-events: none;
+  }
+  :global(.js) .sh:global(.is-in) .sh__cut {
+    animation: cut 0.36s var(--ease-cut);
+  }
+  @keyframes cut {
+    0% {
+      transform-origin: left;
+      transform: scaleX(0);
+    }
+    50% {
+      transform-origin: left;
+      transform: scaleX(1);
+    }
+    50.1% {
+      transform-origin: right;
+    }
+    100% {
+      transform-origin: right;
+      transform: scaleX(0);
+    }
+  }
+</style>

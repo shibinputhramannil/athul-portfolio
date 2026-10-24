@@ -1,0 +1,82 @@
+---
+import SectionHead from "./SectionHead.astro";
+import { profile } from "../content/profile";
+interface Props {
+  number: string;
+}
+const { number } = Astro.props;
+---
+
+<section class="section" aria-labelledby="contact">
+  <div class="wrap">
+    <SectionHead number={number} title="Contact" id="contact" />
+    <div class="contact" data-reveal>
+      <a class="contact__email" href={`mailto:${profile.email}`}>
+        <span class="rl">
+          <span>{profile.email}</span>
+        </span>
+      </a>
+      <div class="contact__actions" data-fade style="--i:2">
+        <button class="pill" type="button" data-copy={profile.email}>
+          Copy email
+        </button>
+        <a class="pill" href={`mailto:${profile.email}`}>
+          Email me <span aria-hidden="true">→</span>
+        </a>
+        <span
+          class="label contact__status"
+          role="status"
+          aria-live="polite"
+        ></span>
+      </div>
+      <p class="label contact__loc" data-fade style="--i:3">
+        Based in {profile.location}
+      </p>
+    </div>
+  </div>
+</section>
+
+<style>
+  .contact__email {
+    display: inline-block;
+    max-width: 100%;
+    font-weight: 900;
+    font-stretch: 75%;
+    font-size: clamp(2rem, 8.5vw, 9rem);
+    line-height: 0.95;
+    text-transform: uppercase;
+    text-decoration: none;
+    overflow-wrap: anywhere;
+    background: linear-gradient(var(--crimson), var(--crimson)) left bottom / 0%
+      4px no-repeat;
+    transition:
+      background-size 0.9s var(--ease-cut) 0.3s,
+      color 0.2s;
+    padding-bottom: 8px;
+  }
+  .contact__email:hover {
+    color: var(--seafoam);
+  }
+  :global(.js) .contact:global(.is-in) .contact__email,
+  :global(html:not(.js)) .contact__email {
+    background-size: 100% 4px;
+  }
+  .contact__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+    margin-top: 40px;
+  }
+  .contact__status {
+    color: var(--seafoam);
+  }
+  .contact__loc {
+    margin: 32px 0 0;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .contact__email {
+      background-size: 100% 4px;
+    }
+  }
+</style>

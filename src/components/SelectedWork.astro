@@ -1,0 +1,104 @@
+---
+import SectionHead from "./SectionHead.astro";
+import VideoCard from "./VideoCard.astro";
+import type { Video } from "../content/videos";
+interface Props {
+  number: string;
+  videos: Video[];
+}
+const { number, videos } = Astro.props;
+---
+
+<section class="section" aria-labelledby="work">
+  <div class="wrap">
+    <SectionHead number={number} title="Selected work" id="work" />
+    <div class="work__bar">
+      <p class="label">
+        A selection of recent edits. Tap or press Enter to play with sound.
+      </p>
+      <div class="work__nav">
+        <button
+          class="work__btn"
+          type="button"
+          data-strip-prev
+          aria-label="Previous videos"
+        >
+          ←
+        </button>
+        <button
+          class="work__btn"
+          type="button"
+          data-strip-next
+          aria-label="Next videos"
+        >
+          →
+        </button>
+      </div>
+    </div>
+  </div>
+  <ul
+    class="strip"
+    data-strip
+    tabindex="0"
+    role="region"
+    aria-label="Selected work, scroll sideways"
+  >
+    {videos.map((v) => (
+      <li class="strip__item" data-fade>
+        <VideoCard video={v} />
+      </li>
+    ))}
+  </ul>
+</section>
+
+<style>
+  .work__bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+  .work__bar p {
+    margin: 0;
+  }
+  .work__nav {
+    display: flex;
+    gap: 8px;
+  }
+  .work__btn {
+    width: 48px;
+    height: 48px;
+    border: 1px solid rgb(230 236 233 / 0.35);
+    border-radius: 50%;
+    background: none;
+    cursor: pointer;
+  }
+  .work__btn:hover {
+    border-color: var(--crimson);
+    color: var(--crimson);
+  }
+  .strip {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: clamp(220px, 22vw, 340px);
+    gap: var(--gutter);
+    margin: 0;
+    padding: 0 var(--margin) 16px;
+    list-style: none;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scroll-padding: 0 var(--margin);
+    overscroll-behavior-x: contain;
+    scrollbar-width: thin;
+    scrollbar-color: var(--deep-teal) transparent;
+  }
+  .strip__item {
+    scroll-snap-align: start;
+  }
+  @media (max-width: 600px) {
+    .strip {
+      grid-auto-columns: 72vw;
+    }
+  }
+</style>

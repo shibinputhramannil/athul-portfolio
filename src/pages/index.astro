@@ -1,0 +1,51 @@
+---
+import Base from "../layouts/Base.astro";
+import Playhead from "../components/Playhead.astro";
+import Header from "../components/Header.astro";
+import Hero from "../components/Hero.astro";
+import Showreel from "../components/Showreel.astro";
+import SelectedWork from "../components/SelectedWork.astro";
+import About from "../components/About.astro";
+import Experience from "../components/Experience.astro";
+import Contact from "../components/Contact.astro";
+import Footer from "../components/Footer.astro";
+import Player from "../components/Player.astro";
+import { profile } from "../content/profile";
+import { getShowreel, getVisibleVideos } from "../content/videos";
+
+const videos = getVisibleVideos();
+const showreel = getShowreel(videos);
+
+const sections = [
+  showreel && { id: "reel", label: "Reel" },
+  videos.length > 0 && { id: "work", label: "Work" },
+  { id: "about", label: "About" },
+  { id: "experience", label: "Experience" },
+  { id: "contact", label: "Contact" },
+].filter(Boolean) as { id: string; label: string }[];
+
+const numberOf = (id: string) =>
+  String(sections.findIndex((s) => s.id === id) + 1).padStart(2, "0");
+---
+
+<Base title={`${profile.name} | ${profile.role}`} description={profile.summary}>
+  <Playhead />
+  <Header nav={sections} />
+  <main id="main">
+    <Hero videos={videos} hasWork={videos.length > 0} />
+    {showreel && (
+      <Showreel number={numberOf("reel")} videos={videos} showreel={showreel} />
+    )}
+    {videos.length > 0 && (
+      <SelectedWork number={numberOf("work")} videos={videos} />
+    )}
+    <About number={numberOf("about")} />
+    <Experience number={numberOf("experience")} />
+    <Contact number={numberOf("contact")} />
+  </main>
+  <Footer />
+  {videos.length > 0 && <Player />}
+  <script>
+    import "../scripts/motion";
+  </script>
+</Base>

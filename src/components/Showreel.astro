@@ -1,0 +1,98 @@
+---
+import SectionHead from "./SectionHead.astro";
+import type { Showreel, Video } from "../content/videos";
+interface Props {
+  number: string;
+  videos: Video[];
+  showreel: NonNullable<Showreel>;
+}
+const { number, videos, showreel } = Astro.props;
+const items =
+  showreel.mode === "reel"
+    ? videos.filter((v) => v.id === showreel.id)
+    : videos;
+const first = items[0];
+---
+
+<section class="section" aria-labelledby="reel">
+  <div class="wrap">
+    <SectionHead number={number} title="Reel" id="reel" />
+    <div class="reel" data-reel>
+      <div class="reel__frame">
+        <video
+          class="reel__video"
+          controls
+          playsinline
+          preload="none"
+          poster={first.poster}
+          src={first.full}
+          data-reel-video
+        ></video>
+      </div>
+      {items.length > 1 && (
+        <ol class="reel__list" aria-label="Playlist">
+          {items.map((v, i) => (
+            <li>
+              <button
+                type="button"
+                class="reel__item label"
+                data-reel-item
+                data-full={v.full}
+                data-poster={v.poster}
+                aria-current={i === 0 ? "true" : undefined}
+              >
+                {v.number} {v.title ?? `Video ${v.number}`}
+              </button>
+            </li>
+          ))}
+        </ol>
+      )}
+    </div>
+  </div>
+</section>
+
+<style>
+  .reel {
+    display: grid;
+    grid-template-columns: minmax(0, 420px) minmax(0, 1fr);
+    gap: clamp(24px, 4vw, 64px);
+    align-items: start;
+  }
+  .reel__frame {
+    aspect-ratio: 9 / 16;
+    border: 1px solid var(--crimson);
+    background: var(--graphite);
+  }
+  .reel__video {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+  .reel__list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .reel__item {
+    width: 100%;
+    min-height: 48px;
+    padding: 0;
+    border: 0;
+    border-bottom: 1px solid var(--line);
+    background: none;
+    text-align: left;
+    cursor: pointer;
+  }
+  .reel__item[aria-current="true"] {
+    color: var(--mist);
+  }
+  .reel__item[aria-current="true"]::before {
+    content: "● ";
+    color: var(--crimson);
+  }
+  @media (max-width: 900px) {
+    .reel {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

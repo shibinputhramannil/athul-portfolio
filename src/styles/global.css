@@ -1,0 +1,225 @@
+:root {
+  --ink: #08110f;
+  --graphite: #121a18;
+  --deep-teal: #123a33;
+  --seafoam: #8ed2be;
+  --crimson: #ea3a32;
+  --mist: #e6ece9;
+  --fog: #879592;
+  --line: rgb(230 236 233 / 0.12);
+
+  --font-display:
+    "Archivo Variable", "Arial Narrow", "Helvetica Neue", sans-serif;
+  --font-accent: "Bodoni Moda", Didot, "Bodoni MT", Georgia, serif;
+  --font-mono: "JetBrains Mono", ui-monospace, Consolas, monospace;
+
+  --margin: clamp(20px, 4vw, 64px);
+  --gutter: clamp(16px, 2vw, 24px);
+  --section: clamp(96px, 14vh, 200px);
+  --max: 1600px;
+  --header-h: 56px;
+  --ease-cut: cubic-bezier(0.2, 0.7, 0.1, 1);
+
+  color-scheme: dark;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: var(--header-h);
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--ink);
+  color: var(--mist);
+  font-family: var(--font-display);
+  font-size: clamp(16px, 0.95rem + 0.2vw, 18px);
+  line-height: 1.6;
+  font-stretch: 100%;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+img,
+video {
+  display: block;
+  max-width: 100%;
+}
+
+a {
+  color: inherit;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+}
+
+::selection {
+  background: var(--crimson);
+  color: var(--ink);
+}
+
+:focus-visible {
+  outline: 2px solid var(--seafoam);
+  outline-offset: 3px;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.skip-link {
+  position: absolute;
+  left: var(--margin);
+  top: -100px;
+  z-index: 100;
+  padding: 10px 16px;
+  background: var(--seafoam);
+  color: var(--ink);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  text-decoration: none;
+}
+.skip-link:focus {
+  top: 12px;
+}
+
+.wrap {
+  width: 100%;
+  max-width: var(--max);
+  margin: 0 auto;
+  padding: 0 var(--margin);
+}
+
+.section {
+  padding: var(--section) 0 0;
+}
+
+.label {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.4;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--fog);
+}
+
+.display {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-stretch: 75%;
+  line-height: 0.85;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+}
+
+.rule {
+  width: 48px;
+  height: 1px;
+  border: 0;
+  margin: 0;
+  background: var(--line);
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  min-height: 48px;
+  padding: 0 22px;
+  border: 1px solid rgb(230 236 233 / 0.35);
+  border-radius: 999px;
+  background: transparent;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    border-color 0.2s,
+    background-color 0.2s,
+    color 0.2s;
+}
+.pill:hover {
+  border-color: var(--crimson);
+  background: var(--crimson);
+  color: var(--ink);
+}
+
+/* Scroll reveals (only when JS is running, so content is never hidden without it). */
+.js .rl {
+  display: block;
+  overflow: hidden;
+  padding-bottom: 0.04em;
+}
+.js .rl > span {
+  display: block;
+  transform: translateY(105%);
+  transition: transform 0.7s var(--ease-cut) calc(var(--i, 0) * 60ms);
+}
+.js .is-in .rl > span,
+.js .rl.is-in > span {
+  transform: none;
+}
+
+.js [data-fade] {
+  opacity: 0;
+  transform: translateY(16px);
+  transition:
+    opacity 0.7s var(--ease-cut) calc(var(--i, 0) * 60ms),
+    transform 0.7s var(--ease-cut) calc(var(--i, 0) * 60ms);
+}
+.js [data-fade].is-in {
+  opacity: 1;
+  transform: none;
+}
+
+.js [data-stretch] {
+  font-stretch: 125%;
+  transition: font-stretch 0.9s var(--ease-cut);
+}
+.js .is-in [data-stretch],
+.js [data-stretch].is-in {
+  font-stretch: 75%;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    transition-delay: 0s !important;
+  }
+  .js .rl > span,
+  .js [data-fade] {
+    opacity: 1;
+    transform: none;
+  }
+  .js [data-stretch] {
+    font-stretch: 75%;
+  }
+}

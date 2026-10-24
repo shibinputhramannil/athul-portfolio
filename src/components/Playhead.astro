@@ -1,0 +1,29 @@
+<div class="playhead" aria-hidden="true">
+  <div class="playhead__ticks"></div>
+  <div class="playhead__bar"></div>
+</div>
+
+<style>
+  .playhead {
+    position: fixed;
+    inset: 0 0 auto 0;
+    height: 3px;
+    z-index: 60;
+    pointer-events: none;
+  }
+  .playhead__bar {
+    position: absolute;
+    inset: 0;
+    background: var(--crimson);
+    transform-origin: 0 50%;
+    transform: scaleX(var(--p, 0));
+  }
+  .playhead__ticks :global(span) {
+    position: absolute;
+    top: 3px;
+    width: 1px;
+    height: 6px;
+    background: var(--fog);
+    opacity: 0.6;
+  }
+</style>

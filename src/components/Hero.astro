@@ -1,0 +1,264 @@
+---
+import VideoCard from "./VideoCard.astro";
+import { profile } from "../content/profile";
+import type { Video } from "../content/videos";
+
+interface Props {
+  videos: Video[];
+  hasWork: boolean;
+}
+const { videos, hasWork } = Astro.props;
+const heroVideos = videos.slice(0, 3);
+---
+
+<section class="hero" id="top" aria-labelledby="hero-title">
+  <div class="hero__beam" aria-hidden="true"></div>
+  <div class="wrap hero__grid">
+    <div class="hero__copy" data-reveal>
+      <p class="label hero__kicker">
+        <span class="hero__tc">00:00:00:00</span>
+        <span class="hero__dot" aria-hidden="true">
+          ●
+        </span>
+        {profile.location}
+      </p>
+      <h1 class="display hero__name" id="hero-title">
+        <span class="rl">
+          <span>
+            <span data-stretch>{profile.nameLines[0]}</span>
+          </span>
+        </span>
+        <span class="rl" style="--i:1">
+          <span>
+            <span data-stretch class="hero__teal">
+              {profile.nameLines[1]}
+            </span>
+          </span>
+        </span>
+      </h1>
+      <p class="hero__role" data-fade style="--i:3">
+        {profile.role}
+      </p>
+      <hr class="rule" />
+      <p class="label hero__tools" data-fade style="--i:4">
+        {profile.tools.join(" / ")}
+      </p>
+      <div class="hero__ctas" data-fade style="--i:5">
+        {hasWork && (
+          <a class="pill" href="#work">
+            View work <span aria-hidden="true">→</span>
+          </a>
+        )}
+        <a class="pill" href="#contact">
+          Get in touch <span aria-hidden="true">→</span>
+        </a>
+      </div>
+    </div>
+
+    {heroVideos.length > 0 ? (
+      <div class="hero__frames">
+        {heroVideos.map((v, i) => (
+          <div class="hero__frame" style={`--n:${i}`}>
+            <VideoCard video={v} compact />
+          </div>
+        ))}
+      </div>
+    ) : (
+      <div class="hero__timeline" aria-hidden="true">
+        <div class="tl__ruler label">
+          <span>00:00</span>
+          <span>00:08</span>
+          <span>00:16</span>
+          <span>00:24</span>
+        </div>
+        <div class="tl__track">
+          <span class="tl__tag label">V2</span>
+          <i style="--x:18%;--w:22%" />
+          <i style="--x:58%;--w:16%" />
+        </div>
+        <div class="tl__track">
+          <span class="tl__tag label">V1</span>
+          <i class="is-teal" style="--x:4%;--w:30%" />
+          <i class="is-teal" style="--x:36%;--w:26%" />
+          <i class="is-teal" style="--x:64%;--w:32%" />
+        </div>
+        <div class="tl__track">
+          <span class="tl__tag label">A1</span>
+          <i class="is-wave" style="--x:4%;--w:92%" />
+        </div>
+        <div class="tl__track">
+          <span class="tl__tag label">A2</span>
+          <i class="is-wave" style="--x:22%;--w:48%" />
+        </div>
+        <div class="tl__head" />
+      </div>
+    )}
+  </div>
+</section>
+
+<style>
+  .hero {
+    position: relative;
+    min-height: 100svh;
+    display: flex;
+    align-items: center;
+    padding: calc(var(--header-h) + 48px) 0 64px;
+    overflow: hidden;
+  }
+  .hero__beam {
+    position: absolute;
+    top: -10%;
+    right: 12%;
+    width: clamp(80px, 9vw, 160px);
+    height: 130%;
+    background: linear-gradient(
+      180deg,
+      rgb(234 58 50 / 0),
+      rgb(234 58 50 / 0.5) 45%,
+      rgb(234 58 50 / 0)
+    );
+    filter: blur(40px);
+    transform: rotate(14deg);
+    opacity: 0.55;
+    pointer-events: none;
+  }
+  .hero__grid {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+    gap: var(--gutter);
+    align-items: center;
+  }
+  .hero__kicker {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin: 0 0 24px;
+  }
+  .hero__dot {
+    color: var(--crimson);
+  }
+  .hero__name {
+    font-size: clamp(3.5rem, 13vw, 13rem);
+  }
+  .hero__teal {
+    color: var(--seafoam);
+  }
+  .hero__role {
+    margin: 18px 0 28px;
+    font-family: var(--font-accent);
+    font-style: italic;
+    font-weight: 700;
+    font-size: clamp(1.75rem, 4vw, 3.25rem);
+    line-height: 1;
+    color: var(--crimson);
+  }
+  .hero__tools {
+    margin: 20px 0 32px;
+    color: var(--mist);
+  }
+  .hero__ctas {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .hero__frames {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    align-items: start;
+  }
+  .hero__frame {
+    margin-top: calc(var(--n) * 48px);
+  }
+
+  .hero__timeline {
+    position: relative;
+    display: grid;
+    gap: 10px;
+    padding: 20px 0 20px 0;
+    border-top: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+  }
+  .tl__ruler {
+    display: flex;
+    justify-content: space-between;
+    padding-left: 36px;
+    font-size: 10px;
+  }
+  .tl__track {
+    position: relative;
+    height: clamp(28px, 4vw, 44px);
+    margin-left: 36px;
+    background: rgb(18 26 24 / 0.7);
+  }
+  .tl__tag {
+    position: absolute;
+    left: -36px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 10px;
+  }
+  .tl__track i {
+    position: absolute;
+    top: 3px;
+    bottom: 3px;
+    left: var(--x);
+    width: var(--w);
+    border: 1px solid rgb(230 236 233 / 0.25);
+    border-radius: 2px;
+    background: var(--graphite);
+  }
+  .tl__track i.is-teal {
+    background: var(--deep-teal);
+    border-color: rgb(142 210 190 / 0.35);
+  }
+  .tl__track i.is-wave {
+    background: repeating-linear-gradient(
+      90deg,
+      rgb(142 210 190 / 0.35) 0 2px,
+      transparent 2px 5px
+    );
+    border-color: rgb(142 210 190 / 0.2);
+  }
+  .tl__head {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 36px;
+    width: 2px;
+    background: var(--crimson);
+    box-shadow: 0 0 12px rgb(234 58 50 / 0.6);
+    animation: scrub 12s linear infinite;
+  }
+  @keyframes scrub {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(calc(var(--tl-w, 400px)));
+    }
+  }
+
+  @media (max-width: 900px) {
+    .hero {
+      align-items: flex-start;
+    }
+    .hero__grid {
+      grid-template-columns: 1fr;
+      gap: 48px;
+    }
+    .hero__frames {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    .hero__frame {
+      margin-top: calc(var(--n) * 24px);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .tl__head {
+      animation: none;
+      left: 40%;
+    }
+  }
+</style>
