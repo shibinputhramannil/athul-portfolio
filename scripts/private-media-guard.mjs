@@ -34,6 +34,8 @@ export function privateMediaGuard() {
             logger.info(`removed private media: media/${name}`);
           }
         }
+        if ((await readdir(mediaDir)).length === 0)
+          await rm(mediaDir, { recursive: true });
       },
     },
   };
