@@ -58,15 +58,15 @@ const { nav } = Astro.props;
     list-style: none;
   }
   @media (max-width: 520px) {
-    .site-header__name {
-      display: none;
-    }
     .site-header__inner {
-      justify-content: flex-end;
+      gap: 12px;
+    }
+    .site-header a {
+      font-size: 11px;
+      letter-spacing: 0.06em;
     }
     ul {
-      width: 100%;
-      justify-content: space-between;
+      gap: 12px;
     }
   }
 </style>
