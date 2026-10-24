@@ -1,5 +1,7 @@
 ---
+import { Image } from "astro:assets";
 import SectionHead from "./SectionHead.astro";
+import portrait from "../assets/profile.jpg";
 import { profile } from "../content/profile";
 interface Props {
   number: string;
@@ -11,6 +13,16 @@ const { number } = Astro.props;
   <div class="wrap">
     <SectionHead number={number} title="About" id="about" />
     <div class="about">
+      <figure class="about__photo" data-fade>
+        <Image
+          src={portrait}
+          alt={`Portrait of ${profile.name}`}
+          widths={[400, 600, 800]}
+          sizes="(max-width: 900px) min(100vw - 40px, 420px), 25vw"
+          loading="lazy"
+          decoding="async"
+        />
+      </figure>
       <p class="label about__role" data-fade>
         {profile.name} · {profile.role}
       </p>
@@ -35,12 +47,28 @@ const { number } = Astro.props;
     grid-template-columns: repeat(12, minmax(0, 1fr));
     gap: var(--gutter);
   }
-  .about__role {
+  .about__photo {
     grid-column: 1 / span 3;
-    margin: 0.6em 0 0;
+    grid-row: 1 / span 3;
+    align-self: start;
+    margin: 0;
+    aspect-ratio: 4 / 5;
+    overflow: hidden;
+    background: var(--mist);
+    border-radius: 2px;
+  }
+  .about__photo img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .about__role {
+    grid-column: 5 / span 8;
+    margin: 0;
   }
   .about__summary {
-    grid-column: 4 / span 8;
+    grid-column: 5 / span 8;
     margin: 0;
     font-size: clamp(1.35rem, 1rem + 1.4vw, 2.4rem);
     line-height: 1.3;
@@ -48,7 +76,7 @@ const { number } = Astro.props;
     max-width: 30ch;
   }
   .about__langs {
-    grid-column: 4 / span 8;
+    grid-column: 5 / span 8;
     display: flex;
     flex-wrap: wrap;
     gap: 16px 48px;
@@ -65,6 +93,12 @@ const { number } = Astro.props;
     font-weight: 600;
   }
   @media (max-width: 900px) {
+    .about__photo {
+      grid-row: auto;
+      width: min(100%, 420px);
+      margin-bottom: 16px;
+    }
+    .about__photo,
     .about__role,
     .about__summary,
     .about__langs {

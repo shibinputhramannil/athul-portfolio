@@ -46,7 +46,10 @@ To publish a video once it has been confirmed:
 
 ## Profile photo
 
-Not included yet. It will be added after the before/after (crop plus exposure and colour correction only) is approved.
+Approved edit (natural crop, lighting, colour and an off-white background; face and features unchanged):
+
+- `src/assets/profile.jpg`: 4:5 About portrait, resized to WebP at build time.
+- `public/og.jpg`: 1:1 link-preview image, emitted as `og:image` when `SITE_URL` is set.
 
 ## Deployment
 
