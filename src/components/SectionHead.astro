@@ -22,7 +22,7 @@ const { number, title, id } = Astro.props;
 <style>
   .sh {
     display: grid;
-    grid-template-columns: auto 1fr;
+    grid-template-columns: auto minmax(0, 1fr);
     align-items: end;
     gap: 0 var(--gutter);
     padding-bottom: clamp(24px, 4vw, 48px);
@@ -36,6 +36,7 @@ const { number, title, id } = Astro.props;
   .sh__title {
     position: relative;
     margin: 0;
+    overflow-x: clip;
     font-weight: 800;
     font-stretch: 75%;
     font-size: clamp(2.5rem, 7vw, 6rem);
