@@ -71,6 +71,17 @@ body::after {
   vertical-align: middle;
 }
 
+/* Selected work: dim the projects that are not the active (playing) one. */
+.work-grid .card__frame,
+.work-grid .card__meta {
+  transition: opacity 0.4s var(--ease-cut);
+}
+.work-grid:has(.card.is-playing)
+  .card:not(.is-playing, :hover, :focus-visible)
+  :is(.card__frame, .card__meta) {
+  opacity: 0.5;
+}
+
 img,
 video {
   display: block;

@@ -28,8 +28,12 @@ const count = String(videos.length).padStart(2, "0");
         </span>
       </p>
       <p class="label work__count">
-        {count}
-        {videos.length === 1 ? "edit" : "edits"}
+        <span class="work__now" aria-hidden="true">
+          <span class="work__rec"></span>
+          Now <span data-playlist-now>{videos[0]?.number}</span>
+        </span>
+        <span>/ {count}</span>
+        <span class="sr-only">edits</span>
       </p>
       {asStrip && (
         <div class="work__nav">
@@ -57,7 +61,12 @@ const count = String(videos.length).padStart(2, "0");
     {!asStrip && (
       <ul class="work-grid">
         {videos.map((v, i) => (
-          <li class="work-grid__item" data-fade style={`--i:${i}`}>
+          <li
+            class="work-grid__item"
+            data-fade
+            data-number={v.number}
+            style={`--i:${i}`}
+          >
             <VideoCard video={v} />
           </li>
         ))}
@@ -73,7 +82,7 @@ const count = String(videos.length).padStart(2, "0");
       aria-label="Selected work, scroll sideways"
     >
       {videos.map((v) => (
-        <li class="strip__item" data-fade>
+        <li class="strip__item" data-fade data-number={v.number}>
           <VideoCard video={v} />
         </li>
       ))}
@@ -104,7 +113,24 @@ const count = String(videos.length).padStart(2, "0");
     gap: 8px;
   }
   .work__count {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--fog);
+    font-variant-numeric: tabular-nums;
+  }
+  .work__now {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
     color: var(--seafoam);
+  }
+  .work__rec {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--crimson);
+    box-shadow: 0 0 8px rgb(234 58 50 / 0.8);
   }
   .work-grid {
     display: grid;

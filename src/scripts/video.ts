@@ -1,5 +1,4 @@
 const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
-const wide = window.matchMedia("(min-width: 900px)");
 const dialog = document.querySelector<HTMLDialogElement>("[data-player]");
 const dialogVideo = dialog?.querySelector<HTMLVideoElement>(
   "[data-player-video]",
@@ -14,8 +13,8 @@ const playing = new Set<HTMLVideoElement>();
 const ratios = new Map<HTMLVideoElement, number>();
 let preferred: HTMLVideoElement | null = null;
 
-// Desktop shows several cards at once, so only the most relevant one plays.
-const maxPlaying = () => (wide.matches ? 1 : 2);
+// Only the active project plays: the hovered/focused card, else the most visible one.
+const maxPlaying = () => 1;
 const canAutoplay = () =>
   !reduceMotion.matches && !document.hidden && !dialog?.open;
 
@@ -111,7 +110,6 @@ if (previews.length && "IntersectionObserver" in window) {
   });
   document.addEventListener("visibilitychange", refresh);
   reduceMotion.addEventListener("change", refresh);
-  wide.addEventListener("change", refresh);
   previews.forEach((video) => {
     const card = video.closest<HTMLElement>(".card");
     const prefer = () => {
