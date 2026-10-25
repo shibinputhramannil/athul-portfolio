@@ -1,5 +1,7 @@
 ---
 import SectionHead from "./SectionHead.astro";
+import Icon from "./Icon.astro";
+import { toolMeta } from "../lib/icons";
 import { profile } from "../content/profile";
 interface Props {
   number: string;
@@ -62,15 +64,23 @@ const jobs = [...profile.experience].sort((a, b) =>
         <h3 class="label">Skills</h3>
         <ul>
           {profile.skills.map((s) => (
-            <li>{s}</li>
+            <li>
+              <Icon name="keyframe" size={12} class="facts__key" />
+              {s}
+            </li>
           ))}
         </ul>
       </div>
       <div class="facts__block" data-fade style="--i:1">
         <h3 class="label">Tools</h3>
-        <ul class="facts__tools">
+        <ul class="tools">
           {profile.tools.map((t) => (
-            <li>{t}</li>
+            <li class="tool">
+              <span class="tool__icon">
+                <Icon brand={toolMeta[t].brand} size={24} />
+              </span>
+              <span class="tool__name">{toolMeta[t].name}</span>
+            </li>
           ))}
         </ul>
       </div>
@@ -226,15 +236,47 @@ const jobs = [...profile.experience].sort((a, b) =>
     column-gap: var(--gutter);
   }
   .facts__skills li {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
     break-inside: avoid;
-    padding: 6px 0;
+    padding: 8px 0;
     border-bottom: 1px solid var(--line);
   }
-  .facts__tools li {
-    font-family: var(--font-mono);
-    font-size: 14px;
-    color: var(--seafoam);
-    padding: 6px 0;
+  .facts__skills :global(.facts__key) {
+    flex: none;
+    color: var(--crimson);
+    transform: translateY(1px);
+  }
+  .tools {
+    display: grid;
+    gap: 10px;
+  }
+  .tool {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 10px 12px;
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    background: rgb(18 26 24 / 0.6);
+    transition: border-color 0.25s;
+  }
+  .tool:hover {
+    border-color: rgb(142 210 190 / 0.45);
+  }
+  .tool__icon {
+    display: grid;
+    place-items: center;
+    flex: none;
+    width: 44px;
+    height: 44px;
+    border-radius: 6px;
+    background: var(--ink);
+  }
+  .tool__name {
+    font-weight: 600;
+    line-height: 1.2;
   }
   .facts__edu li {
     display: grid;

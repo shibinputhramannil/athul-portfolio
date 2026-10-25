@@ -37,6 +37,14 @@ const previewPrivate =
     import.meta.env.PREVIEW_PRIVATE_MEDIA || process.env.PREVIEW_PRIVATE_MEDIA,
   ) === "1";
 
+/** Optional local allowlist for the private preview, e.g. "video-01,video-04". */
+const previewOnly = String(
+  import.meta.env.PREVIEW_VIDEOS || process.env.PREVIEW_VIDEOS || "",
+)
+  .split(",")
+  .map((id) => id.trim())
+  .filter(Boolean);
+
 function readManifest(): Record<string, { durationSec?: number }> {
   const file = join(mediaRoot, "manifest.json");
   if (!existsSync(file)) return {};
@@ -56,7 +64,12 @@ export function getVisibleVideos(): Video[] {
       poster: `${base}/media/${v.id}/poster.jpg`,
       durationSec: v.durationSec ?? manifest[v.id]?.durationSec,
     }))
-    .filter((v) => v.public === true || previewPrivate)
+    .filter(
+      (v) =>
+        v.public === true ||
+        (previewPrivate &&
+          (previewOnly.length === 0 || previewOnly.includes(v.id))),
+    )
     .filter((v) => existsSync(join(mediaRoot, v.id, "poster.jpg")));
 }
 

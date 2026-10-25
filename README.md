@@ -38,6 +38,7 @@ Encoding (needs `ffmpeg` and `ffprobe` on PATH):
 cp media.local.example.json media.local.json   # map ids to files in media-src/
 npm run media                                  # writes public/media/<id>/{full,preview}.mp4, poster.jpg
 npm run dev:private                            # local preview including private videos (dev only)
+PREVIEW_VIDEOS=video-01,video-04 npm run dev:private   # limit that preview to the listed ids
 ```
 
 To publish a video once it has been confirmed:

@@ -1,4 +1,5 @@
 ---
+import Icon from "./Icon.astro";
 import { formatDuration, type Video } from "../content/videos";
 interface Props {
   video: Video;
@@ -39,13 +40,45 @@ const duration = formatDuration(v.durationSec);
       tabindex="-1"
       disablepictureinpicture
     ></video>
-    <span class="card__play" aria-hidden="true"></span>
+    <span class="card__guides" aria-hidden="true"></span>
+    {compact ? (
+      <span class="label card__tag" aria-hidden="true">
+        {v.number}
+      </span>
+    ) : (
+      <span class="label card__hud" aria-hidden="true">
+        <span class="card__state card__state--on">
+          <span class="card__rec" />
+          <Icon name="volume-off" size={14} />
+          Muted preview
+        </span>
+        <span class="card__state card__state--off">
+          <Icon name="pause" size={14} />
+          Paused
+        </span>
+        {duration && <span class="card__tc">{duration}</span>}
+      </span>
+    )}
+    <span class="label card__cta" aria-hidden="true">
+      <Icon name="play" size={compact ? 14 : 16} />
+      {!compact && (
+        <>
+          Play with sound
+          <Icon name="volume" size={16} />
+        </>
+      )}
+    </span>
   </span>
   {!compact && (
     <span class="card__meta">
-      <span class="card__title">{label}</span>
-      {credits.length > 0 && <span class="label">{credits.join(" · ")}</span>}
-      {duration && <span class="label card__dur">{duration}</span>}
+      <span class="card__no" aria-hidden="true">
+        {v.number}
+      </span>
+      <span class="card__text">
+        <span class="card__title">{label}</span>
+        {credits.length > 0 && <span class="label">{credits.join(" · ")}</span>}
+        {duration && <span class="label card__dur">{duration}</span>}
+      </span>
     </span>
   )}
 </button>
@@ -53,7 +86,7 @@ const duration = formatDuration(v.durationSec);
 <style>
   .card {
     display: grid;
-    gap: 14px;
+    gap: 16px;
     width: 100%;
     padding: 0;
     border: 0;
@@ -67,65 +100,165 @@ const duration = formatDuration(v.durationSec);
     aspect-ratio: 9 / 16;
     overflow: hidden;
     border: 1px solid var(--line);
-    border-radius: 2px;
+    border-radius: 4px;
     background: var(--graphite);
+    transition: border-color 0.3s;
   }
   .card__preview {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    filter: grayscale(0.85) sepia(0.2) hue-rotate(120deg) brightness(0.8);
-    transition: filter 0.4s var(--ease-cut);
+    filter: grayscale(0.85) sepia(0.2) hue-rotate(120deg) brightness(0.75);
+    transform: scale(1.04);
+    transition:
+      filter 0.5s var(--ease-cut),
+      transform 0.8s var(--ease-cut);
   }
   .card:global(.is-playing) .card__preview,
   .card:hover .card__preview,
   .card:focus-visible .card__preview {
     filter: none;
+    transform: none;
   }
-  .card__play {
+  .card__guides {
     position: absolute;
-    right: 12px;
-    bottom: 12px;
-    width: 40px;
-    height: 40px;
-    border: 1px solid rgb(230 236 233 / 0.6);
+    inset: 12px;
+    pointer-events: none;
+    background:
+      linear-gradient(var(--mist), var(--mist)) left top / 16px 1.5px no-repeat,
+      linear-gradient(var(--mist), var(--mist)) left top / 1.5px 16px no-repeat,
+      linear-gradient(var(--mist), var(--mist)) right top / 16px 1.5px no-repeat,
+      linear-gradient(var(--mist), var(--mist)) right top / 1.5px 16px no-repeat,
+      linear-gradient(var(--mist), var(--mist)) left bottom / 16px 1.5px
+        no-repeat,
+      linear-gradient(var(--mist), var(--mist)) left bottom / 1.5px 16px
+        no-repeat,
+      linear-gradient(var(--mist), var(--mist)) right bottom / 16px 1.5px
+        no-repeat,
+      linear-gradient(var(--mist), var(--mist)) right bottom / 1.5px 16px
+        no-repeat;
+    opacity: 0.55;
+    transition:
+      inset 0.4s var(--ease-cut),
+      opacity 0.4s;
+  }
+  .card:hover .card__guides,
+  .card:focus-visible .card__guides,
+  .card:global(.is-playing) .card__guides {
+    inset: 8px;
+    opacity: 0.9;
+  }
+  .card__hud {
+    position: absolute;
+    top: 26px;
+    left: 26px;
+    right: 26px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    color: var(--mist);
+    text-shadow: 0 1px 6px rgb(0 0 0 / 0.6);
+  }
+  .card__state {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 3px 8px 3px 6px;
+    border-radius: 2px;
+    background: rgb(8 17 15 / 0.72);
+  }
+  .card__state--on,
+  .card:global(.is-playing) .card__state--off {
+    display: none;
+  }
+  .card:global(.is-playing) .card__state--on {
+    display: inline-flex;
+  }
+  .card__rec {
+    width: 7px;
+    height: 7px;
     border-radius: 50%;
-    background: rgb(8 17 15 / 0.6);
+    background: var(--crimson);
+    box-shadow: 0 0 8px rgb(234 58 50 / 0.8);
   }
-  .card__play::after {
-    content: "";
+  .card__tc {
+    padding: 3px 6px;
+    border-radius: 2px;
+    background: rgb(8 17 15 / 0.7);
+    font-variant-numeric: tabular-nums;
+  }
+  .card__cta {
     position: absolute;
-    left: 15px;
-    top: 12px;
-    border-left: 13px solid var(--mist);
-    border-top: 8px solid transparent;
-    border-bottom: 8px solid transparent;
+    left: 22px;
+    bottom: 22px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 40px;
+    padding: 0 14px;
+    border: 1px solid rgb(230 236 233 / 0.55);
+    border-radius: 999px;
+    background: rgb(8 17 15 / 0.65);
+    color: var(--mist);
+    transition:
+      background-color 0.25s,
+      border-color 0.25s,
+      color 0.25s;
+  }
+  .card:hover .card__cta,
+  .card:focus-visible .card__cta {
+    background: var(--crimson);
+    border-color: var(--crimson);
+    color: var(--ink);
   }
   .card:hover .card__frame,
   .card:focus-visible .card__frame {
     border-color: var(--crimson);
   }
   .card__meta {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+  }
+  .card__no {
+    font-weight: 900;
+    font-stretch: 75%;
+    font-size: clamp(2.5rem, 4vw, 3.5rem);
+    line-height: 0.8;
+    color: transparent;
+    -webkit-text-stroke: 1px var(--crimson);
+  }
+  .card__text {
     display: grid;
     gap: 4px;
   }
   .card__title {
-    font-weight: 700;
+    font-weight: 800;
     font-stretch: 85%;
+    font-size: 1.15rem;
     text-transform: uppercase;
     line-height: 1.1;
   }
-  .card--compact .card__play {
-    width: 32px;
-    height: 32px;
-    right: 8px;
-    bottom: 8px;
+  .card__dur {
+    color: var(--seafoam);
   }
-  .card--compact .card__play::after {
+  .card--compact .card__guides {
+    inset: 8px;
+  }
+  .card--compact .card__tag {
+    position: absolute;
+    top: 10px;
     left: 12px;
-    top: 9px;
-    border-left-width: 10px;
-    border-top-width: 6px;
-    border-bottom-width: 6px;
+    color: var(--mist);
+  }
+  .card--compact .card__cta {
+    left: auto;
+    right: 10px;
+    bottom: 10px;
+    width: 34px;
+    min-height: 34px;
+    padding: 0;
+    justify-content: center;
   }
 </style>

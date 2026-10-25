@@ -42,6 +42,18 @@ function placeTicks() {
   });
 }
 
+const still = window.matchMedia("(prefers-reduced-motion: reduce)");
+const FPS = 24;
+function timecode(frames: number) {
+  const secs = Math.floor(frames / FPS);
+  return [Math.floor(secs / 3600), Math.floor(secs / 60) % 60, secs % 60]
+    .concat(frames % FPS)
+    .map((n) => String(n).padStart(2, "0"))
+    .join(":");
+}
+
+const scrollTc = document.querySelector<HTMLElement>("[data-scroll-tc]");
+
 let frame = 0;
 function updatePlayhead() {
   frame = 0;
@@ -49,6 +61,44 @@ function updatePlayhead() {
     "--p",
     String(Math.min(1, window.scrollY / maxScroll())),
   );
+  if (scrollTc)
+    scrollTc.textContent = `TC ${timecode(Math.round(window.scrollY / 4))}`;
+}
+
+const runTc = document.querySelector<HTMLElement>("[data-run-tc]");
+if (runTc) {
+  const start = performance.now();
+  let last = -1;
+  const tick = (now: number) => {
+    const frames = Math.floor(((now - start) / 1000) * FPS);
+    if (frames !== last && !still.matches) {
+      last = frames;
+      runTc.textContent = timecode(frames);
+    }
+    requestAnimationFrame(tick);
+  };
+  requestAnimationFrame(tick);
+}
+
+const navLinks = document.querySelectorAll<HTMLAnchorElement>("[data-nav]");
+if (navLinks.length && "IntersectionObserver" in window) {
+  const spy = new IntersectionObserver(
+    (entries) => {
+      for (const entry of entries) {
+        if (!entry.isIntersecting) continue;
+        const id = entry.target.querySelector("h2[id]")?.id;
+        navLinks.forEach((link) => {
+          if (link.dataset.nav === id)
+            link.setAttribute("aria-current", "true");
+          else link.removeAttribute("aria-current");
+        });
+      }
+    },
+    { rootMargin: "-45% 0px -50% 0px" },
+  );
+  document
+    .querySelectorAll("main .section, main .hero")
+    .forEach((section) => spy.observe(section));
 }
 
 window.addEventListener(

@@ -12,6 +12,7 @@ import Footer from "../components/Footer.astro";
 import Player from "../components/Player.astro";
 import { profile } from "../content/profile";
 import { getShowreel, getVisibleVideos } from "../content/videos";
+import type { IconName } from "../lib/icons";
 
 const videos = getVisibleVideos();
 const showreel = getShowreel(videos);
@@ -19,12 +20,12 @@ const showreel = getShowreel(videos);
 const showWork = videos.length > 0;
 
 const sections = [
-  showreel && { id: "reel", label: "Reel" },
-  showWork && { id: "work", label: "Work" },
-  { id: "about", label: "About" },
-  { id: "experience", label: "Experience" },
-  { id: "contact", label: "Contact" },
-].filter(Boolean) as { id: string; label: string }[];
+  showreel && { id: "reel", label: "Reel", icon: "play" },
+  showWork && { id: "work", label: "Work", icon: "work" },
+  { id: "about", label: "About", icon: "about" },
+  { id: "experience", label: "Experience", icon: "experience" },
+  { id: "contact", label: "Contact", icon: "contact" },
+].filter(Boolean) as { id: string; label: string; icon: IconName }[];
 
 const numberOf = (id: string) =>
   String(sections.findIndex((s) => s.id === id) + 1).padStart(2, "0");

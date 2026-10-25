@@ -30,6 +30,7 @@
     "@types/node": "^20.19.43",
     "prettier": "^3.9.10",
     "prettier-plugin-astro": "^1.1.2",
+    "simple-icons": "^13.21.0",
     "typescript": "^5.9.3"
   }
 }

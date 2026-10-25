@@ -1,77 +1,143 @@
 ---
 import SectionHead from "./SectionHead.astro";
 import VideoCard from "./VideoCard.astro";
+import Icon from "./Icon.astro";
 import type { Video } from "../content/videos";
+
 interface Props {
   number: string;
   videos: Video[];
 }
 const { number, videos } = Astro.props;
+const asStrip = videos.length > 3;
+const count = String(videos.length).padStart(2, "0");
 ---
 
 <section class="section" aria-labelledby="work">
   <div class="wrap">
     <SectionHead number={number} title="Selected work" id="work" />
     <div class="work__bar">
-      <p class="label">
-        A selection of recent edits. Tap or press Enter to play with sound.
+      <p class="label work__hint">
+        <span>
+          <Icon name="volume-off" size={16} />
+          Previews play muted while on screen.
+        </span>
+        <span>
+          <Icon name="play" size={16} />
+          Tap or press Enter to play with sound.
+        </span>
       </p>
-      <div class="work__nav">
-        <button
-          class="work__btn"
-          type="button"
-          data-strip-prev
-          aria-label="Previous videos"
-        >
-          ←
-        </button>
-        <button
-          class="work__btn"
-          type="button"
-          data-strip-next
-          aria-label="Next videos"
-        >
-          →
-        </button>
-      </div>
+      <p class="label work__count">
+        {count}
+        {videos.length === 1 ? "edit" : "edits"}
+      </p>
+      {asStrip && (
+        <div class="work__nav">
+          <button
+            class="work__btn label"
+            type="button"
+            data-strip-prev
+            aria-label="Previous videos"
+          >
+            <Icon name="arrow-left" size={16} />
+            Prev
+          </button>
+          <button
+            class="work__btn label"
+            type="button"
+            data-strip-next
+            aria-label="Next videos"
+          >
+            Next
+            <Icon name="arrow-right" size={16} />
+          </button>
+        </div>
+      )}
     </div>
+    {!asStrip && (
+      <ul class="work-grid">
+        {videos.map((v, i) => (
+          <li class="work-grid__item" data-fade style={`--i:${i}`}>
+            <VideoCard video={v} />
+          </li>
+        ))}
+      </ul>
+    )}
   </div>
-  <ul
-    class="strip"
-    data-strip
-    tabindex="0"
-    role="region"
-    aria-label="Selected work, scroll sideways"
-  >
-    {videos.map((v) => (
-      <li class="strip__item" data-fade>
-        <VideoCard video={v} />
-      </li>
-    ))}
-  </ul>
+  {asStrip && (
+    <ul
+      class="strip"
+      data-strip
+      tabindex="0"
+      role="region"
+      aria-label="Selected work, scroll sideways"
+    >
+      {videos.map((v) => (
+        <li class="strip__item" data-fade>
+          <VideoCard video={v} />
+        </li>
+      ))}
+    </ul>
+  )}
 </section>
 
 <style>
   .work__bar {
     display: flex;
+    flex-wrap: wrap;
     justify-content: space-between;
     align-items: center;
     gap: 16px;
-    margin-bottom: 24px;
+    margin-bottom: clamp(24px, 4vw, 48px);
   }
   .work__bar p {
     margin: 0;
+  }
+  .work__hint {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 24px;
+  }
+  .work__hint span {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .work__count {
+    color: var(--seafoam);
+  }
+  .work-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 360px));
+    gap: clamp(24px, 5vw, 80px);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  @media (min-width: 640px) {
+    .work-grid__item:nth-child(even) {
+      margin-top: clamp(48px, 8vw, 120px);
+    }
+  }
+  @media (max-width: 639px) {
+    .work-grid {
+      grid-template-columns: minmax(0, 1fr);
+    }
   }
   .work__nav {
     display: flex;
     gap: 8px;
   }
   .work__btn {
-    width: 48px;
-    height: 48px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 44px;
+    padding: 0 16px;
     border: 1px solid rgb(230 236 233 / 0.35);
-    border-radius: 50%;
+    border-radius: 999px;
     background: none;
+    color: var(--mist);
     cursor: pointer;
   }
   .work__btn:hover {

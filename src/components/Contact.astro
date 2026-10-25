@@ -1,5 +1,6 @@
 ---
 import SectionHead from "./SectionHead.astro";
+import Icon from "./Icon.astro";
 import { profile } from "../content/profile";
 interface Props {
   number: string;
@@ -18,12 +19,14 @@ const [emailUser, emailDomain] = profile.email.split("@");
         </span>
       </a>
       <div class="contact__actions" data-fade style="--i:2">
+        <a class="pill pill--solid" href={`mailto:${profile.email}`}>
+          <Icon name="mail" size={16} />
+          Email me
+        </a>
         <button class="pill" type="button" data-copy={profile.email}>
+          <Icon name="copy" size={16} />
           Copy email
         </button>
-        <a class="pill" href={`mailto:${profile.email}`}>
-          Email me <span aria-hidden="true">→</span>
-        </a>
         <span
           class="label contact__status"
           role="status"
@@ -31,6 +34,7 @@ const [emailUser, emailDomain] = profile.email.split("@");
         ></span>
       </div>
       <p class="label contact__loc" data-fade style="--i:3">
+        <Icon name="pin" size={14} />
         Based in {profile.location}
       </p>
     </div>
@@ -73,6 +77,9 @@ const [emailUser, emailDomain] = profile.email.split("@");
     color: var(--seafoam);
   }
   .contact__loc {
+    display: flex;
+    align-items: center;
+    gap: 8px;
     margin: 32px 0 0;
   }
   @media (prefers-reduced-motion: reduce) {

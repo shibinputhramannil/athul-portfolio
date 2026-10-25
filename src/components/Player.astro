@@ -1,15 +1,21 @@
+---
+import Icon from "./Icon.astro";
+---
+
 <dialog class="player" aria-labelledby="player-title" data-player>
   <div class="player__bar">
-    <p class="label player__title" id="player-title">
-      Video
+    <p class="label player__title">
+      <Icon name="volume" size={16} />
+      <span id="player-title">Video</span>
     </p>
     <button
-      class="player__close"
+      class="player__close label"
       type="button"
       data-player-close
       aria-label="Close video"
     >
-      ✕
+      <Icon name="close" size={16} />
+      Close
     </button>
   </div>
   <video
@@ -40,18 +46,27 @@
     padding: 8px 8px 8px 16px;
   }
   .player__title {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
     margin: 0;
+    color: var(--mist);
   }
   .player__close {
-    width: 44px;
-    height: 44px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 44px;
+    padding: 0 16px;
     border: 1px solid rgb(230 236 233 / 0.35);
-    border-radius: 50%;
+    border-radius: 999px;
     background: none;
+    color: var(--mist);
     cursor: pointer;
   }
   .player__close:hover {
     border-color: var(--crimson);
+    color: var(--crimson);
   }
   .player__video {
     width: 100%;

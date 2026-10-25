@@ -18,6 +18,7 @@
   --section: clamp(96px, 14vh, 200px);
   --max: 1600px;
   --header-h: 56px;
+  --tabbar-h: 60px;
   --ease-cut: cubic-bezier(0.2, 0.7, 0.1, 1);
 
   color-scheme: dark;
@@ -45,6 +46,29 @@ body {
   font-stretch: 100%;
   -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
+}
+
+/* Film grain: a static SVG noise tile, kept faint so text stays crisp. */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 70;
+  pointer-events: none;
+  opacity: 0.05;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+@media (max-width: 720px) {
+  body {
+    padding-bottom: calc(var(--tabbar-h) + env(safe-area-inset-bottom));
+  }
+}
+
+.icon {
+  display: inline-block;
+  flex: none;
+  vertical-align: middle;
 }
 
 img,
@@ -164,6 +188,11 @@ button {
   background: var(--crimson);
   color: var(--ink);
 }
+.pill--solid {
+  border-color: var(--seafoam);
+  background: var(--seafoam);
+  color: var(--ink);
+}
 
 /* Scroll reveals (only when JS is running, so content is never hidden without it). */
 .js .rl {
@@ -213,6 +242,7 @@ button {
     animation-iteration-count: 1 !important;
     transition-duration: 0.001ms !important;
     transition-delay: 0s !important;
+    animation-delay: 0s !important;
   }
   .js .rl > span,
   .js [data-fade] {
