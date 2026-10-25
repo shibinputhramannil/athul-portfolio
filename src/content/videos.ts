@@ -14,6 +14,8 @@ export interface VideoEntry {
   kind?: "client" | "practice";
   role?: string;
   year?: string;
+  /** Measured from the encoded file; the git-ignored manifest is a local fallback. */
+  durationSec?: number;
 }
 
 export type Showreel =
@@ -24,7 +26,6 @@ export interface Video extends VideoEntry {
   full: string;
   preview: string;
   poster: string;
-  durationSec?: number;
 }
 
 const mediaRoot = join(process.cwd(), "public", "media");
@@ -44,17 +45,19 @@ function readManifest(): Record<string, { durationSec?: number }> {
 
 export function getVisibleVideos(): Video[] {
   const manifest = readManifest();
+  // Numbered by position in the full list, so "Edit 04" keeps its label
+  // even while earlier edits are private.
   return (data.videos as VideoEntry[])
-    .filter((v) => v.public === true || previewPrivate)
-    .filter((v) => existsSync(join(mediaRoot, v.id, "poster.jpg")))
     .map((v, i) => ({
       ...v,
       number: String(i + 1).padStart(2, "0"),
       full: `${base}/media/${v.id}/full.mp4`,
       preview: `${base}/media/${v.id}/preview.mp4`,
       poster: `${base}/media/${v.id}/poster.jpg`,
-      durationSec: manifest[v.id]?.durationSec,
-    }));
+      durationSec: v.durationSec ?? manifest[v.id]?.durationSec,
+    }))
+    .filter((v) => v.public === true || previewPrivate)
+    .filter((v) => existsSync(join(mediaRoot, v.id, "poster.jpg")));
 }
 
 export function getShowreel(videos: Video[]): Showreel {
