@@ -1,5 +1,5 @@
 {
-  "showreel": null,
+  "showreel": { "mode": "playlist" },
   "videos": [
     { "id": "video-01", "public": false },
     { "id": "video-02", "public": false },

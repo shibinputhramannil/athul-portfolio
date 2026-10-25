@@ -6,8 +6,9 @@ import type { Video } from "../content/videos";
 interface Props {
   videos: Video[];
   hasWork: boolean;
+  workHref?: string;
 }
-const { videos, hasWork } = Astro.props;
+const { videos, hasWork, workHref = "#work" } = Astro.props;
 const heroVideos = videos.slice(0, 3);
 ---
 
@@ -45,7 +46,7 @@ const heroVideos = videos.slice(0, 3);
       </p>
       <div class="hero__ctas" data-fade style="--i:5">
         {hasWork && (
-          <a class="pill" href="#work">
+          <a class="pill" href={workHref}>
             View work <span aria-hidden="true">→</span>
           </a>
         )}

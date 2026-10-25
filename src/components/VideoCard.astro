@@ -3,9 +3,11 @@ import { formatDuration, type Video } from "../content/videos";
 interface Props {
   video: Video;
   compact?: boolean;
+  /** Play the whole edit (muted) in place of the short preview loop. */
+  full?: boolean;
 }
-const { video: v, compact = false } = Astro.props;
-const label = v.title ?? `Video ${v.number}`;
+const { video: v, compact = false, full = false } = Astro.props;
+const label = v.title ?? `Edit ${v.number}`;
 const credits = [
   v.client,
   v.kind === "practice" ? "Practice edit" : undefined,
@@ -32,7 +34,7 @@ const duration = formatDuration(v.durationSec);
       loop
       preload="none"
       poster={v.poster}
-      data-src={v.preview}
+      data-src={full ? v.full : v.preview}
       aria-hidden="true"
       tabindex="-1"
       disablepictureinpicture
@@ -41,8 +43,7 @@ const duration = formatDuration(v.durationSec);
   </span>
   {!compact && (
     <span class="card__meta">
-      <span class="label card__no">{v.number}</span>
-      {v.title && <span class="card__title">{v.title}</span>}
+      <span class="card__title">{label}</span>
       {credits.length > 0 && <span class="label">{credits.join(" · ")}</span>}
       {duration && <span class="label card__dur">{duration}</span>}
     </span>
@@ -107,9 +108,6 @@ const duration = formatDuration(v.durationSec);
   .card__meta {
     display: grid;
     gap: 4px;
-  }
-  .card__no {
-    color: var(--crimson);
   }
   .card__title {
     font-weight: 700;
