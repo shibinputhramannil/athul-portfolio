@@ -8,13 +8,11 @@
     },
     {
       "id": "video-02",
-      "public": true,
-      "durationSec": 22.1
+      "public": false
     },
     {
       "id": "video-03",
-      "public": true,
-      "durationSec": 33
+      "public": false
     },
     {
       "id": "video-04",

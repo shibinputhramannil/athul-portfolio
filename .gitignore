@@ -13,6 +13,4 @@ media-src/
 media.local.json
 public/media/*
 !public/media/video-01/
-!public/media/video-02/
-!public/media/video-03/
 !public/media/video-04/

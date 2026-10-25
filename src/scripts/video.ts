@@ -11,8 +11,11 @@ const previews = Array.from(
 );
 const visible = new Set<HTMLVideoElement>();
 const playing = new Set<HTMLVideoElement>();
+const ratios = new Map<HTMLVideoElement, number>();
+let preferred: HTMLVideoElement | null = null;
 
-const maxPlaying = () => (wide.matches ? 4 : 2);
+// Desktop shows several cards at once, so only the most relevant one plays.
+const maxPlaying = () => (wide.matches ? 1 : 2);
 const canAutoplay = () =>
   !reduceMotion.matches && !document.hidden && !dialog?.open;
 
@@ -42,7 +45,7 @@ function start(video: HTMLVideoElement) {
   video
     .play()
     .then(() => {
-      if (!visible.has(video) || !canAutoplay()) stop(video);
+      if (!wanted().has(video)) stop(video);
       else {
         video.closest(".card")?.classList.add("is-playing");
         markPlaylist(video);
@@ -51,11 +54,31 @@ function start(video: HTMLVideoElement) {
     .catch(() => stop(video));
 }
 
+function distanceFromCenter(video: HTMLVideoElement) {
+  const r = video.getBoundingClientRect();
+  return Math.hypot(
+    r.left + r.width / 2 - window.innerWidth / 2,
+    r.top + r.height / 2 - window.innerHeight / 2,
+  );
+}
+
+function wanted() {
+  if (!canAutoplay()) return new Set<HTMLVideoElement>();
+  const ranked = Array.from(visible).sort(
+    (a, b) =>
+      Number(b === preferred) - Number(a === preferred) ||
+      (ratios.get(b) ?? 0) - (ratios.get(a) ?? 0) ||
+      distanceFromCenter(a) - distanceFromCenter(b),
+  );
+  return new Set(ranked.slice(0, maxPlaying()));
+}
+
 function refresh() {
+  const want = wanted();
   for (const video of Array.from(playing)) {
-    if (!visible.has(video) || !canAutoplay()) stop(video);
+    if (!want.has(video)) stop(video);
   }
-  for (const video of visible) start(video);
+  for (const video of want) start(video);
 }
 
 if (previews.length && "IntersectionObserver" in window) {
@@ -74,12 +97,13 @@ if (previews.length && "IntersectionObserver" in window) {
     (entries) => {
       for (const entry of entries) {
         const video = entry.target as HTMLVideoElement;
+        ratios.set(video, entry.intersectionRatio);
         if (entry.intersectionRatio >= 0.5) visible.add(video);
         else visible.delete(video);
       }
       refresh();
     },
-    { threshold: [0, 0.5] },
+    { threshold: [0, 0.25, 0.5, 0.75, 1] },
   );
   previews.forEach((video) => {
     preload.observe(video);
@@ -87,6 +111,16 @@ if (previews.length && "IntersectionObserver" in window) {
   });
   document.addEventListener("visibilitychange", refresh);
   reduceMotion.addEventListener("change", refresh);
+  wide.addEventListener("change", refresh);
+  previews.forEach((video) => {
+    const card = video.closest<HTMLElement>(".card");
+    const prefer = () => {
+      preferred = video;
+      refresh();
+    };
+    card?.addEventListener("pointerenter", prefer);
+    card?.addEventListener("focus", prefer);
+  });
 }
 
 function closePlayer() {
