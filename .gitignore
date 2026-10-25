@@ -12,5 +12,4 @@ Thumbs.db
 media-src/
 media.local.json
 public/media/*
-!public/media/video-01/
 !public/media/video-04/
