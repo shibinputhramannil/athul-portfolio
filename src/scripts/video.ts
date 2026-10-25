@@ -121,6 +121,8 @@ if (previews.length && "IntersectionObserver" in window) {
   });
 }
 
+let playerOpener: HTMLButtonElement | null = null;
+
 function closePlayer() {
   if (!dialog || !dialogVideo) return;
   dialogVideo.pause();
@@ -134,6 +136,7 @@ document
   .forEach((button) => {
     button.addEventListener("click", () => {
       if (!dialog || !dialogVideo) return;
+      playerOpener = button;
       dialogVideo.poster = button.dataset.poster ?? "";
       dialogVideo.src = button.dataset.full ?? "";
       if (dialogTitle)
@@ -152,6 +155,7 @@ dialog?.addEventListener("click", (event) => {
 });
 dialog?.addEventListener("close", () => {
   closePlayer();
+  playerOpener?.focus({ preventScroll: true });
   refresh();
 });
 
