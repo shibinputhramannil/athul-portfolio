@@ -29,7 +29,7 @@ The repository is public, so anything committed is published. Video files are ne
 - Every video in `videos.json` has `"public": false` by default. Add `title`, `client`, `kind` (`"client"` or `"practice"`), `role` or `year` only once confirmed. Missing fields are not shown.
 - `media-src/`, `media.local.json` and `public/media/` are git-ignored.
 - The build only renders videos with `"public": true`. A build hook (`scripts/private-media-guard.mjs`) also deletes any private media folder from `dist/`.
-- The hero previews and Reel section only appear once at least one video is public. The showreel is set to `{ "mode": "playlist" }`: every visible edit plays muted while it is in view and pauses when it leaves. In this mode Selected work is hidden, since the playlist already shows every edit. Use `{ "mode": "reel", "id": "video-0X" }` for a single cut reel, or `null` to hide it.
+- The hero previews and Reel section only appear once at least one video is public. The showreel is set to `{ "mode": "playlist" }`: every visible edit plays muted while it is in view and pauses when it leaves. Selected work follows the Reel as a sideways strip of the same edits, using the short preview loops. Use `{ "mode": "reel", "id": "video-0X" }` for a single cut reel, or `null` to hide it.
 - Edits without a confirmed `title` are labelled "Edit 01", "Edit 02" and so on.
 
 Encoding (needs `ffmpeg` and `ffprobe` on PATH):

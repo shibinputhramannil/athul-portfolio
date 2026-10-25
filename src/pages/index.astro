@@ -16,8 +16,7 @@ import { getShowreel, getVisibleVideos } from "../content/videos";
 const videos = getVisibleVideos();
 const showreel = getShowreel(videos);
 
-// A playlist reel already shows every edit, so Selected work would repeat it.
-const showWork = videos.length > 0 && showreel?.mode !== "playlist";
+const showWork = videos.length > 0;
 
 const sections = [
   showreel && { id: "reel", label: "Reel" },
@@ -35,11 +34,7 @@ const numberOf = (id: string) =>
   <Playhead />
   <Header nav={sections} />
   <main id="main">
-    <Hero
-      videos={videos}
-      hasWork={videos.length > 0}
-      workHref={showWork ? "#work" : "#reel"}
-    />
+    <Hero videos={videos} hasWork={videos.length > 0} workHref="#work" />
     {showreel && (
       <Showreel number={numberOf("reel")} videos={videos} showreel={showreel} />
     )}
