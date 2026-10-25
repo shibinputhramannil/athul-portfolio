@@ -20,13 +20,21 @@ const first = items[0];
     <SectionHead number={number} title="Reel" id="reel" />
     {showreel.mode === "playlist" ? (
       <div class="playlist">
-        <p class="label playlist__hint">
-          Each edit plays muted as it scrolls into view. Tap or press Enter to
-          watch with sound.
-        </p>
+        <div class="playlist__aside">
+          <p class="playlist__count" aria-hidden="true">
+            <span data-playlist-now>01</span>
+            <span class="playlist__total">
+              / {String(items.length).padStart(2, "0")}
+            </span>
+          </p>
+          <p class="label playlist__hint">
+            Each edit plays muted as it scrolls into view. Tap or press Enter to
+            watch with sound.
+          </p>
+        </div>
         <ol class="playlist__list" aria-label="Showreel playlist">
           {items.map((v) => (
-            <li class="playlist__item" data-fade>
+            <li class="playlist__item" data-fade data-number={v.number}>
               <VideoCard video={v} full />
             </li>
           ))}
@@ -113,9 +121,26 @@ const first = items[0];
     gap: clamp(24px, 4vw, 64px);
     align-items: start;
   }
-  .playlist__hint {
+  .playlist__aside {
     position: sticky;
     top: 96px;
+    display: grid;
+    gap: 24px;
+  }
+  .playlist__count {
+    margin: 0;
+    font-weight: 900;
+    font-stretch: 75%;
+    font-size: clamp(5rem, 14vw, 13rem);
+    line-height: 0.85;
+    color: var(--mist);
+    font-variant-numeric: tabular-nums;
+  }
+  .playlist__total {
+    font-size: 0.3em;
+    color: var(--crimson);
+  }
+  .playlist__hint {
     max-width: 32ch;
     margin: 0;
   }
@@ -130,8 +155,11 @@ const first = items[0];
     .playlist {
       grid-template-columns: 1fr;
     }
-    .playlist__hint {
+    .playlist__aside {
       position: static;
+    }
+    .playlist__count {
+      display: none;
     }
     .playlist__list {
       width: min(100%, 420px);

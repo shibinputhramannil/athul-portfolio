@@ -21,6 +21,12 @@ function load(video: HTMLVideoElement) {
     video.src = video.dataset.src;
 }
 
+const playlistNow = document.querySelector<HTMLElement>("[data-playlist-now]");
+function markPlaylist(video: HTMLVideoElement) {
+  const number = video.closest<HTMLElement>("[data-number]")?.dataset.number;
+  if (playlistNow && number) playlistNow.textContent = number;
+}
+
 function stop(video: HTMLVideoElement) {
   video.pause();
   playing.delete(video);
@@ -37,7 +43,10 @@ function start(video: HTMLVideoElement) {
     .play()
     .then(() => {
       if (!visible.has(video) || !canAutoplay()) stop(video);
-      else video.closest(".card")?.classList.add("is-playing");
+      else {
+        video.closest(".card")?.classList.add("is-playing");
+        markPlaylist(video);
+      }
     })
     .catch(() => stop(video));
 }
