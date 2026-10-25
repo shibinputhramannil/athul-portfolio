@@ -22,7 +22,8 @@
     "@fontsource-variable/archivo": "^5.3.0",
     "@fontsource/bodoni-moda": "^5.3.0",
     "@fontsource/jetbrains-mono": "^5.3.0",
-    "astro": "^5.18.2"
+    "astro": "^5.18.2",
+    "motion": "^12.43.0"
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.12",

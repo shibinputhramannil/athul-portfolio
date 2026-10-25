@@ -5,25 +5,57 @@ interface Props {
   number: string;
 }
 const { number } = Astro.props;
+const jobs = [...profile.experience].sort((a, b) =>
+  a.period.localeCompare(b.period),
+);
 ---
 
 <section class="section" aria-labelledby="experience">
   <div class="wrap">
     <SectionHead number={number} title="Experience" id="experience" />
 
-    <ol class="edl">
-      {profile.experience.map((job, i) => (
-        <li class="edl__row" data-fade style={`--i:${i}`}>
-          <span class="label edl__no">{String(i + 1).padStart(3, "0")}</span>
-          <span class="label edl__period">{job.period}</span>
-          <div class="edl__body">
-            <h3 class="edl__company">{job.company}</h3>
-            <p class="label edl__role">{job.role}</p>
-            <p class="edl__desc">{job.description}</p>
-          </div>
-        </li>
-      ))}
-    </ol>
+    <div class="tl" data-timeline>
+      <div class="tl__track" aria-hidden="true">
+        <span class="tl__fill" data-tl-fill></span>
+      </div>
+      <ol class="tl__list">
+        {jobs.map((job, i) => (
+          <li class="tl__item" data-tl-item>
+            <span class="tl__node" aria-hidden="true"></span>
+            <p class="tl__years" aria-hidden="true">
+              {job.period}
+            </p>
+            <div class="tl__body">
+              <p class="label tl__meta" data-tl-line>
+                <span class="tl__no">{String(i + 1).padStart(3, "0")}</span>
+                <span>{job.period}</span>
+              </p>
+              <h3 class="tl__company">
+                <span class="sr-only">{job.company}</span>
+                <span class="tl__kinetic" aria-hidden="true">
+                  {job.company.split(" ").map((word, w) => (
+                    <>
+                      {w > 0 && " "}
+                      <span class="tl__word">
+                        {[...word].map((ch) => (
+                          <span class="tl__char">{ch}</span>
+                        ))}
+                      </span>
+                    </>
+                  ))}
+                </span>
+              </h3>
+              <p class="label tl__role" data-tl-line>
+                {job.role}
+              </p>
+              <p class="tl__desc" data-tl-line>
+                {job.description}
+              </p>
+            </div>
+          </li>
+        ))}
+      </ol>
+    </div>
 
     <div class="facts">
       <div class="facts__block facts__skills" data-fade>
@@ -59,40 +91,120 @@ const { number } = Astro.props;
 </section>
 
 <style>
-  .edl {
-    margin: 0;
-    padding: 0;
-    list-style: none;
-    border-top: 1px solid var(--line);
+  .tl {
+    position: relative;
+    --track-x: 23px;
   }
-  .edl__row {
+  .tl__track {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: var(--track-x);
+    width: 2px;
+    background: var(--line);
+  }
+  .tl__fill {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(var(--seafoam), var(--crimson));
+    transform-origin: top;
+  }
+  .tl--animate .tl__fill {
+    transform: scaleY(0);
+  }
+  .tl__list {
     display: grid;
-    grid-template-columns: 64px 140px minmax(0, 1fr);
-    gap: var(--gutter);
-    padding: clamp(24px, 3vw, 40px) 0;
-    border-bottom: 1px solid var(--line);
+    gap: clamp(64px, 10vw, 160px);
+    margin: 0;
+    padding: clamp(24px, 4vw, 48px) 0;
+    list-style: none;
   }
-  .edl__no {
-    color: var(--crimson);
+  .tl__item {
+    position: relative;
+    display: grid;
+    grid-template-columns: 48px minmax(0, 5fr) minmax(0, 7fr);
+    gap: 0 var(--gutter);
+    align-items: center;
+    overflow-x: clip;
   }
-  .edl__period {
+  .tl__node {
+    grid-column: 1;
+    grid-row: 1;
+    justify-self: center;
+    width: 14px;
+    height: 14px;
+    border: 2px solid var(--seafoam);
+    border-radius: 50%;
+    background: var(--ink);
+    transition:
+      background-color 0.4s,
+      border-color 0.4s;
+  }
+  .tl__item.is-active .tl__node {
+    border-color: var(--crimson);
+    background: var(--crimson);
+  }
+  .tl__years {
+    grid-column: 2;
+    grid-row: 1;
+    margin: 0;
+    font-weight: 900;
+    font-stretch: 75%;
+    font-size: clamp(3.5rem, 7vw, 7rem);
+    line-height: 0.85;
+    letter-spacing: -0.02em;
+    color: transparent;
+    -webkit-text-stroke: 1px rgb(142 210 190 / 0.45);
+    white-space: nowrap;
+  }
+  .tl__body {
+    position: relative;
+    z-index: 1;
+    grid-column: 3;
+    grid-row: 1;
+  }
+  .tl__meta {
+    display: flex;
+    gap: 16px;
+    margin: 0 0 12px;
     color: var(--mist);
   }
-  .edl__company {
+  .tl__no {
+    color: var(--crimson);
+  }
+  .tl__company {
     margin: 0;
     font-weight: 800;
     font-stretch: 75%;
-    font-size: clamp(1.75rem, 4vw, 3.5rem);
-    line-height: 1;
+    font-size: clamp(2.25rem, 5vw, 4.5rem);
+    line-height: 0.95;
     text-transform: uppercase;
   }
-  .edl__role {
-    margin: 10px 0 14px;
+  .tl__word {
+    display: inline-block;
+    overflow: hidden;
+    padding-bottom: 0.06em;
+    white-space: nowrap;
+  }
+  .tl__char {
+    display: inline-block;
+  }
+  .tl--animate .tl__char {
+    transform: translateY(110%);
+  }
+  .tl--animate [data-tl-line] {
+    opacity: 0;
+  }
+  .tl--animate .tl__node {
+    transform: scale(0);
+  }
+  .tl__role {
+    margin: 12px 0 16px;
     color: var(--seafoam);
   }
-  .edl__desc {
+  .tl__desc {
     margin: 0;
-    max-width: 60ch;
+    max-width: 56ch;
     color: rgb(230 236 233 / 0.82);
   }
   .facts {
@@ -135,15 +247,24 @@ const { number } = Astro.props;
     font-weight: 600;
   }
   @media (max-width: 900px) {
-    .edl__row {
-      grid-template-columns: 48px minmax(0, 1fr);
+    .tl {
+      --track-x: 11px;
     }
-    .edl__period {
+    .tl__item {
+      grid-template-columns: 24px minmax(0, 1fr);
+      align-items: start;
+    }
+    .tl__node {
+      margin-top: 0.4em;
+    }
+    .tl__years {
       grid-column: 2;
-      grid-row: 1;
+      font-size: clamp(2.75rem, 14vw, 4.5rem);
     }
-    .edl__body {
-      grid-column: 1 / -1;
+    .tl__body {
+      grid-column: 2;
+      grid-row: 2;
+      margin-top: 16px;
     }
     .facts {
       grid-template-columns: 1fr;
@@ -155,3 +276,7 @@ const { number } = Astro.props;
     }
   }
 </style>
+
+<script>
+  import "../scripts/timeline";
+</script>
