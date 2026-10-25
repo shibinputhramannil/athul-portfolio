@@ -12,7 +12,7 @@ const previews = Array.from(
 const visible = new Set<HTMLVideoElement>();
 const playing = new Set<HTMLVideoElement>();
 
-const maxPlaying = () => (wide.matches ? 3 : 2);
+const maxPlaying = () => (wide.matches ? 4 : 2);
 const canAutoplay = () =>
   !reduceMotion.matches && !document.hidden && !dialog?.open;
 
