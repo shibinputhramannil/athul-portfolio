@@ -1,9 +1,25 @@
 {
   "showreel": null,
   "videos": [
-    { "id": "video-01", "public": false },
-    { "id": "video-02", "public": false },
-    { "id": "video-03", "public": false },
-    { "id": "video-04", "public": true, "durationSec": 18 }
+    {
+      "id": "video-01",
+      "public": true,
+      "durationSec": 65.9
+    },
+    {
+      "id": "video-02",
+      "public": true,
+      "durationSec": 22.1
+    },
+    {
+      "id": "video-03",
+      "public": true,
+      "durationSec": 33
+    },
+    {
+      "id": "video-04",
+      "public": true,
+      "durationSec": 18
+    }
   ]
 }
