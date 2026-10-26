@@ -63,15 +63,18 @@
     },
     {
       "id": "video-13",
-      "public": false
+      "public": true,
+      "durationSec": 17.2
     },
     {
       "id": "video-14",
-      "public": false
+      "public": true,
+      "durationSec": 8.4
     },
     {
       "id": "video-15",
-      "public": false
+      "public": true,
+      "durationSec": 13.7
     }
   ],
   "order": [
