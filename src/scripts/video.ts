@@ -13,7 +13,7 @@ const playing = new Set<HTMLVideoElement>();
 const ratios = new Map<HTMLVideoElement, number>();
 let preferred: HTMLVideoElement | null = null;
 
-// Only the active project plays: the hovered/focused card, else the most visible one.
+// Only the active project plays: the keyboard-focused card, else the most visible one.
 const maxPlaying = () => 1;
 const canAutoplay = () =>
   !reduceMotion.matches && !document.hidden && !dialog?.open;
@@ -116,7 +116,6 @@ if (previews.length && "IntersectionObserver" in window) {
       preferred = video;
       refresh();
     };
-    card?.addEventListener("pointerenter", prefer);
     card?.addEventListener("focus", prefer);
   });
 }

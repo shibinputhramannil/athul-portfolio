@@ -86,3 +86,13 @@ export function formatDuration(sec?: number): string | undefined {
   const s = Math.round(sec);
   return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
 }
+
+/** Display order for Selected work; labels keep their own numbers. */
+export function inDisplayOrder(videos: Video[]): Video[] {
+  const order: string[] = (data as { order?: string[] }).order ?? [];
+  const rank = (id: string) => {
+    const i = order.indexOf(id);
+    return i === -1 ? order.length : i;
+  };
+  return [...videos].sort((a, b) => rank(a.id) - rank(b.id));
+}

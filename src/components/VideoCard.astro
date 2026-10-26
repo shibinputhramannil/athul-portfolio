@@ -115,7 +115,6 @@ const duration = formatDuration(v.durationSec);
       transform 0.8s var(--ease-cut);
   }
   .card:global(.is-playing) .card__preview,
-  .card:hover .card__preview,
   .card:focus-visible .card__preview {
     filter: none;
     transform: none;
@@ -142,7 +141,7 @@ const duration = formatDuration(v.durationSec);
       inset 0.4s var(--ease-cut),
       opacity 0.4s;
   }
-  .card:hover .card__guides,
+
   .card:focus-visible .card__guides,
   .card:global(.is-playing) .card__guides {
     inset: 8px;
@@ -206,13 +205,13 @@ const duration = formatDuration(v.durationSec);
       border-color 0.25s,
       color 0.25s;
   }
-  .card:hover .card__cta,
+
   .card:focus-visible .card__cta {
     background: var(--crimson);
     border-color: var(--crimson);
     color: var(--ink);
   }
-  .card:hover .card__frame,
+
   .card:focus-visible .card__frame {
     border-color: var(--crimson);
   }

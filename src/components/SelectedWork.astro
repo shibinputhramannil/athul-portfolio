@@ -2,13 +2,14 @@
 import SectionHead from "./SectionHead.astro";
 import VideoCard from "./VideoCard.astro";
 import Icon from "./Icon.astro";
-import type { Video } from "../content/videos";
+import { inDisplayOrder, type Video } from "../content/videos";
 
 interface Props {
   number: string;
   videos: Video[];
 }
-const { number, videos } = Astro.props;
+const { number, videos: allVideos } = Astro.props;
+const videos = inDisplayOrder(allVideos);
 // Every edit is shown at once; the strip is kept for very long lists.
 const asStrip = videos.length > 24;
 const count = String(videos.length).padStart(2, "0");

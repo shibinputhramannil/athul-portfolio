@@ -77,7 +77,7 @@ body::after {
   transition: opacity 0.4s var(--ease-cut);
 }
 .work-grid:has(.card.is-playing)
-  .card:not(.is-playing, :hover, :focus-visible)
+  .card:not(.is-playing, :focus-visible)
   :is(.card__frame, .card__meta) {
   opacity: 0.5;
 }

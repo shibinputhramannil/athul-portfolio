@@ -61,5 +61,19 @@
       "public": true,
       "durationSec": 10.1
     }
+  ],
+  "order": [
+    "video-05",
+    "video-11",
+    "video-01",
+    "video-07",
+    "video-04",
+    "video-09",
+    "video-03",
+    "video-10",
+    "video-02",
+    "video-12",
+    "video-08",
+    "video-06"
   ]
 }
