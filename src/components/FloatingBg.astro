@@ -1,0 +1,169 @@
+---
+// Decorative ambient layer behind every section: drifting theme-colour light,
+// outlined type and keyframe marks. Pure CSS, frozen under reduced motion.
+const words = [
+  { text: "CUT", x: "6%", y: "14%", size: "16vw", dur: "38s", delay: "0s" },
+  {
+    text: "FRAME",
+    x: "58%",
+    y: "38%",
+    size: "12vw",
+    dur: "46s",
+    delay: "-12s",
+  },
+  { text: "EDIT", x: "10%", y: "66%", size: "14vw", dur: "42s", delay: "-20s" },
+  { text: "24", x: "74%", y: "82%", size: "18vw", dur: "50s", delay: "-6s" },
+];
+const marks = [
+  { x: "18%", y: "30%", dur: "22s", delay: "0s", tone: "teal" },
+  { x: "82%", y: "18%", dur: "26s", delay: "-8s", tone: "crimson" },
+  { x: "46%", y: "72%", dur: "24s", delay: "-4s", tone: "teal" },
+  { x: "90%", y: "60%", dur: "28s", delay: "-14s", tone: "crimson" },
+  { x: "30%", y: "90%", dur: "20s", delay: "-10s", tone: "teal" },
+];
+---
+
+<div class="fbg" aria-hidden="true">
+  <span class="fbg__orb fbg__orb--teal"></span>
+  <span class="fbg__orb fbg__orb--deep"></span>
+  <span class="fbg__orb fbg__orb--crimson"></span>
+  {words.map((w) => (
+    <span
+      class="fbg__word"
+      style={`--x:${w.x};--y:${w.y};--s:${w.size};--d:${w.dur};--delay:${w.delay}`}
+    >
+      {w.text}
+    </span>
+  ))}
+  {marks.map((m) => (
+    <span
+      class={`fbg__mark fbg__mark--${m.tone}`}
+      style={`--x:${m.x};--y:${m.y};--d:${m.dur};--delay:${m.delay}`}
+    />
+  ))}
+</div>
+
+<style>
+  .fbg {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    overflow: hidden;
+    pointer-events: none;
+  }
+  .fbg__orb {
+    position: absolute;
+    width: 46vmax;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    filter: blur(70px);
+    will-change: transform;
+  }
+  .fbg__orb--teal {
+    top: -14vmax;
+    left: -10vmax;
+    background: radial-gradient(
+      circle,
+      rgb(142 210 190 / 0.2),
+      transparent 65%
+    );
+    animation: fbg-drift-a 34s ease-in-out infinite alternate;
+  }
+  .fbg__orb--deep {
+    bottom: -18vmax;
+    left: 30%;
+    width: 56vmax;
+    background: radial-gradient(circle, rgb(18 58 51 / 0.75), transparent 65%);
+    animation: fbg-drift-b 42s ease-in-out infinite alternate;
+  }
+  .fbg__orb--crimson {
+    top: 24%;
+    right: -16vmax;
+    width: 38vmax;
+    background: radial-gradient(circle, rgb(234 58 50 / 0.16), transparent 65%);
+    animation: fbg-drift-c 30s ease-in-out infinite alternate;
+  }
+  .fbg__word {
+    position: absolute;
+    left: var(--x);
+    top: var(--y);
+    font-size: var(--s);
+    font-weight: 900;
+    font-stretch: 125%;
+    line-height: 1;
+    letter-spacing: -0.03em;
+    color: transparent;
+    -webkit-text-stroke: 1px rgb(142 210 190 / 0.07);
+    animation: fbg-float var(--d) ease-in-out var(--delay) infinite alternate;
+    will-change: transform;
+  }
+  .fbg__word:nth-of-type(even) {
+    -webkit-text-stroke-color: rgb(234 58 50 / 0.07);
+  }
+  .fbg__mark {
+    position: absolute;
+    left: var(--x);
+    top: var(--y);
+    width: 10px;
+    aspect-ratio: 1;
+    border: 1.5px solid;
+    transform: rotate(45deg);
+    opacity: 0.45;
+    animation: fbg-bob var(--d) ease-in-out var(--delay) infinite alternate;
+  }
+  .fbg__mark--teal {
+    color: var(--seafoam);
+  }
+  .fbg__mark--crimson {
+    color: var(--crimson);
+  }
+
+  @keyframes fbg-drift-a {
+    to {
+      transform: translate(18vw, 22vh) scale(1.15);
+    }
+  }
+  @keyframes fbg-drift-b {
+    to {
+      transform: translate(-22vw, -16vh) scale(0.9);
+    }
+  }
+  @keyframes fbg-drift-c {
+    to {
+      transform: translate(-16vw, 28vh) scale(1.2);
+    }
+  }
+  @keyframes fbg-float {
+    from {
+      transform: translate3d(0, 0, 0) rotate(-2deg);
+    }
+    to {
+      transform: translate3d(4vw, -6vh, 0) rotate(2deg);
+    }
+  }
+  @keyframes fbg-bob {
+    from {
+      transform: translate3d(0, 0, 0) rotate(45deg);
+    }
+    to {
+      transform: translate3d(-3vw, -9vh, 0) rotate(225deg);
+    }
+  }
+
+  @media (max-width: 720px) {
+    .fbg__orb {
+      filter: blur(50px);
+    }
+    .fbg__word {
+      font-size: calc(var(--s) * 1.6);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .fbg__orb,
+    .fbg__word,
+    .fbg__mark {
+      animation: none !important;
+    }
+  }
+</style>

@@ -60,6 +60,18 @@
       "id": "video-12",
       "public": true,
       "durationSec": 10.1
+    },
+    {
+      "id": "video-13",
+      "public": false
+    },
+    {
+      "id": "video-14",
+      "public": false
+    },
+    {
+      "id": "video-15",
+      "public": false
     }
   ],
   "order": [

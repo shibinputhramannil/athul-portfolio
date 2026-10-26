@@ -4,6 +4,7 @@ import "@fontsource/bodoni-moda/latin-700-italic.css";
 import "@fontsource/jetbrains-mono/latin-500.css";
 import archivoLatin from "@fontsource-variable/archivo/files/archivo-latin-wdth-normal.woff2?url";
 import "../styles/global.css";
+import FloatingBg from "../components/FloatingBg.astro";
 
 interface Props {
   title: string;
@@ -42,6 +43,7 @@ const ogImage = Astro.site
     </script>
   </head>
   <body>
+    <FloatingBg />
     <a class="skip-link" href="#main">
       Skip to content
     </a>
