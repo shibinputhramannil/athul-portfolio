@@ -116,6 +116,16 @@ if (previews.length && "IntersectionObserver" in window) {
     preload.observe(video);
     watch.observe(video);
   });
+  // A frame's reveal wipe clips its video; re-measure once the wipe finishes.
+  document.addEventListener("transitionend", (event) => {
+    const el = event.target as HTMLElement;
+    if (event.propertyName !== "clip-path" || !el.classList?.contains("wipe"))
+      return;
+    el.querySelectorAll<HTMLVideoElement>("video[data-src]").forEach((v) => {
+      watch.unobserve(v);
+      watch.observe(v);
+    });
+  });
   document.addEventListener("visibilitychange", refresh);
   reduceMotion.addEventListener("change", refresh);
   previews.forEach((video) => {
