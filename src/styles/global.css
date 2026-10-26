@@ -82,6 +82,45 @@ body::after {
   opacity: 0.5;
 }
 
+/* Two-up phone grid: keep the card chrome to icons so the footage stays visible. */
+@media (max-width: 760px) {
+  .work-grid .card__hud {
+    top: 14px;
+    left: 14px;
+    right: 14px;
+  }
+  .work-grid .card__state {
+    font-size: 0;
+    gap: 0;
+    padding: 4px;
+  }
+  .work-grid .card__state .card__rec {
+    margin-right: 4px;
+  }
+  .work-grid .card__guides {
+    inset: 6px;
+  }
+  .work-grid .card__cta {
+    left: 10px;
+    bottom: 10px;
+    width: 40px;
+    min-height: 40px;
+    padding: 0;
+    gap: 0;
+    justify-content: center;
+    font-size: 0;
+  }
+  .work-grid .card__cta .icon + .icon {
+    display: none;
+  }
+  .work-grid .card__no {
+    font-size: 2rem;
+  }
+  .work-grid .card__title {
+    font-size: 0.95rem;
+  }
+}
+
 img,
 video {
   display: block;
