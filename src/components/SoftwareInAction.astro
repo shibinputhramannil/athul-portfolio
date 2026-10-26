@@ -1,0 +1,276 @@
+---
+import SectionHead from "./SectionHead.astro";
+import Icon from "./Icon.astro";
+import { softwareDemos, watchUrl, embedUrl } from "../content/software";
+interface Props {
+  number: string;
+}
+const { number } = Astro.props;
+---
+
+<section class="section" aria-labelledby="software">
+  <div class="wrap">
+    <SectionHead number={number} title="Software in Action" id="software" />
+    <p class="soft__intro" data-fade>
+      Official demos of the software I edit with, published by Adobe and
+      Blackmagic Design. They are not my edits: each plays in YouTube's player
+      and is credited to its source.
+    </p>
+    <ol class="soft__list">
+      {softwareDemos.map((d, i) => (
+        <li class="soft__item" data-reveal data-side={i % 2 ? "end" : "start"}>
+          <div
+            class="soft__frame"
+            data-embed={embedUrl(d.youtubeId)}
+            data-embed-title={`${d.title}, ${d.channel}`}
+          >
+            <button
+              type="button"
+              class="soft__play"
+              aria-label={`Play ${d.title}, by ${d.channel}. Loads the YouTube player.`}
+            >
+              <span class="soft__marks" aria-hidden="true" />
+              <span class="soft__mark" aria-hidden="true">
+                <Icon brand={d.brand} size={56} />
+              </span>
+              <span class="pill soft__cta" aria-hidden="true">
+                <Icon name="play" size={16} />
+                Play demo
+              </span>
+              <span class="label soft__note" aria-hidden="true">
+                Loads YouTube player
+              </span>
+            </button>
+          </div>
+          <div class="soft__meta" data-fade>
+            <p class="soft__tool">
+              <Icon brand={d.brand} size={20} />
+              {d.tool}
+            </p>
+            <p class="soft__title">{d.title}</p>
+            <p class="label soft__credit">
+              Source:{" "}
+              <a href={d.channelUrl} rel="noopener" target="_blank">
+                {d.channel}
+              </a>{" "}
+              on YouTube
+            </p>
+            <a
+              class="soft__link label"
+              href={watchUrl(d.youtubeId)}
+              rel="noopener"
+              target="_blank"
+            >
+              Watch on YouTube
+              <Icon name="arrow-right" size={14} />
+              <span class="sr-only">(opens in a new tab)</span>
+            </a>
+          </div>
+        </li>
+      ))}
+    </ol>
+  </div>
+</section>
+
+<script>
+  // Click-to-play: the YouTube iframe only loads after a click, one demo at a time.
+  let active: { frame: HTMLElement; button: HTMLButtonElement } | null = null;
+
+  document
+    .querySelectorAll<HTMLElement>(".soft__frame[data-embed]")
+    .forEach((frame) => {
+      const button = frame.querySelector<HTMLButtonElement>(".soft__play");
+      button?.addEventListener("click", () => {
+        if (active) {
+          active.frame.replaceChildren(active.button);
+          active.frame.classList.remove("is-live");
+        }
+        const iframe = document.createElement("iframe");
+        iframe.src = frame.dataset.embed!;
+        iframe.title = frame.dataset.embedTitle ?? "YouTube video";
+        iframe.allow =
+          "autoplay; encrypted-media; picture-in-picture; fullscreen";
+        iframe.allowFullscreen = true;
+        iframe.referrerPolicy = "strict-origin-when-cross-origin";
+        frame.replaceChildren(iframe);
+        frame.classList.add("is-live");
+        iframe.focus();
+        active = { frame, button };
+      });
+    });
+</script>
+
+<style>
+  .soft__intro {
+    max-width: 58ch;
+    margin: 0 0 clamp(32px, 5vw, 56px);
+    color: var(--fog);
+  }
+  .soft__list {
+    display: grid;
+    gap: clamp(40px, 6vw, 88px);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .soft__item {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    gap: var(--gutter);
+    align-items: end;
+  }
+  .soft__frame {
+    position: relative;
+    grid-column: 1 / span 7;
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
+    border: 1px solid rgb(230 236 233 / 0.12);
+    background:
+      radial-gradient(120% 90% at 20% 0%, rgb(18 58 51 / 0.9), transparent 60%),
+      radial-gradient(
+        80% 70% at 100% 100%,
+        rgb(234 58 50 / 0.16),
+        transparent 60%
+      ),
+      var(--graphite);
+  }
+  .soft__meta {
+    grid-column: 9 / span 4;
+    display: grid;
+    gap: 10px;
+    justify-items: start;
+  }
+  .soft__item[data-side="end"] .soft__frame {
+    grid-column: 6 / span 7;
+    grid-row: 1;
+  }
+  .soft__item[data-side="end"] .soft__meta {
+    grid-column: 1 / span 4;
+    grid-row: 1;
+  }
+  .soft__frame :global(iframe) {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+  }
+  .soft__play {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-content: center;
+    justify-items: center;
+    gap: 14px;
+    width: 100%;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--mist);
+    font: inherit;
+    cursor: pointer;
+  }
+  .soft__play:focus-visible {
+    outline: 2px solid var(--seafoam);
+    outline-offset: -4px;
+  }
+  .soft__marks,
+  .soft__marks::before {
+    position: absolute;
+    inset: 14px;
+    pointer-events: none;
+    background:
+      linear-gradient(var(--seafoam), var(--seafoam)) top left / 18px 1px,
+      linear-gradient(var(--seafoam), var(--seafoam)) top left / 1px 18px,
+      linear-gradient(var(--seafoam), var(--seafoam)) bottom right / 18px 1px,
+      linear-gradient(var(--seafoam), var(--seafoam)) bottom right / 1px 18px;
+    background-repeat: no-repeat;
+    opacity: 0.7;
+  }
+  .soft__mark {
+    display: grid;
+    place-items: center;
+    width: 96px;
+    height: 96px;
+    border: 1px solid rgb(230 236 233 / 0.14);
+    background: rgb(8 17 15 / 0.55);
+  }
+  .soft__cta {
+    pointer-events: none;
+  }
+  .soft__note {
+    font-size: 11px;
+  }
+  .soft__tool {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0;
+    font-weight: 700;
+    font-size: clamp(20px, 2.2vw, 28px);
+    letter-spacing: -0.01em;
+  }
+  .soft__title {
+    margin: 0;
+    color: var(--mist);
+  }
+  .soft__credit {
+    margin: 0;
+  }
+  .soft__credit a,
+  .soft__link {
+    color: var(--seafoam);
+  }
+  .soft__link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 44px;
+  }
+  /* Subtle motion: a single light sweep across each frame as it arrives. */
+  .soft__frame::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: linear-gradient(
+      100deg,
+      transparent 35%,
+      rgb(142 210 190 / 0.14) 50%,
+      transparent 65%
+    );
+    transform: translateX(-100%);
+  }
+  :global(.js) .soft__item.is-in .soft__frame::after {
+    animation: soft-sweep 1.4s var(--ease-cut) 0.2s both;
+  }
+  .soft__frame.is-live::after {
+    display: none;
+  }
+  @keyframes soft-sweep {
+    to {
+      transform: translateX(100%);
+    }
+  }
+  :global(html:not(.js)) .soft__cta,
+  :global(html:not(.js)) .soft__note {
+    display: none;
+  }
+  @media (max-width: 760px) {
+    .soft__item {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 16px;
+    }
+    .soft__frame,
+    .soft__meta,
+    .soft__item[data-side="end"] .soft__frame,
+    .soft__item[data-side="end"] .soft__meta {
+      grid-column: 1;
+      grid-row: auto;
+    }
+    .soft__mark {
+      width: 72px;
+      height: 72px;
+    }
+  }
+</style>

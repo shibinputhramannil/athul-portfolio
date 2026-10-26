@@ -2,7 +2,6 @@
 import VideoCard from "./VideoCard.astro";
 import Icon from "./Icon.astro";
 import { profile } from "../content/profile";
-import { toolMeta } from "../lib/icons";
 import type { Video } from "../content/videos";
 
 interface Props {
@@ -66,14 +65,6 @@ const lines = profile.nameLines.map((line) =>
       <p class="hero__role" data-fade style="--i:3">
         {profile.role}
       </p>
-      <ul class="hero__tools" data-fade style="--i:4" aria-label="Software">
-        {profile.tools.map((t) => (
-          <li>
-            <Icon brand={toolMeta[t].brand} size={16} />
-            {t}
-          </li>
-        ))}
-      </ul>
       <div class="hero__ctas" data-fade style="--i:5">
         {hasWork && (
           <a class="pill pill--solid" href={workHref}>
@@ -379,23 +370,6 @@ const lines = profile.nameLines.map((line) =>
     to {
       transform: translateX(-50%);
     }
-  }
-  .hero__tools {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px 22px;
-    margin: 0 0 32px;
-    padding: 0;
-    list-style: none;
-  }
-  .hero__tools li {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    font-family: var(--font-mono);
-    font-size: 12px;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
   }
   .hero__ctas {
     display: flex;

@@ -7,6 +7,7 @@ import Showreel from "../components/Showreel.astro";
 import SelectedWork from "../components/SelectedWork.astro";
 import About from "../components/About.astro";
 import Experience from "../components/Experience.astro";
+import SoftwareInAction from "../components/SoftwareInAction.astro";
 import Contact from "../components/Contact.astro";
 import Footer from "../components/Footer.astro";
 import Player from "../components/Player.astro";
@@ -27,8 +28,11 @@ const sections = [
   { id: "contact", label: "Contact", icon: "contact" },
 ].filter(Boolean) as { id: string; label: string; icon: IconName }[];
 
-const numberOf = (id: string) =>
-  String(sections.findIndex((s) => s.id === id) + 1).padStart(2, "0");
+// "Software in Action" is numbered in page order but left out of the nav bars.
+const order = sections.flatMap((s) =>
+  s.id === "contact" ? ["software", s.id] : [s.id],
+);
+const numberOf = (id: string) => String(order.indexOf(id) + 1).padStart(2, "0");
 ---
 
 <Base title={`${profile.name} | ${profile.role}`} description={profile.summary}>
@@ -42,6 +46,7 @@ const numberOf = (id: string) =>
     {showWork && <SelectedWork number={numberOf("work")} videos={videos} />}
     <About number={numberOf("about")} />
     <Experience number={numberOf("experience")} />
+    <SoftwareInAction number={numberOf("software")} />
     <Contact number={numberOf("contact")} />
   </main>
   <Footer />
