@@ -1,0 +1,4 @@
+{
+  "video-01": "media-src/your-first-video.mp4",
+  "video-02": { "src": "media-src/your-second-video.mp4", "previewStart": 4 }
+}

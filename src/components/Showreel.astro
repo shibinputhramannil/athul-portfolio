@@ -1,0 +1,172 @@
+---
+import SectionHead from "./SectionHead.astro";
+import VideoCard from "./VideoCard.astro";
+import type { Showreel, Video } from "../content/videos";
+interface Props {
+  number: string;
+  videos: Video[];
+  showreel: NonNullable<Showreel>;
+}
+const { number, videos, showreel } = Astro.props;
+const items =
+  showreel.mode === "reel"
+    ? videos.filter((v) => v.id === showreel.id)
+    : videos;
+const first = items[0];
+---
+
+<section class="section" aria-labelledby="reel">
+  <div class="wrap">
+    <SectionHead number={number} title="Reel" id="reel" />
+    {showreel.mode === "playlist" ? (
+      <div class="playlist">
+        <div class="playlist__aside">
+          <p class="playlist__count" aria-hidden="true">
+            <span data-playlist-now>01</span>
+            <span class="playlist__total">
+              / {String(items.length).padStart(2, "0")}
+            </span>
+          </p>
+          <p class="label playlist__hint">
+            Each edit plays muted as it scrolls into view. Tap or press Enter to
+            watch with sound.
+          </p>
+        </div>
+        <ol class="playlist__list" aria-label="Showreel playlist">
+          {items.map((v) => (
+            <li class="playlist__item" data-fade data-number={v.number}>
+              <VideoCard video={v} full />
+            </li>
+          ))}
+        </ol>
+      </div>
+    ) : (
+      <div class="reel" data-reel>
+        <div class="reel__frame">
+          <video
+            class="reel__video"
+            controls
+            playsinline
+            preload="none"
+            poster={first.poster}
+            src={first.full}
+            data-reel-video
+          ></video>
+        </div>
+        {items.length > 1 && (
+          <ol class="reel__list" aria-label="Playlist">
+            {items.map((v, i) => (
+              <li>
+                <button
+                  type="button"
+                  class="reel__item label"
+                  data-reel-item
+                  data-full={v.full}
+                  data-poster={v.poster}
+                  aria-current={i === 0 ? "true" : undefined}
+                >
+                  {v.number} {v.title ?? `Edit ${v.number}`}
+                </button>
+              </li>
+            ))}
+          </ol>
+        )}
+      </div>
+    )}
+  </div>
+</section>
+
+<style>
+  .reel {
+    display: grid;
+    grid-template-columns: minmax(0, 420px) minmax(0, 1fr);
+    gap: clamp(24px, 4vw, 64px);
+    align-items: start;
+  }
+  .reel__frame {
+    aspect-ratio: 9 / 16;
+    border: 1px solid var(--crimson);
+    background: var(--graphite);
+  }
+  .reel__video {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+  .reel__list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .reel__item {
+    width: 100%;
+    min-height: 48px;
+    padding: 0;
+    border: 0;
+    border-bottom: 1px solid var(--line);
+    background: none;
+    text-align: left;
+    cursor: pointer;
+  }
+  .reel__item[aria-current="true"] {
+    color: var(--mist);
+  }
+  .reel__item[aria-current="true"]::before {
+    content: "● ";
+    color: var(--crimson);
+  }
+  .playlist {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 420px);
+    gap: clamp(24px, 4vw, 64px);
+    align-items: start;
+  }
+  .playlist__aside {
+    position: sticky;
+    top: 96px;
+    display: grid;
+    gap: 24px;
+  }
+  .playlist__count {
+    margin: 0;
+    font-weight: 900;
+    font-stretch: 75%;
+    font-size: clamp(5rem, 14vw, 13rem);
+    line-height: 0.85;
+    color: var(--mist);
+    font-variant-numeric: tabular-nums;
+  }
+  .playlist__total {
+    font-size: 0.3em;
+    color: var(--crimson);
+  }
+  .playlist__hint {
+    max-width: 32ch;
+    margin: 0;
+  }
+  .playlist__list {
+    display: grid;
+    gap: clamp(48px, 8vw, 96px);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  @media (max-width: 900px) {
+    .playlist {
+      grid-template-columns: 1fr;
+    }
+    .playlist__aside {
+      position: static;
+    }
+    .playlist__count {
+      display: none;
+    }
+    .playlist__list {
+      width: min(100%, 420px);
+      justify-self: center;
+    }
+    .reel {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

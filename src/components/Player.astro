@@ -1,0 +1,76 @@
+---
+import Icon from "./Icon.astro";
+---
+
+<dialog class="player" aria-labelledby="player-title" data-player>
+  <div class="player__bar">
+    <p class="label player__title">
+      <Icon name="volume" size={16} />
+      <span id="player-title">Video</span>
+    </p>
+    <button
+      class="player__close label"
+      type="button"
+      data-player-close
+      aria-label="Close video"
+    >
+      <Icon name="close" size={16} />
+      Close
+    </button>
+  </div>
+  <video
+    class="player__video"
+    controls
+    playsinline
+    preload="none"
+    data-player-video
+  ></video>
+</dialog>
+
+<style>
+  .player {
+    width: min(92vw, calc((100svh - 120px) * 9 / 16));
+    max-width: none;
+    padding: 0;
+    border: 1px solid var(--line);
+    background: var(--ink);
+    color: var(--mist);
+  }
+  .player::backdrop {
+    background: rgb(4 8 7 / 0.92);
+  }
+  .player__bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 8px 8px 16px;
+  }
+  .player__title {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+    color: var(--mist);
+  }
+  .player__close {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 44px;
+    padding: 0 16px;
+    border: 1px solid rgb(230 236 233 / 0.35);
+    border-radius: 999px;
+    background: none;
+    color: var(--mist);
+    cursor: pointer;
+  }
+  .player__close:hover {
+    border-color: var(--crimson);
+    color: var(--crimson);
+  }
+  .player__video {
+    width: 100%;
+    aspect-ratio: 9 / 16;
+    background: #000;
+  }
+</style>

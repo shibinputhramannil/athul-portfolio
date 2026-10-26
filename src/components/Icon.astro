@@ -1,0 +1,69 @@
+---
+import {
+  siAdobeaftereffects,
+  siAdobepremierepro,
+  siDavinciresolve,
+} from "simple-icons";
+import { uiIcons, type BrandName, type IconName } from "../lib/icons";
+
+interface Props {
+  name?: IconName;
+  brand?: BrandName;
+  size?: number;
+  /** Only for icons that carry meaning on their own; otherwise hidden. */
+  label?: string;
+  class?: string;
+}
+
+const brands = {
+  premiere: siAdobepremierepro,
+  aftereffects: siAdobeaftereffects,
+  resolve: siDavinciresolve,
+};
+
+const { name, brand, size = 18, label, class: className } = Astro.props;
+const role = label ? "img" : undefined;
+const hidden = label ? undefined : "true";
+
+const mark = brand ? brands[brand] : undefined;
+const luminance = (hex: string) => {
+  const [r, g, b] = [0, 2, 4].map((i) => parseInt(hex.slice(i, i + 2), 16));
+  return (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255;
+};
+const brandColor = mark
+  ? luminance(mark.hex) < 0.35
+    ? "var(--mist)"
+    : `#${mark.hex}`
+  : undefined;
+---
+
+{mark ? (
+  <svg
+    class:list={["icon", "icon--brand", className]}
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    style={`color:${brandColor}`}
+    role={role}
+    aria-label={label}
+    aria-hidden={hidden}
+  >
+    <path d={mark.path} fill="currentColor" />
+  </svg>
+) : name ? (
+  <svg
+    class:list={["icon", className]}
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="1.6"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    role={role}
+    aria-label={label}
+    aria-hidden={hidden}
+    set:html={uiIcons[name]}
+  />
+) : null}

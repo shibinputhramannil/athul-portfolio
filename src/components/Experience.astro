@@ -1,0 +1,324 @@
+---
+import SectionHead from "./SectionHead.astro";
+import Icon from "./Icon.astro";
+import { toolMeta } from "../lib/icons";
+import { profile } from "../content/profile";
+interface Props {
+  number: string;
+}
+const { number } = Astro.props;
+const jobs = [...profile.experience].sort((a, b) =>
+  a.period.localeCompare(b.period),
+);
+---
+
+<section class="section" aria-labelledby="experience">
+  <div class="wrap">
+    <SectionHead number={number} title="Experience" id="experience" />
+
+    <div class="tl" data-timeline>
+      <div class="tl__track" aria-hidden="true">
+        <span class="tl__fill" data-tl-fill></span>
+      </div>
+      <ol class="tl__list">
+        {jobs.map((job, i) => (
+          <li class="tl__item" data-tl-item>
+            <span class="tl__node" aria-hidden="true"></span>
+            <p class="tl__years" aria-hidden="true">
+              {job.period}
+            </p>
+            <div class="tl__body">
+              <p class="label tl__meta" data-tl-line>
+                <span class="tl__no">{String(i + 1).padStart(3, "0")}</span>
+                <span>{job.period}</span>
+              </p>
+              <h3 class="tl__company">
+                <span class="sr-only">{job.company}</span>
+                <span class="tl__kinetic" aria-hidden="true">
+                  {job.company.split(" ").map((word, w) => (
+                    <>
+                      {w > 0 && " "}
+                      <span class="tl__word">
+                        {[...word].map((ch) => (
+                          <span class="tl__char">{ch}</span>
+                        ))}
+                      </span>
+                    </>
+                  ))}
+                </span>
+              </h3>
+              <p class="label tl__role" data-tl-line>
+                {job.role}
+              </p>
+              <p class="tl__desc" data-tl-line>
+                {job.description}
+              </p>
+            </div>
+          </li>
+        ))}
+      </ol>
+    </div>
+
+    <div class="facts">
+      <div class="facts__block facts__skills" data-fade>
+        <h3 class="label">Skills</h3>
+        <ul>
+          {profile.skills.map((s) => (
+            <li>
+              <Icon name="keyframe" size={12} class="facts__key" />
+              {s}
+            </li>
+          ))}
+        </ul>
+      </div>
+      <div class="facts__block" data-fade style="--i:1">
+        <h3 class="label">Tools</h3>
+        <ul class="tools">
+          {profile.tools.map((t) => (
+            <li class="tool">
+              <span class="tool__icon">
+                <Icon brand={toolMeta[t].brand} size={24} />
+              </span>
+              <span class="tool__name">{toolMeta[t].name}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+      <div class="facts__block" data-fade style="--i:2">
+        <h3 class="label">Education</h3>
+        <ul class="facts__edu">
+          {profile.education.map((e) => (
+            <li>
+              <span class="facts__q">{e.qualification}</span>
+              <span>{e.institution}</span>
+              <span class="label">{e.period}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .tl {
+    position: relative;
+    --track-x: 23px;
+  }
+  .tl__track {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: var(--track-x);
+    width: 2px;
+    background: var(--line);
+  }
+  .tl__fill {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(var(--seafoam), var(--crimson));
+    transform-origin: top;
+  }
+  .tl--animate .tl__fill {
+    transform: scaleY(0);
+  }
+  .tl__list {
+    display: grid;
+    gap: clamp(64px, 10vw, 160px);
+    margin: 0;
+    padding: clamp(24px, 4vw, 48px) 0;
+    list-style: none;
+  }
+  .tl__item {
+    position: relative;
+    display: grid;
+    grid-template-columns: 48px minmax(0, 5fr) minmax(0, 7fr);
+    gap: 0 var(--gutter);
+    align-items: center;
+    overflow-x: clip;
+  }
+  .tl__node {
+    grid-column: 1;
+    grid-row: 1;
+    justify-self: center;
+    width: 14px;
+    height: 14px;
+    border: 2px solid var(--seafoam);
+    border-radius: 50%;
+    background: var(--ink);
+    transition:
+      background-color 0.4s,
+      border-color 0.4s;
+  }
+  .tl__item.is-active .tl__node {
+    border-color: var(--crimson);
+    background: var(--crimson);
+  }
+  .tl__years {
+    grid-column: 2;
+    grid-row: 1;
+    margin: 0;
+    font-weight: 900;
+    font-stretch: 75%;
+    font-size: clamp(3.5rem, 7vw, 7rem);
+    line-height: 0.85;
+    letter-spacing: -0.02em;
+    color: transparent;
+    -webkit-text-stroke: 1px rgb(142 210 190 / 0.45);
+    white-space: nowrap;
+  }
+  .tl__body {
+    position: relative;
+    z-index: 1;
+    grid-column: 3;
+    grid-row: 1;
+  }
+  .tl__meta {
+    display: flex;
+    gap: 16px;
+    margin: 0 0 12px;
+    color: var(--mist);
+  }
+  .tl__no {
+    color: var(--crimson);
+  }
+  .tl__company {
+    margin: 0;
+    font-weight: 800;
+    font-stretch: 75%;
+    font-size: clamp(2.25rem, 5vw, 4.5rem);
+    line-height: 0.95;
+    text-transform: uppercase;
+  }
+  .tl__word {
+    display: inline-block;
+    overflow: hidden;
+    padding-bottom: 0.06em;
+    white-space: nowrap;
+  }
+  .tl__char {
+    display: inline-block;
+  }
+  .tl--animate .tl__char {
+    transform: translateY(110%);
+  }
+  .tl--animate [data-tl-line] {
+    opacity: 0;
+  }
+  .tl--animate .tl__node {
+    transform: scale(0);
+  }
+  .tl__role {
+    margin: 12px 0 16px;
+    color: var(--seafoam);
+  }
+  .tl__desc {
+    margin: 0;
+    max-width: 56ch;
+    color: rgb(230 236 233 / 0.82);
+  }
+  .facts {
+    display: grid;
+    grid-template-columns: 2fr 1fr 2fr;
+    gap: clamp(32px, 4vw, 64px) var(--gutter);
+    margin-top: clamp(48px, 6vw, 96px);
+  }
+  .facts h3 {
+    margin: 0 0 16px;
+  }
+  .facts ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .facts__skills ul {
+    columns: 2;
+    column-gap: var(--gutter);
+  }
+  .facts__skills li {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    break-inside: avoid;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .facts__skills :global(.facts__key) {
+    flex: none;
+    color: var(--crimson);
+    transform: translateY(1px);
+  }
+  .tools {
+    display: grid;
+    gap: 10px;
+  }
+  .tool {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 10px 12px;
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    background: rgb(18 26 24 / 0.6);
+    transition: border-color 0.25s;
+  }
+  .tool:hover {
+    border-color: rgb(142 210 190 / 0.45);
+  }
+  .tool__icon {
+    display: grid;
+    place-items: center;
+    flex: none;
+    width: 44px;
+    height: 44px;
+    border-radius: 6px;
+    background: var(--ink);
+  }
+  .tool__name {
+    font-weight: 600;
+    line-height: 1.2;
+  }
+  .facts__edu li {
+    display: grid;
+    gap: 2px;
+    padding-bottom: 16px;
+    margin-bottom: 16px;
+    border-bottom: 1px solid var(--line);
+  }
+  .facts__q {
+    font-weight: 600;
+  }
+  @media (max-width: 900px) {
+    .tl {
+      --track-x: 11px;
+    }
+    .tl__item {
+      grid-template-columns: 24px minmax(0, 1fr);
+      align-items: start;
+    }
+    .tl__node {
+      margin-top: 0.4em;
+    }
+    .tl__years {
+      grid-column: 2;
+      font-size: clamp(2.75rem, 14vw, 4.5rem);
+    }
+    .tl__body {
+      grid-column: 2;
+      grid-row: 2;
+      margin-top: 16px;
+    }
+    .facts {
+      grid-template-columns: 1fr;
+    }
+  }
+  @media (max-width: 520px) {
+    .facts__skills ul {
+      columns: 1;
+    }
+  }
+</style>
+
+<script>
+  import "../scripts/timeline";
+</script>

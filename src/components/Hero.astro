@@ -1,0 +1,504 @@
+---
+import VideoCard from "./VideoCard.astro";
+import Icon from "./Icon.astro";
+import { profile } from "../content/profile";
+import { toolMeta } from "../lib/icons";
+import type { Video } from "../content/videos";
+
+interface Props {
+  videos: Video[];
+  hasWork: boolean;
+  workHref?: string;
+}
+const { videos, hasWork, workHref = "#work" } = Astro.props;
+const heroVideos = videos.slice(0, 3);
+let c = 0;
+const lines = profile.nameLines.map((line) =>
+  [...line].map((ch) => ({ ch, i: c++ })),
+);
+---
+
+<section class="hero" id="top" aria-labelledby="hero-title">
+  <div class="hero__beam" aria-hidden="true"></div>
+  <div class="hero__guides" aria-hidden="true">
+    <span class="hero__corner hero__corner--tl" style="--k:0"></span>
+    <span class="hero__corner hero__corner--tr" style="--k:1"></span>
+    <span class="hero__corner hero__corner--bl" style="--k:2"></span>
+    <span class="hero__corner hero__corner--br" style="--k:3"></span>
+    <span class="hero__cross" style="--x:33.3%;--y:33.3%"></span>
+    <span class="hero__cross" style="--x:66.6%;--y:66.6%"></span>
+  </div>
+  <div class="wrap hero__grid">
+    <div class="hero__copy">
+      <p class="label hero__kicker">
+        <span class="hero__rec" aria-hidden="true"></span>
+        <span class="hero__tc" aria-hidden="true" data-run-tc>
+          00:00:00:00
+        </span>
+        <span class="hero__sep" aria-hidden="true">
+          /
+        </span>
+        <span class="hero__loc">
+          <Icon name="pin" size={14} />
+          {profile.location}
+        </span>
+      </p>
+      <h1 class="display hero__name" id="hero-title">
+        <span class="sr-only">{profile.name}</span>
+        {lines.map((line, l) => (
+          <span
+            class:list={["hero__line", { hero__teal: l === 1 }]}
+            aria-hidden="true"
+          >
+            {line.map(({ ch, i }) =>
+              ch === " " ? (
+                <span class="hero__space"> </span>
+              ) : (
+                <span class="hero__char" style={`--c:${i}`}>
+                  {ch}
+                </span>
+              ),
+            )}
+          </span>
+        ))}
+        <span class="hero__wipe" aria-hidden="true"></span>
+      </h1>
+      <p class="hero__role" data-fade style="--i:3">
+        {profile.role}
+      </p>
+      <ul class="hero__tools" data-fade style="--i:4" aria-label="Software">
+        {profile.tools.map((t) => (
+          <li>
+            <Icon brand={toolMeta[t].brand} size={16} />
+            {t}
+          </li>
+        ))}
+      </ul>
+      <div class="hero__ctas" data-fade style="--i:5">
+        {hasWork && (
+          <a class="pill pill--solid" href={workHref}>
+            View work
+            <Icon name="arrow-right" size={16} />
+          </a>
+        )}
+        <a class="pill" href="#contact">
+          <Icon name="mail" size={16} />
+          Get in touch
+        </a>
+      </div>
+    </div>
+
+    {heroVideos.length > 0 ? (
+      <div class="hero__frames">
+        {heroVideos.map((v, i) => (
+          <div class="hero__frame" style={`--n:${i}`}>
+            <VideoCard video={v} compact />
+          </div>
+        ))}
+      </div>
+    ) : (
+      <div class="hero__timeline" aria-hidden="true">
+        <div class="tl__ruler label">
+          <span>00:00</span>
+          <span>00:08</span>
+          <span>00:16</span>
+          <span>00:24</span>
+        </div>
+        <div class="tl__track">
+          <span class="tl__tag label">V2</span>
+          <i style="--x:18%;--w:22%" />
+          <i style="--x:58%;--w:16%" />
+        </div>
+        <div class="tl__track">
+          <span class="tl__tag label">V1</span>
+          <i class="is-teal" style="--x:4%;--w:30%" />
+          <i class="is-teal" style="--x:36%;--w:26%" />
+          <i class="is-teal" style="--x:64%;--w:32%" />
+        </div>
+        <div class="tl__track">
+          <span class="tl__tag label">A1</span>
+          <i class="is-wave" style="--x:4%;--w:92%" />
+        </div>
+        <div class="tl__track">
+          <span class="tl__tag label">A2</span>
+          <i class="is-wave" style="--x:22%;--w:48%" />
+        </div>
+        <div class="tl__head" />
+      </div>
+    )}
+  </div>
+  <div class="hero__marquee" aria-hidden="true">
+    <div class="hero__track">
+      {[0, 1].map(() => (
+        <span class="hero__run">
+          {profile.skills.map((s, i) => (
+            <>
+              <span class:list={["hero__word", { "is-outline": i % 2 }]}>
+                {s}
+              </span>
+              <i class="hero__key" />
+            </>
+          ))}
+        </span>
+      ))}
+    </div>
+  </div>
+</section>
+
+<style>
+  .hero {
+    position: relative;
+    min-height: 100svh;
+    display: flex;
+    align-items: center;
+    padding: calc(var(--header-h) + 48px) 0 calc(64px + var(--marquee-h));
+    overflow: hidden;
+    --marquee-h: clamp(56px, 7vw, 88px);
+  }
+  .hero__beam {
+    position: absolute;
+    top: -10%;
+    right: 12%;
+    width: clamp(80px, 9vw, 160px);
+    height: 130%;
+    background: linear-gradient(
+      180deg,
+      rgb(234 58 50 / 0),
+      rgb(234 58 50 / 0.5) 45%,
+      rgb(234 58 50 / 0)
+    );
+    filter: blur(40px);
+    transform: rotate(14deg);
+    opacity: 0.55;
+    pointer-events: none;
+  }
+  .hero__grid {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+    gap: var(--gutter);
+    align-items: center;
+  }
+  .hero__kicker {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin: 0 0 24px;
+  }
+  .hero__kicker {
+    align-items: center;
+  }
+  .hero__rec {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--crimson);
+    box-shadow: 0 0 12px rgb(234 58 50 / 0.8);
+    animation: rec 1.4s steps(2, jump-none) infinite;
+  }
+  @keyframes rec {
+    50% {
+      opacity: 0.25;
+    }
+  }
+  .hero__tc {
+    color: var(--seafoam);
+    font-variant-numeric: tabular-nums;
+  }
+  .hero__sep {
+    color: var(--crimson);
+  }
+  .hero__loc {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .hero__name {
+    position: relative;
+    font-size: clamp(3.5rem, 13vw, 13rem);
+  }
+  .hero__line {
+    display: block;
+    overflow: hidden;
+    padding-bottom: 0.04em;
+  }
+  .hero__char {
+    display: inline-block;
+  }
+  :global(.js) .hero__char {
+    animation: hero-rise 0.8s var(--ease-cut) both;
+    animation-delay: calc(150ms + var(--c) * 45ms);
+  }
+  @keyframes hero-rise {
+    from {
+      transform: translateY(110%) skewY(10deg);
+    }
+    to {
+      transform: none;
+    }
+  }
+  .hero__space {
+    display: inline-block;
+    width: 0.22em;
+  }
+  .hero__wipe {
+    position: absolute;
+    inset: 0;
+    background: var(--crimson);
+    transform: scaleX(0);
+    pointer-events: none;
+  }
+  :global(.js) .hero__wipe {
+    animation: hero-wipe 0.6s var(--ease-cut) 1s both;
+  }
+  @keyframes hero-wipe {
+    0% {
+      transform-origin: left;
+      transform: scaleX(0);
+    }
+    50% {
+      transform-origin: left;
+      transform: scaleX(1);
+    }
+    50.1% {
+      transform-origin: right;
+    }
+    100% {
+      transform-origin: right;
+      transform: scaleX(0);
+    }
+  }
+  .hero__teal {
+    color: var(--seafoam);
+  }
+  .hero__role {
+    margin: 18px 0 28px;
+    font-family: var(--font-accent);
+    font-style: italic;
+    font-weight: 700;
+    font-size: clamp(1.75rem, 4vw, 3.25rem);
+    line-height: 1;
+    color: var(--crimson);
+  }
+  .hero__guides {
+    position: absolute;
+    inset: calc(var(--header-h) + 20px) var(--margin)
+      calc(var(--marquee-h) + 20px);
+    pointer-events: none;
+  }
+  .hero__corner {
+    position: absolute;
+    width: 28px;
+    height: 28px;
+    border: 0 solid rgb(142 210 190 / 0.55);
+  }
+  :global(.js) .hero__corner {
+    animation: corner-in 0.7s var(--ease-cut) both;
+    animation-delay: calc(300ms + var(--k) * 90ms);
+  }
+  @keyframes corner-in {
+    from {
+      opacity: 0;
+      transform: scale(1.8);
+    }
+  }
+  .hero__corner--tl {
+    top: 0;
+    left: 0;
+    border-width: 1.5px 0 0 1.5px;
+  }
+  .hero__corner--tr {
+    top: 0;
+    right: 0;
+    border-width: 1.5px 1.5px 0 0;
+  }
+  .hero__corner--bl {
+    bottom: 0;
+    left: 0;
+    border-width: 0 0 1.5px 1.5px;
+  }
+  .hero__corner--br {
+    bottom: 0;
+    right: 0;
+    border-width: 0 1.5px 1.5px 0;
+  }
+  .hero__cross {
+    position: absolute;
+    left: var(--x);
+    top: var(--y);
+    width: 16px;
+    height: 16px;
+    translate: -50% -50%;
+    background:
+      linear-gradient(var(--fog), var(--fog)) center / 1px 100% no-repeat,
+      linear-gradient(var(--fog), var(--fog)) center / 100% 1px no-repeat;
+    opacity: 0.45;
+  }
+  .hero__marquee {
+    position: absolute;
+    inset: auto 0 0 0;
+    height: var(--marquee-h);
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+    border-top: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+    background: rgb(18 26 24 / 0.55);
+  }
+  .hero__track {
+    display: flex;
+    width: max-content;
+    animation: marquee 60s linear infinite;
+  }
+  .hero__run {
+    display: flex;
+    align-items: center;
+  }
+  .hero__word {
+    padding: 0 clamp(16px, 2vw, 32px);
+    font-weight: 800;
+    font-stretch: 75%;
+    font-size: clamp(1.25rem, 3vw, 2.5rem);
+    line-height: 1;
+    text-transform: uppercase;
+    white-space: nowrap;
+    color: var(--mist);
+  }
+  .hero__word.is-outline {
+    color: transparent;
+    -webkit-text-stroke: 1px rgb(142 210 190 / 0.7);
+  }
+  .hero__key {
+    width: 10px;
+    height: 10px;
+    flex: none;
+    background: var(--crimson);
+    transform: rotate(45deg);
+  }
+  @keyframes marquee {
+    to {
+      transform: translateX(-50%);
+    }
+  }
+  .hero__tools {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 22px;
+    margin: 0 0 32px;
+    padding: 0;
+    list-style: none;
+  }
+  .hero__tools li {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .hero__ctas {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .hero__frames {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    align-items: start;
+  }
+  .hero__frame {
+    margin-top: calc(var(--n) * 48px);
+  }
+
+  .hero__timeline {
+    position: relative;
+    display: grid;
+    gap: 10px;
+    padding: 20px 0 20px 0;
+    border-top: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+  }
+  .tl__ruler {
+    display: flex;
+    justify-content: space-between;
+    padding-left: 36px;
+    font-size: 10px;
+  }
+  .tl__track {
+    position: relative;
+    height: clamp(28px, 4vw, 44px);
+    margin-left: 36px;
+    background: rgb(18 26 24 / 0.7);
+  }
+  .tl__tag {
+    position: absolute;
+    left: -36px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 10px;
+  }
+  .tl__track i {
+    position: absolute;
+    top: 3px;
+    bottom: 3px;
+    left: var(--x);
+    width: var(--w);
+    border: 1px solid rgb(230 236 233 / 0.25);
+    border-radius: 2px;
+    background: var(--graphite);
+  }
+  .tl__track i.is-teal {
+    background: var(--deep-teal);
+    border-color: rgb(142 210 190 / 0.35);
+  }
+  .tl__track i.is-wave {
+    background: repeating-linear-gradient(
+      90deg,
+      rgb(142 210 190 / 0.35) 0 2px,
+      transparent 2px 5px
+    );
+    border-color: rgb(142 210 190 / 0.2);
+  }
+  .tl__head {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 36px;
+    width: 2px;
+    background: var(--crimson);
+    box-shadow: 0 0 12px rgb(234 58 50 / 0.6);
+    animation: scrub 12s linear infinite;
+  }
+  @keyframes scrub {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(calc(var(--tl-w, 400px)));
+    }
+  }
+
+  @media (max-width: 900px) {
+    .hero {
+      align-items: flex-start;
+    }
+    .hero__grid {
+      grid-template-columns: 1fr;
+      gap: 48px;
+    }
+    .hero__frames {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    .hero__frame {
+      margin-top: calc(var(--n) * 24px);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .tl__head {
+      animation: none;
+      left: 40%;
+    }
+  }
+</style>

@@ -1,0 +1,26 @@
+node_modules/
+dist/
+.astro/
+.env
+.env.*
+!.env.example
+.DS_Store
+Thumbs.db
+
+# Private media: never committed. See README "Videos and privacy".
+# Only edits the owner marked "Display publicly: Yes" are un-ignored below.
+media-src/
+media.local.json
+public/media/*
+!public/media/video-01/
+!public/media/video-02/
+!public/media/video-03/
+!public/media/video-04/
+!public/media/video-05/
+!public/media/video-06/
+!public/media/video-07/
+!public/media/video-08/
+!public/media/video-09/
+!public/media/video-10/
+!public/media/video-11/
+!public/media/video-12/

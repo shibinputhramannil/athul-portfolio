@@ -1,0 +1,90 @@
+---
+import SectionHead from "./SectionHead.astro";
+import Icon from "./Icon.astro";
+import { profile } from "../content/profile";
+interface Props {
+  number: string;
+}
+const { number } = Astro.props;
+const [emailUser, emailDomain] = profile.email.split("@");
+---
+
+<section class="section" aria-labelledby="contact">
+  <div class="wrap">
+    <SectionHead number={number} title="Contact" id="contact" />
+    <div class="contact" data-reveal>
+      <a class="contact__email" href={`mailto:${profile.email}`}>
+        <span class="rl">
+          <span>{`${emailUser}@​${emailDomain}`}</span>
+        </span>
+      </a>
+      <div class="contact__actions" data-fade style="--i:2">
+        <a class="pill pill--solid" href={`mailto:${profile.email}`}>
+          <Icon name="mail" size={16} />
+          Email me
+        </a>
+        <button class="pill" type="button" data-copy={profile.email}>
+          <Icon name="copy" size={16} />
+          Copy email
+        </button>
+        <span
+          class="label contact__status"
+          role="status"
+          aria-live="polite"
+        ></span>
+      </div>
+      <p class="label contact__loc" data-fade style="--i:3">
+        <Icon name="pin" size={14} />
+        Based in {profile.location}
+      </p>
+    </div>
+  </div>
+</section>
+
+<style>
+  .contact__email {
+    display: inline-block;
+    max-width: 100%;
+    font-weight: 900;
+    font-stretch: 75%;
+    font-size: clamp(1.75rem, 7.6vw, 9rem);
+    line-height: 0.95;
+    text-transform: uppercase;
+    text-decoration: none;
+    overflow-wrap: break-word;
+    background: linear-gradient(var(--crimson), var(--crimson)) left bottom / 0%
+      4px no-repeat;
+    transition:
+      background-size 0.9s var(--ease-cut) 0.3s,
+      color 0.2s;
+    padding-bottom: 8px;
+  }
+  .contact__email:hover {
+    color: var(--seafoam);
+  }
+  :global(.js) .contact:global(.is-in) .contact__email,
+  :global(html:not(.js)) .contact__email {
+    background-size: 100% 4px;
+  }
+  .contact__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+    margin-top: 40px;
+  }
+  .contact__status {
+    color: var(--seafoam);
+  }
+  .contact__loc {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 32px 0 0;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .contact__email {
+      background-size: 100% 4px;
+    }
+  }
+</style>

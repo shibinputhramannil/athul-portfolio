@@ -1,0 +1,36 @@
+{
+  "name": "athul-portfolio",
+  "private": true,
+  "type": "module",
+  "version": "0.1.0",
+  "description": "Portfolio site for Adhul U Krishna, video editor.",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "check": "astro check",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "lint": "astro check && prettier --check .",
+    "media": "node scripts/encode-media.mjs",
+    "dev:private": "node scripts/dev-private.mjs"
+  },
+  "engines": {
+    "node": ">=20.3.0"
+  },
+  "dependencies": {
+    "@fontsource-variable/archivo": "^5.3.0",
+    "@fontsource/bodoni-moda": "^5.3.0",
+    "@fontsource/jetbrains-mono": "^5.3.0",
+    "astro": "^5.18.2",
+    "motion": "^12.43.0"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.12",
+    "@types/node": "^20.19.43",
+    "prettier": "^3.9.10",
+    "prettier-plugin-astro": "^1.1.2",
+    "simple-icons": "^13.21.0",
+    "typescript": "^5.9.3"
+  }
+}

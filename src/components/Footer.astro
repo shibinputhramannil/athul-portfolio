@@ -1,0 +1,42 @@
+---
+import Icon from "./Icon.astro";
+import { profile } from "../content/profile";
+const year = new Date().getFullYear();
+---
+
+<footer class="wrap footer">
+  <span class="label">
+    © {year}
+    {profile.name}
+  </span>
+  <a class="label footer__top" href="#top">
+    Back to top
+    <Icon name="arrow-up" size={14} />
+  </a>
+</footer>
+
+<style>
+  .footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-top: var(--section);
+    padding-top: 24px;
+    padding-bottom: 32px;
+    border-top: 1px solid var(--line);
+  }
+  a {
+    text-decoration: none;
+  }
+  .footer__top {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 44px;
+  }
+  a:hover {
+    color: var(--seafoam);
+  }
+</style>
