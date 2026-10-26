@@ -23,23 +23,28 @@
     },
     {
       "id": "video-05",
-      "public": false
+      "public": true,
+      "durationSec": 32.3
     },
     {
       "id": "video-06",
-      "public": false
+      "public": true,
+      "durationSec": 17
     },
     {
       "id": "video-07",
-      "public": false
+      "public": true,
+      "durationSec": 12.4
     },
     {
       "id": "video-08",
-      "public": false
+      "public": true,
+      "durationSec": 40.7
     },
     {
       "id": "video-09",
-      "public": false
+      "public": true,
+      "durationSec": 27.1
     }
   ]
 }
