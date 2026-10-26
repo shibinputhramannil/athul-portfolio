@@ -55,4 +55,4 @@ Approved edit (natural crop, lighting, colour and an off-white background; face 
 
 ## Deployment
 
-Not configured yet. For a GitHub Pages project site, build with `BASE_PATH=/athul-portfolio SITE_URL=https://<user>.github.io`. CI (`.github/workflows/ci.yml`) only lints and builds; it does not deploy.
+GitHub Pages, via `.github/workflows/deploy.yml`. It runs on every push to `main` (or manually from the Actions tab), builds with `SITE_URL=https://shibinputhramannil.github.io` and `BASE_PATH=/athul-portfolio`, and publishes `dist/` to https://shibinputhramannil.github.io/athul-portfolio/. One-time setup: Settings → Pages → Source: **GitHub Actions**. `.github/workflows/ci.yml` only lints and builds pull requests.
