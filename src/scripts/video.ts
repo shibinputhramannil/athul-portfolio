@@ -12,6 +12,9 @@ const visible = new Set<HTMLVideoElement>();
 const playing = new Set<HTMLVideoElement>();
 const ratios = new Map<HTMLVideoElement, number>();
 let preferred: HTMLVideoElement | null = null;
+const featured = document.querySelector<HTMLVideoElement>(
+  "[data-feature] video",
+);
 
 // Only the active project plays: the keyboard-focused card, else the most visible one.
 const maxPlaying = () => 1;
@@ -61,12 +64,17 @@ function distanceFromCenter(video: HTMLVideoElement) {
   );
 }
 
+// Coarse visibility so near-equal frames fall through to the featured/centre tie-breaks.
+const visibleStep = (video: HTMLVideoElement) =>
+  Math.round((ratios.get(video) ?? 0) * 10);
+
 function wanted() {
   if (!canAutoplay()) return new Set<HTMLVideoElement>();
   const ranked = Array.from(visible).sort(
     (a, b) =>
       Number(b === preferred) - Number(a === preferred) ||
-      (ratios.get(b) ?? 0) - (ratios.get(a) ?? 0) ||
+      visibleStep(b) - visibleStep(a) ||
+      Number(b === featured) - Number(a === featured) ||
       distanceFromCenter(a) - distanceFromCenter(b),
   );
   return new Set(ranked.slice(0, maxPlaying()));
@@ -198,4 +206,13 @@ reelVideo?.addEventListener("ended", () => {
   );
   if (current >= 0 && current < reelItems.length - 1)
     selectReel(current + 1, true);
+});
+
+// Featured edit: a running timecode (25 fps) follows its muted preview.
+const featureTc = document.querySelector<HTMLElement>("[data-feature-tc]");
+featured?.addEventListener("timeupdate", () => {
+  if (!featureTc) return;
+  const t = featured.currentTime;
+  const pad = (n: number) => String(Math.floor(n)).padStart(2, "0");
+  featureTc.textContent = `00:${pad(t / 60)}:${pad(t % 60)}:${pad((t % 1) * 25)}`;
 });

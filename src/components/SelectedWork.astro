@@ -2,7 +2,7 @@
 import SectionHead from "./SectionHead.astro";
 import VideoCard from "./VideoCard.astro";
 import Icon from "./Icon.astro";
-import { inDisplayOrder, type Video } from "../content/videos";
+import { formatDuration, inDisplayOrder, type Video } from "../content/videos";
 
 interface Props {
   number: string;
@@ -10,12 +10,52 @@ interface Props {
 }
 const { number, videos: allVideos } = Astro.props;
 const videos = inDisplayOrder(allVideos);
-// Every edit is shown at once; the strip is kept for very long lists.
-const asStrip = videos.length > 24;
 const count = String(videos.length).padStart(2, "0");
+
+// One large featured edit, four offset frames around it, then an editorial grid.
+const [featured, ...rest] = videos;
+const satellites = rest.slice(0, 4);
+const remaining = rest.slice(4);
+
+// Grid rhythm for the remaining edits (repeats every ten): column, drop, scale.
+const rhythm = [
+  { col: "1 / span 4", drop: 0, size: "l" },
+  { col: "6 / span 3", drop: 8, size: "m" },
+  { col: "10 / span 3", drop: 2, size: "m" },
+  { col: "2 / span 3", drop: 4, size: "m" },
+  { col: "6 / span 4", drop: 0, size: "l" },
+  { col: "11 / span 2", drop: 12, size: "s" },
+  { col: "1 / span 3", drop: 3, size: "m" },
+  { col: "5 / span 3", drop: 9, size: "m" },
+  { col: "9 / span 4", drop: 0, size: "l" },
+  { col: "4 / span 5", drop: 4, size: "l" },
+];
+// Phones use two columns: large edits take a full row, smaller ones pair up,
+// and a smaller edit left without a partner becomes a mid-size solo frame.
+const grid = remaining.map((v, i) => {
+  const r = rhythm[i % rhythm.length];
+  return { v, ...r, shift: 0, phone: r.size === "l" ? "l" : "pair" };
+});
+let pending: (typeof grid)[number] | null = null;
+for (const item of grid) {
+  if (item.phone === "l") {
+    if (pending) pending.phone = "solo";
+    pending = null;
+  } else if (pending) {
+    item.shift = 1;
+    pending = null;
+  } else pending = item;
+}
+if (pending) pending.phone = "solo";
+let side = 0;
+const placed = grid.map((g) => ({
+  ...g,
+  side: g.phone === "pair" ? "start" : side++ % 2 ? "end" : "start",
+}));
+const featuredLetters = `Edit ${featured?.number ?? ""}`.split("");
 ---
 
-<section class="section" aria-labelledby="work">
+<section class="section work" aria-labelledby="work">
   <div class="wrap">
     <SectionHead number={number} title="Selected work" id="work" />
     <div class="work__bar">
@@ -32,64 +72,87 @@ const count = String(videos.length).padStart(2, "0");
       <p class="label work__count">
         <span class="work__now" aria-hidden="true">
           <span class="work__rec"></span>
-          Now <span data-playlist-now>{videos[0]?.number}</span>
+          Now <span data-playlist-now>{featured?.number}</span>
         </span>
         <span>/ {count}</span>
         <span class="sr-only">edits</span>
       </p>
-      {asStrip && (
-        <div class="work__nav">
-          <button
-            class="work__btn label"
-            type="button"
-            data-strip-prev
-            aria-label="Previous videos"
-          >
-            <Icon name="arrow-left" size={16} />
-            Prev
-          </button>
-          <button
-            class="work__btn label"
-            type="button"
-            data-strip-next
-            aria-label="Next videos"
-          >
-            Next
-            <Icon name="arrow-right" size={16} />
-          </button>
+    </div>
+
+    <div class="work-stage">
+      {featured && (
+        <div class="feature" data-reveal>
+          <span class="feature__glow" aria-hidden="true" />
+          <span class="feature__marks" aria-hidden="true" />
+          <ul class="feature__list">
+            <li
+              class="feature__main wipe"
+              data-reveal
+              data-feature
+              data-number={featured.number}
+            >
+              <VideoCard video={featured} />
+            </li>
+            {satellites.map((v, i) => (
+              <li
+                class={`feature__sat feature__sat--${i + 1} wipe`}
+                data-reveal
+                data-number={v.number}
+                style={`--i:${i + 1}`}
+              >
+                <VideoCard video={v} compact />
+                <span class="label feature__cap" aria-hidden="true">
+                  <Icon name="keyframe" size={10} />
+                  Edit {v.number}
+                  {v.durationSec && (
+                    <span class="feature__dur">
+                      {formatDuration(v.durationSec)}
+                    </span>
+                  )}
+                </span>
+              </li>
+            ))}
+          </ul>
+          <div class="feature__type" aria-hidden="true">
+            <span class="label feature__kicker">
+              <span class="work__rec" />
+              Featured
+            </span>
+            <span class="feature__word">
+              {featuredLetters.map((ch, k) => (
+                <span class="feature__mask">
+                  <span style={`--k:${k}`}>{ch === " " ? "\u00a0" : ch}</span>
+                </span>
+              ))}
+            </span>
+            <span class="label feature__tc">
+              TC <span data-feature-tc>00:00:00:00</span>
+            </span>
+          </div>
+          <span class="feature__ruler" aria-hidden="true" />
         </div>
       )}
+
+      {grid.length > 0 && (
+        <ul class="work-grid">
+          {placed.map(({ v, col, drop, size, shift, side, phone }, i) => (
+            <li
+              class="work-grid__item wipe"
+              data-reveal
+              data-number={v.number}
+              data-size={size}
+              data-shift={shift}
+              data-phone={phone}
+              data-side={side}
+              style={`--col:${col};--drop:${drop};--i:${i % 3}`}
+            >
+              <VideoCard video={v} />
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
-    {!asStrip && (
-      <ul class="work-grid">
-        {videos.map((v, i) => (
-          <li
-            class="work-grid__item"
-            data-fade
-            data-number={v.number}
-            style={`--i:${i}`}
-          >
-            <VideoCard video={v} />
-          </li>
-        ))}
-      </ul>
-    )}
   </div>
-  {asStrip && (
-    <ul
-      class="strip"
-      data-strip
-      tabindex="0"
-      role="region"
-      aria-label="Selected work, scroll sideways"
-    >
-      {videos.map((v) => (
-        <li class="strip__item" data-fade data-number={v.number}>
-          <VideoCard video={v} />
-        </li>
-      ))}
-    </ul>
-  )}
 </section>
 
 <style>
@@ -99,7 +162,7 @@ const count = String(videos.length).padStart(2, "0");
     justify-content: space-between;
     align-items: center;
     gap: 16px;
-    margin-bottom: clamp(24px, 4vw, 48px);
+    margin-bottom: clamp(32px, 5vw, 72px);
   }
   .work__bar p {
     margin: 0;
@@ -128,78 +191,354 @@ const count = String(videos.length).padStart(2, "0");
     color: var(--seafoam);
   }
   .work__rec {
+    display: inline-block;
     width: 7px;
     height: 7px;
     border-radius: 50%;
     background: var(--crimson);
     box-shadow: 0 0 8px rgb(234 58 50 / 0.8);
   }
-  .work-grid {
-    display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: clamp(32px, 4vw, 56px) clamp(16px, 2.5vw, 40px);
+
+  /* Featured collage: positions are % of a fixed-ratio stage. */
+  .feature {
+    position: relative;
+    aspect-ratio: 100 / 61;
+    margin-bottom: clamp(64px, 10vw, 160px);
+  }
+  .feature__list {
     margin: 0;
     padding: 0;
     list-style: none;
   }
-  .work-grid__item:nth-child(even) {
-    margin-top: clamp(24px, 5vw, 80px);
+  .feature__main,
+  .feature__sat {
+    position: absolute;
   }
-  @media (max-width: 1100px) {
-    .work-grid {
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-    }
+  .feature__main {
+    left: 33%;
+    top: 0;
+    width: 30%;
+    z-index: 2;
   }
-  @media (max-width: 760px) {
-    .work-grid {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 28px 12px;
-    }
-    .work-grid__item:nth-child(even) {
-      margin-top: 36px;
-    }
+  .feature__sat--1 {
+    left: 3%;
+    top: 5%;
+    width: 17%;
   }
-  .work__nav {
+  .feature__sat--2 {
+    left: 14%;
+    top: 55%;
+    width: 13%;
+  }
+  .feature__sat--3 {
+    left: 68%;
+    top: 2%;
+    width: 15%;
+  }
+  .feature__sat--4 {
+    left: 85%;
+    top: 47%;
+    width: 13%;
+  }
+  .feature__cap {
     display: flex;
+    align-items: center;
     gap: 8px;
+    margin-top: 10px;
+    color: var(--fog);
   }
-  .work__btn {
+  .feature__cap :global(.icon) {
+    color: var(--crimson);
+  }
+  .feature__dur {
+    color: var(--seafoam);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .feature__glow {
+    position: absolute;
+    left: 24%;
+    top: 8%;
+    width: 48%;
+    height: 80%;
+    border-radius: 50%;
+    background:
+      radial-gradient(closest-side, rgb(142 210 190 / 0.18), transparent),
+      radial-gradient(
+        closest-side at 70% 70%,
+        rgb(234 58 50 / 0.14),
+        transparent
+      );
+    animation: glow-drift 14s ease-in-out infinite alternate;
+    pointer-events: none;
+  }
+  @keyframes glow-drift {
+    to {
+      transform: translate(6%, 4%) scale(1.08);
+    }
+  }
+
+  /* Framing marks around the stage. */
+  .feature__marks {
+    position: absolute;
+    inset: -12px -12px 18px;
+    pointer-events: none;
+    background:
+      linear-gradient(var(--seafoam), var(--seafoam)) left top / 28px 1px
+        no-repeat,
+      linear-gradient(var(--seafoam), var(--seafoam)) left top / 1px 28px
+        no-repeat,
+      linear-gradient(var(--seafoam), var(--seafoam)) right top / 28px 1px
+        no-repeat,
+      linear-gradient(var(--seafoam), var(--seafoam)) right top / 1px 28px
+        no-repeat,
+      linear-gradient(var(--seafoam), var(--seafoam)) left bottom / 28px 1px
+        no-repeat,
+      linear-gradient(var(--seafoam), var(--seafoam)) left bottom / 1px 28px
+        no-repeat,
+      linear-gradient(var(--seafoam), var(--seafoam)) right bottom / 28px 1px
+        no-repeat,
+      linear-gradient(var(--seafoam), var(--seafoam)) right bottom / 1px 28px
+        no-repeat;
+    opacity: 0.5;
+  }
+
+  /* Timeline ruler under the collage with a travelling playhead. */
+  .feature__ruler {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 10px;
+    background:
+      linear-gradient(var(--line), var(--line)) left bottom / 100% 1px no-repeat,
+      repeating-linear-gradient(
+          90deg,
+          rgb(230 236 233 / 0.25) 0 1px,
+          transparent 1px 40px
+        )
+        left bottom / 100% 6px no-repeat;
+  }
+  .feature__ruler::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 2px;
+    height: 14px;
+    background: var(--crimson);
+    box-shadow: 0 0 10px rgb(234 58 50 / 0.8);
+    animation: playhead 12s linear infinite;
+  }
+  @keyframes playhead {
+    to {
+      left: 100%;
+    }
+  }
+
+  /* Kinetic featured label. */
+  .feature__type {
+    position: absolute;
+    left: 66%;
+    top: 58%;
+    display: grid;
+    gap: 10px;
+  }
+  .feature__kicker {
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    min-height: 44px;
-    padding: 0 16px;
-    border: 1px solid rgb(230 236 233 / 0.35);
-    border-radius: 999px;
-    background: none;
-    color: var(--mist);
-    cursor: pointer;
+    color: var(--seafoam);
   }
-  .work__btn:hover {
-    border-color: var(--crimson);
+  .feature__word {
+    display: flex;
+    font-weight: 900;
+    font-stretch: 75%;
+    font-size: clamp(2.5rem, 6.4vw, 6.5rem);
+    line-height: 0.9;
+    text-transform: uppercase;
+    color: transparent;
+    -webkit-text-stroke: 1.5px var(--mist);
+  }
+  .feature__mask {
+    display: inline-block;
+    overflow: hidden;
+    padding-bottom: 0.04em;
+  }
+  .feature__mask > span {
+    display: inline-block;
+  }
+  .js .feature__mask > span {
+    transform: translateY(105%);
+    transition: transform 0.8s var(--ease-cut) calc(0.3s + var(--k) * 50ms);
+  }
+  .js .feature.is-in .feature__mask > span {
+    transform: none;
+  }
+  .feature__mask:nth-last-child(-n + 2) > span {
     color: var(--crimson);
+    -webkit-text-stroke: 0;
   }
-  .strip {
+  .feature__tc {
+    color: var(--fog);
+    font-variant-numeric: tabular-nums;
+  }
+  .feature__tc span {
+    color: var(--mist);
+  }
+
+  /* Editorial grid: 12 columns, each edit with its own column, scale and drop. */
+  .work-grid {
     display: grid;
-    grid-auto-flow: column;
-    grid-auto-columns: clamp(220px, 22vw, 340px);
-    gap: var(--gutter);
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    gap: clamp(40px, 5vw, 72px) var(--gutter);
     margin: 0;
-    padding: 0 var(--margin) 16px;
+    padding: 0;
     list-style: none;
-    overflow-x: auto;
-    scroll-snap-type: x mandatory;
-    scroll-padding: 0 var(--margin);
-    overscroll-behavior-x: contain;
-    scrollbar-width: thin;
-    scrollbar-color: var(--deep-teal) transparent;
   }
-  .strip__item {
-    scroll-snap-align: start;
+  .work-grid__item {
+    grid-column: var(--col);
+    margin-top: calc(var(--drop) * 1vw);
   }
-  @media (max-width: 600px) {
-    .strip {
-      grid-auto-columns: 72vw;
+
+  /* Mask wipe: each frame opens upward behind a crimson cut line. */
+  .wipe {
+    --wipe-delay: calc(var(--i, 0) * 90ms);
+  }
+  .wipe::before {
+    content: "";
+    position: absolute;
+    left: -8px;
+    right: -8px;
+    top: 100%;
+    z-index: 3;
+    height: 2px;
+    background: var(--crimson);
+    box-shadow: 0 0 12px rgb(234 58 50 / 0.9);
+    opacity: 0;
+    pointer-events: none;
+  }
+  .work-grid__item.wipe {
+    position: relative;
+  }
+  .js .wipe {
+    clip-path: inset(100% -24px -24px -24px);
+    transition: clip-path 0.9s var(--ease-cut) var(--wipe-delay);
+  }
+  .js .wipe.is-in {
+    clip-path: inset(-24px);
+  }
+  .js .wipe.is-in::before {
+    animation: cut-line 0.9s var(--ease-cut) var(--wipe-delay) both;
+  }
+  @keyframes cut-line {
+    0% {
+      top: 100%;
+      opacity: 1;
+    }
+    80% {
+      top: 0;
+      opacity: 1;
+    }
+    100% {
+      top: 0;
+      opacity: 0;
+    }
+  }
+
+  /* The narrowest grid frames keep their chrome to icons. */
+  .work-grid__item[data-size="s"] :global(.card__state) {
+    font-size: 0;
+    gap: 0;
+    padding: 4px;
+  }
+  .work-grid__item[data-size="s"] :global(.card__state .card__rec) {
+    margin-right: 4px;
+  }
+  .work-grid__item[data-size="s"] :global(.card__cta) {
+    width: 40px;
+    min-height: 40px;
+    padding: 0;
+    gap: 0;
+    justify-content: center;
+    font-size: 0;
+  }
+  .work-grid__item[data-size="s"] :global(.card__cta .icon + .icon) {
+    display: none;
+  }
+
+  @media (max-width: 1100px) {
+    .feature__cap {
+      font-size: 0.7rem;
+    }
+  }
+
+  /* Phones: collage keeps its offsets; grid becomes two columns with full-width features. */
+  @media (max-width: 760px) {
+    .feature {
+      aspect-ratio: 100 / 182;
+    }
+    .feature__main {
+      left: 0;
+      width: 66%;
+    }
+    .feature__sat--1 {
+      left: 70%;
+      top: 3%;
+      width: 30%;
+    }
+    .feature__sat--3 {
+      left: 72%;
+      top: 37%;
+      width: 28%;
+    }
+    .feature__sat--2 {
+      left: 3%;
+      top: 76%;
+      width: 24%;
+    }
+    .feature__sat--4 {
+      left: 72%;
+      top: 71%;
+      width: 24%;
+    }
+    .feature__cap {
+      margin-top: 6px;
+      gap: 4px;
+      font-size: 0.62rem;
+    }
+    .feature__cap :global(.icon) {
+      display: none;
+    }
+    .feature__type {
+      left: 32%;
+      top: 79%;
+      gap: 6px;
+    }
+    .feature__word {
+      font-size: clamp(2rem, 11vw, 3rem);
+    }
+    .work-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 32px 12px;
+    }
+    .work-grid__item {
+      grid-column: auto;
+      margin-top: 0;
+    }
+    .work-grid__item[data-shift="1"] {
+      margin-top: 44px;
+    }
+    .work-grid__item[data-phone="l"],
+    .work-grid__item[data-phone="solo"] {
+      grid-column: 1 / -1;
+      width: 80%;
+    }
+    .work-grid__item[data-phone="solo"] {
+      width: 58%;
+    }
+    .work-grid__item[data-side="end"] {
+      justify-self: end;
     }
   }
 </style>

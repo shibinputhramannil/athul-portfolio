@@ -72,35 +72,35 @@ body::after {
 }
 
 /* Selected work: dim the projects that are not the active (playing) one. */
-.work-grid .card__frame,
-.work-grid .card__meta {
+.work-stage .card__frame,
+.work-stage .card__meta {
   transition: opacity 0.4s var(--ease-cut);
 }
-.work-grid:has(.card.is-playing)
+.work-stage:has(.card.is-playing)
   .card:not(.is-playing, :focus-visible)
   :is(.card__frame, .card__meta) {
   opacity: 0.5;
 }
 
-/* Two-up phone grid: keep the card chrome to icons so the footage stays visible. */
+/* Phone layouts: keep the card chrome to icons so the footage stays visible. */
 @media (max-width: 760px) {
-  .work-grid .card__hud {
+  .work-stage .card__hud {
     top: 14px;
     left: 14px;
     right: 14px;
   }
-  .work-grid .card__state {
+  .work-stage .card__state {
     font-size: 0;
     gap: 0;
     padding: 4px;
   }
-  .work-grid .card__state .card__rec {
+  .work-stage .card__state .card__rec {
     margin-right: 4px;
   }
-  .work-grid .card__guides {
+  .work-stage .card__guides {
     inset: 6px;
   }
-  .work-grid .card__cta {
+  .work-stage .card__cta {
     left: 10px;
     bottom: 10px;
     width: 40px;
@@ -110,13 +110,13 @@ body::after {
     justify-content: center;
     font-size: 0;
   }
-  .work-grid .card__cta .icon + .icon {
+  .work-stage .card__cta .icon + .icon {
     display: none;
   }
-  .work-grid .card__no {
+  .work-stage .card__no {
     font-size: 2rem;
   }
-  .work-grid .card__title {
+  .work-stage .card__title {
     font-size: 0.95rem;
   }
 }
