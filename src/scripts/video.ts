@@ -10,7 +10,6 @@ const previews = Array.from(
 );
 const visible = new Set<HTMLVideoElement>();
 const playing = new Set<HTMLVideoElement>();
-const ratios = new Map<HTMLVideoElement, number>();
 let preferred: HTMLVideoElement | null = null;
 const featured = document.querySelector<HTMLVideoElement>(
   "[data-feature] video",
@@ -64,9 +63,16 @@ function distanceFromCenter(video: HTMLVideoElement) {
   );
 }
 
-// Coarse visibility so near-equal frames fall through to the featured/centre tie-breaks.
-const visibleStep = (video: HTMLVideoElement) =>
-  Math.round((ratios.get(video) ?? 0) * 10);
+// Measured live: observer ratios can stall just short of a threshold after scrolling.
+function visibleStep(video: HTMLVideoElement) {
+  const r = video.getBoundingClientRect();
+  const h = Math.min(r.bottom, window.innerHeight) - Math.max(r.top, 0);
+  const w = Math.min(r.right, window.innerWidth) - Math.max(r.left, 0);
+  const area = r.width * r.height;
+  if (h <= 0 || w <= 0 || !area) return 0;
+  // Coarse steps so near-equal frames fall through to the featured/centre tie-breaks.
+  return Math.round(((h * w) / area) * 10);
+}
 
 function wanted() {
   if (!canAutoplay()) return new Set<HTMLVideoElement>();
@@ -104,7 +110,6 @@ if (previews.length && "IntersectionObserver" in window) {
     (entries) => {
       for (const entry of entries) {
         const video = entry.target as HTMLVideoElement;
-        ratios.set(video, entry.intersectionRatio);
         if (entry.intersectionRatio >= 0.5) visible.add(video);
         else visible.delete(video);
       }
@@ -116,16 +121,15 @@ if (previews.length && "IntersectionObserver" in window) {
     preload.observe(video);
     watch.observe(video);
   });
-  // A frame's reveal wipe clips its video; re-measure once the wipe finishes.
-  document.addEventListener("transitionend", (event) => {
-    const el = event.target as HTMLElement;
-    if (event.propertyName !== "clip-path" || !el.classList?.contains("wipe"))
-      return;
-    el.querySelectorAll<HTMLVideoElement>("video[data-src]").forEach((v) => {
-      watch.unobserve(v);
-      watch.observe(v);
-    });
-  });
+  let settle = 0;
+  window.addEventListener(
+    "scroll",
+    () => {
+      clearTimeout(settle);
+      settle = window.setTimeout(refresh, 150);
+    },
+    { passive: true },
+  );
   document.addEventListener("visibilitychange", refresh);
   reduceMotion.addEventListener("change", refresh);
   previews.forEach((video) => {

@@ -368,11 +368,11 @@ const featuredLetters = `Edit ${featured?.number ?? ""}`.split("");
   .feature__mask > span {
     display: inline-block;
   }
-  .js .feature__mask > span {
+  :global(.js) .feature__mask > span {
     transform: translateY(105%);
     transition: transform 0.8s var(--ease-cut) calc(0.3s + var(--k) * 50ms);
   }
-  .js .feature.is-in .feature__mask > span {
+  :global(.js) .feature.is-in .feature__mask > span {
     transform: none;
   }
   .feature__mask:nth-last-child(-n + 2) > span {
@@ -405,43 +405,52 @@ const featuredLetters = `Edit ${featured?.number ?? ""}`.split("");
   .wipe {
     --wipe-delay: calc(var(--i, 0) * 90ms);
   }
+  /* Full-height layer with the line on its bottom edge, moved by transform (no layout). */
   .wipe::before {
     content: "";
     position: absolute;
-    left: -8px;
-    right: -8px;
-    top: 100%;
-    z-index: 3;
-    height: 2px;
-    background: var(--crimson);
-    box-shadow: 0 0 12px rgb(234 58 50 / 0.9);
+    inset: 0 -8px;
+    z-index: 5;
+    background: linear-gradient(
+      to top,
+      var(--crimson) 0 2px,
+      rgb(234 58 50 / 0.3) 2px,
+      transparent 14px
+    );
     opacity: 0;
     pointer-events: none;
   }
   .work-grid__item.wipe {
     position: relative;
   }
-  .js .wipe {
-    clip-path: inset(100% -24px -24px -24px);
-    transition: clip-path 0.9s var(--ease-cut) var(--wipe-delay);
+  /* An ink panel rather than clip-path, so visibility tracking still sees the video. */
+  :global(.js) .wipe::after {
+    content: "";
+    position: absolute;
+    inset: -2px;
+    z-index: 4;
+    background: var(--ink);
+    transform-origin: top;
+    transition: transform 0.9s var(--ease-cut) var(--wipe-delay);
+    pointer-events: none;
   }
-  .js .wipe.is-in {
-    clip-path: inset(-24px);
+  :global(.js) .wipe.is-in::after {
+    transform: scaleY(0);
   }
-  .js .wipe.is-in::before {
+  :global(.js) .wipe.is-in::before {
     animation: cut-line 0.9s var(--ease-cut) var(--wipe-delay) both;
   }
   @keyframes cut-line {
     0% {
-      top: 100%;
+      transform: translateY(0);
       opacity: 1;
     }
     80% {
-      top: 0;
+      transform: translateY(-100%);
       opacity: 1;
     }
     100% {
-      top: 0;
+      transform: translateY(-100%);
       opacity: 0;
     }
   }
