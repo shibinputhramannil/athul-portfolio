@@ -20,6 +20,26 @@
       "id": "video-04",
       "public": true,
       "durationSec": 18
+    },
+    {
+      "id": "video-05",
+      "public": false
+    },
+    {
+      "id": "video-06",
+      "public": false
+    },
+    {
+      "id": "video-07",
+      "public": false
+    },
+    {
+      "id": "video-08",
+      "public": false
+    },
+    {
+      "id": "video-09",
+      "public": false
     }
   ]
 }
