@@ -17,7 +17,6 @@ const failed = new Set<HTMLVideoElement>();
 const near = new Set<HTMLVideoElement>();
 const retries = new Map<HTMLVideoElement, number>();
 const stalls = new Map<HTMLVideoElement, number>();
-let prefetching: HTMLVideoElement | null = null;
 let autoplayBlocked = false;
 let preferred: HTMLVideoElement | null = null;
 const featured = document.querySelector<HTMLVideoElement>(
@@ -40,6 +39,8 @@ const saveData = () =>
 
 const cardOf = (video: HTMLVideoElement) => video.closest(".card");
 const hasSrc = (video: HTMLVideoElement) => video.hasAttribute("src");
+const fetching = (video: HTMLVideoElement) =>
+  hasSrc(video) && video.networkState === HTMLMediaElement.NETWORK_LOADING;
 
 function buffered(video: HTMLVideoElement) {
   if (video.readyState >= 4) return true;
@@ -62,7 +63,6 @@ function unload(video: HTMLVideoElement) {
   if (!hasSrc(video)) return;
   video.removeAttribute("src");
   video.load();
-  if (prefetching === video) prefetching = null;
 }
 
 const playlistNow = document.querySelector<HTMLElement>("[data-playlist-now]");
@@ -192,17 +192,14 @@ function wanted() {
 function schedule(target: HTMLVideoElement | undefined) {
   if (target && !buffered(target)) {
     for (const v of previews) {
-      if (v !== target && !playing.has(v) && hasSrc(v) && !buffered(v))
-        unload(v);
+      if (v !== target && !playing.has(v) && fetching(v)) unload(v);
     }
     return;
   }
-  if (!canAutoplay() || saveData()) return;
-  if (prefetching && hasSrc(prefetching) && !buffered(prefetching)) return;
+  if (!canAutoplay() || saveData() || previews.some(fetching)) return;
   const next = Array.from(near)
     .filter((v) => !hasSrc(v) && !failed.has(v) && !retrying(v))
     .sort((a, b) => distanceFromCenter(a) - distanceFromCenter(b))[0];
-  prefetching = next ?? null;
   if (next) load(next);
 }
 
@@ -231,7 +228,7 @@ if (previews.length && "IntersectionObserver" in window) {
           attachPoster(video);
         } else {
           near.delete(video);
-          if (!playing.has(video) && !buffered(video)) unload(video);
+          if (!playing.has(video) && fetching(video)) unload(video);
         }
       }
       refresh();
