@@ -1,7 +1,7 @@
 ---
 import { Image } from "astro:assets";
 import SectionHead from "./SectionHead.astro";
-import portrait from "../assets/profile.jpg";
+import portrait from "../assets/profile.png";
 import { profile } from "../content/profile";
 interface Props {
   number: string;
@@ -54,14 +54,13 @@ const { number } = Astro.props;
     margin: 0;
     aspect-ratio: 4 / 5;
     overflow: hidden;
-    background: var(--mist);
-    border-radius: 2px;
   }
   .about__photo img {
     display: block;
     width: 100%;
     height: 100%;
     object-fit: cover;
+    object-position: bottom;
   }
   .about__role {
     grid-column: 5 / span 8;
