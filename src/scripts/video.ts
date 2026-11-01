@@ -13,11 +13,19 @@ const playing = new Set<HTMLVideoElement>();
 // Visible previews that already finished a pass; the next visible one takes over.
 const played = new Set<HTMLVideoElement>();
 const failed = new Set<HTMLVideoElement>();
+// Previews within about a screen of the viewport: candidates for buffering ahead.
+const near = new Set<HTMLVideoElement>();
+const retries = new Map<HTMLVideoElement, number>();
+const stalls = new Map<HTMLVideoElement, number>();
+let prefetching: HTMLVideoElement | null = null;
 let autoplayBlocked = false;
 let preferred: HTMLVideoElement | null = null;
 const featured = document.querySelector<HTMLVideoElement>(
   "[data-feature] video",
 );
+
+const MAX_RETRIES = 2;
+const STALL_MS = 12000;
 
 // Only the active project plays: the keyboard-focused card, else the most visible one.
 const maxPlaying = () => 1;
@@ -31,10 +39,30 @@ const saveData = () =>
     ?.saveData === true;
 
 const cardOf = (video: HTMLVideoElement) => video.closest(".card");
+const hasSrc = (video: HTMLVideoElement) => video.hasAttribute("src");
+
+function buffered(video: HTMLVideoElement) {
+  if (video.readyState >= 4) return true;
+  const b = video.buffered;
+  return (
+    b.length > 0 &&
+    Number.isFinite(video.duration) &&
+    b.end(b.length - 1) >= video.duration - 0.2
+  );
+}
 
 function load(video: HTMLVideoElement) {
-  if (!video.getAttribute("src") && video.dataset.src)
-    video.src = video.dataset.src;
+  if (hasSrc(video) || !video.dataset.src) return;
+  video.preload = "auto";
+  video.src = video.dataset.src;
+}
+
+// Cancel an unfinished download so it stops competing for bandwidth; the poster stays.
+function unload(video: HTMLVideoElement) {
+  if (!hasSrc(video)) return;
+  video.removeAttribute("src");
+  video.load();
+  if (prefetching === video) prefetching = null;
 }
 
 const playlistNow = document.querySelector<HTMLElement>("[data-playlist-now]");
@@ -43,18 +71,38 @@ function markPlaylist(video: HTMLVideoElement) {
   if (playlistNow && number) playlistNow.textContent = number;
 }
 
+function clearStall(video: HTMLVideoElement) {
+  clearTimeout(stalls.get(video));
+  stalls.delete(video);
+}
+
 function stop(video: HTMLVideoElement) {
   video.pause();
   playing.delete(video);
+  clearStall(video);
   cardOf(video)?.classList.remove("is-playing", "is-loading");
 }
 
 function fail(video: HTMLVideoElement) {
   if (failed.has(video)) return;
-  failed.add(video);
+  const attempt = (retries.get(video) ?? 0) + 1;
   stop(video);
-  cardOf(video)?.classList.add("is-error");
-  console.warn(`Preview could not load: ${video.currentSrc || video.src}`);
+  unload(video);
+  const card = cardOf(video);
+  if (attempt <= MAX_RETRIES) {
+    retries.set(video, attempt);
+    card?.classList.add("is-retrying");
+    window.setTimeout(() => {
+      card?.classList.remove("is-retrying");
+      load(video);
+      refresh();
+    }, 1500 * attempt);
+    return;
+  }
+  failed.add(video);
+  card?.classList.remove("is-retrying");
+  card?.classList.add("is-error");
+  console.warn(`Preview could not load: ${video.dataset.src}`);
   refresh();
 }
 
@@ -64,12 +112,22 @@ function start(video: HTMLVideoElement) {
   load(video);
   video.muted = true;
   playing.add(video);
-  if (video.readyState < 3) cardOf(video)?.classList.add("is-loading");
+  if (video.readyState < 3) {
+    cardOf(video)?.classList.add("is-loading");
+    // A preview that never gets going is treated like a failed one and retried.
+    stalls.set(
+      video,
+      window.setTimeout(() => {
+        if (playing.has(video) && video.readyState < 3) fail(video);
+      }, STALL_MS),
+    );
+  }
   video
     .play()
     .then(() => {
       if (!wanted().has(video)) stop(video);
       else {
+        clearStall(video);
         cardOf(video)?.classList.remove("is-loading");
         cardOf(video)?.classList.add("is-playing");
         markPlaylist(video);
@@ -98,23 +156,54 @@ function visibleStep(video: HTMLVideoElement) {
   const w = Math.min(r.right, window.innerWidth) - Math.max(r.left, 0);
   const area = r.width * r.height;
   if (h <= 0 || w <= 0 || !area) return 0;
-  // Coarse steps so near-equal frames fall through to the featured/centre tie-breaks.
+  // Coarse steps so near-equal frames fall through to the tie-breaks below.
   return Math.round(((h * w) / area) * 10);
 }
+
+const centreStep = (video: HTMLVideoElement) =>
+  Math.floor(distanceFromCenter(video) / (window.innerHeight * 0.08));
+
+const retrying = (video: HTMLVideoElement) =>
+  cardOf(video)?.classList.contains("is-retrying") ?? false;
 
 function wanted() {
   if (!canAutoplay()) return new Set<HTMLVideoElement>();
   const ranked = Array.from(visible)
-    .filter((v) => !failed.has(v))
+    // Geometry, not the observer ratio: ancestor clips and masks skew the ratio.
+    .filter((v) => visibleStep(v) >= 5 && !failed.has(v) && !retrying(v))
     .sort(
       (a, b) =>
         Number(b === preferred) - Number(a === preferred) ||
         visibleStep(b) - visibleStep(a) ||
         Number(played.has(a)) - Number(played.has(b)) ||
+        // The frame nearest the middle of the screen leads after a scroll.
+        centreStep(a) - centreStep(b) ||
         Number(b === featured) - Number(a === featured) ||
+        // Don't cut off the preview that is already running for an equal one.
+        Number(playing.has(b)) - Number(playing.has(a)) ||
+        // A preview that can start now beats one still downloading.
+        Number(buffered(b)) - Number(buffered(a)) ||
         distanceFromCenter(a) - distanceFromCenter(b),
     );
   return new Set(ranked.slice(0, maxPlaying()));
+}
+
+// One download at a time: the preview that should play now, then the nearest upcoming one.
+function schedule(target: HTMLVideoElement | undefined) {
+  if (target && !buffered(target)) {
+    for (const v of previews) {
+      if (v !== target && !playing.has(v) && hasSrc(v) && !buffered(v))
+        unload(v);
+    }
+    return;
+  }
+  if (!canAutoplay() || saveData()) return;
+  if (prefetching && hasSrc(prefetching) && !buffered(prefetching)) return;
+  const next = Array.from(near)
+    .filter((v) => !hasSrc(v) && !failed.has(v) && !retrying(v))
+    .sort((a, b) => distanceFromCenter(a) - distanceFromCenter(b))[0];
+  prefetching = next ?? null;
+  if (next) load(next);
 }
 
 function refresh() {
@@ -123,28 +212,44 @@ function refresh() {
     if (!want.has(video)) stop(video);
   }
   for (const video of want) start(video);
+  schedule(want.values().next().value);
 }
 
+const attachPoster = (video: HTMLVideoElement) => {
+  if (!video.poster && video.dataset.poster)
+    video.poster = video.dataset.poster;
+};
+
 if (previews.length && "IntersectionObserver" in window) {
-  // Buffer the short preview clips just before they scroll into view, so playback starts at once.
-  const preload = new IntersectionObserver(
+  const nearby = new IntersectionObserver(
     (entries) => {
       for (const entry of entries) {
-        if (!entry.isIntersecting || !canAutoplay() || saveData()) continue;
         const video = entry.target as HTMLVideoElement;
-        video.preload = "auto";
-        load(video);
-        preload.unobserve(video);
+        if (entry.isIntersecting) {
+          near.add(video);
+          // Posters are attached just ahead of view instead of all at page load.
+          attachPoster(video);
+        } else {
+          near.delete(video);
+          if (!playing.has(video) && !buffered(video)) unload(video);
+        }
       }
+      refresh();
     },
-    { rootMargin: "50% 0px" },
+    { rootMargin: "100% 0px" },
   );
   const watch = new IntersectionObserver(
     (entries) => {
       for (const entry of entries) {
         const video = entry.target as HTMLVideoElement;
-        if (entry.intersectionRatio >= 0.5) visible.add(video);
-        else {
+        if (entry.isIntersecting) {
+          // A failed preview gets one fresh attempt each time it comes back into view.
+          if (failed.delete(video)) {
+            retries.set(video, MAX_RETRIES);
+            cardOf(video)?.classList.remove("is-error");
+          }
+          visible.add(video);
+        } else {
           visible.delete(video);
           played.delete(video);
         }
@@ -154,15 +259,27 @@ if (previews.length && "IntersectionObserver" in window) {
     { threshold: [0, 0.25, 0.5, 0.75, 1] },
   );
   previews.forEach((video) => {
-    preload.observe(video);
+    nearby.observe(video);
     watch.observe(video);
-    video.addEventListener("error", () => fail(video));
+    video.addEventListener("error", () => {
+      if (hasSrc(video) && video.error) fail(video);
+    });
     video.addEventListener("waiting", () => {
       if (playing.has(video)) cardOf(video)?.classList.add("is-loading");
     });
-    video.addEventListener("playing", () =>
-      cardOf(video)?.classList.remove("is-loading"),
-    );
+    video.addEventListener("playing", () => {
+      clearStall(video);
+      cardOf(video)?.classList.remove("is-loading");
+    });
+    // The browser can pause a preview itself (background tab, power saving); free the slot.
+    video.addEventListener("pause", () => {
+      if (!playing.has(video) || video.ended) return;
+      playing.delete(video);
+      clearStall(video);
+      cardOf(video)?.classList.remove("is-playing", "is-loading");
+    });
+    video.addEventListener("canplaythrough", refresh);
+    video.addEventListener("suspend", refresh);
     // One pass each: when several previews are on screen they take turns.
     video.addEventListener("ended", () => {
       played.add(video);
@@ -200,6 +317,8 @@ if (previews.length && "IntersectionObserver" in window) {
     };
     card?.addEventListener("focus", prefer);
   });
+} else {
+  previews.forEach(attachPoster);
 }
 
 let playerOpener: HTMLButtonElement | null = null;
