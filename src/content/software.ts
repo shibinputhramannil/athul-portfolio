@@ -38,5 +38,8 @@ export const softwareDemos: SoftwareDemo[] = [
 ];
 
 export const watchUrl = (id: string) => `https://www.youtube.com/watch?v=${id}`;
+/** YouTube's own thumbnail for the video, shown before the player is loaded. */
+export const thumbUrl = (id: string, size = "maxresdefault") =>
+  `https://i.ytimg.com/vi/${id}/${size}.jpg`;
 export const embedUrl = (id: string) =>
   `https://www.youtube-nocookie.com/embed/${id}?autoplay=1&rel=0&playsinline=1`;

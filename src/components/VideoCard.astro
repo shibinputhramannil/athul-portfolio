@@ -28,11 +28,14 @@ const duration = formatDuration(v.durationSec);
   aria-label={`Play ${label} with sound controls`}
 >
   <span class="card__frame">
+    <span class="card__fallback" aria-hidden="true">
+      <Icon name="play" size={compact ? 16 : 24} />
+      Edit {v.number}
+    </span>
     <video
       class="card__preview"
       muted
       playsinline
-      loop
       preload="none"
       poster={v.poster}
       data-src={full ? v.full : v.preview}
@@ -41,6 +44,7 @@ const duration = formatDuration(v.durationSec);
       disablepictureinpicture
     ></video>
     <span class="card__guides" aria-hidden="true"></span>
+    <span class="card__load" aria-hidden="true"></span>
     {compact ? (
       <span class="label card__tag" aria-hidden="true">
         {v.number}
@@ -56,6 +60,8 @@ const duration = formatDuration(v.durationSec);
           <Icon name="pause" size={14} />
           Paused
         </span>
+        <span class="card__state card__state--wait">Loading preview</span>
+        <span class="card__state card__state--err">Preview unavailable</span>
         {duration && <span class="card__tc">{duration}</span>}
       </span>
     )}
@@ -104,7 +110,29 @@ const duration = formatDuration(v.durationSec);
     background: var(--graphite);
     transition: border-color 0.3s;
   }
+  .card__fallback {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-content: center;
+    justify-items: center;
+    gap: 8px;
+    color: var(--fog);
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    background:
+      radial-gradient(90% 60% at 20% 0%, rgb(18 58 51 / 0.9), transparent 70%),
+      radial-gradient(
+        70% 50% at 100% 100%,
+        rgb(234 58 50 / 0.14),
+        transparent 70%
+      );
+  }
   .card__preview {
+    position: relative;
+    display: block;
     width: 100%;
     height: 100%;
     object-fit: cover;
@@ -168,8 +196,49 @@ const duration = formatDuration(v.durationSec);
     background: rgb(8 17 15 / 0.72);
   }
   .card__state--on,
-  .card:global(.is-playing) .card__state--off {
+  .card__state--wait,
+  .card__state--err,
+  .card:global(.is-playing) .card__state--off,
+  .card:global(.is-loading) .card__state--off,
+  .card:global(.is-error) .card__state--off {
     display: none;
+  }
+  .card:global(.is-loading) .card__state--wait,
+  .card:global(.is-error) .card__state--err {
+    display: inline-flex;
+  }
+  .card:global(.is-error) .card__state--err {
+    color: var(--crimson);
+  }
+  /* Thin bar along the bottom edge while a preview buffers. */
+  .card__load {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 2px;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      var(--seafoam),
+      transparent
+    );
+    background-size: 40% 100%;
+    background-repeat: no-repeat;
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+  .card:global(.is-loading) .card__load {
+    opacity: 1;
+    animation: card-load 1.1s linear infinite;
+  }
+  @keyframes card-load {
+    from {
+      background-position: -40% 0;
+    }
+    to {
+      background-position: 140% 0;
+    }
   }
   .card:global(.is-playing) .card__state--on {
     display: inline-flex;
@@ -244,6 +313,10 @@ const duration = formatDuration(v.durationSec);
   }
   .card--compact .card__guides {
     inset: 8px;
+  }
+  .card--compact:global(.is-error) .card__tag::after {
+    content: " · No preview";
+    color: var(--crimson);
   }
   .card--compact .card__tag {
     position: absolute;

@@ -1,7 +1,12 @@
 ---
 import SectionHead from "./SectionHead.astro";
 import Icon from "./Icon.astro";
-import { softwareDemos, watchUrl, embedUrl } from "../content/software";
+import {
+  softwareDemos,
+  watchUrl,
+  embedUrl,
+  thumbUrl,
+} from "../content/software";
 interface Props {
   number: string;
 }
@@ -61,6 +66,17 @@ const { number } = Astro.props;
                 class="soft__play"
                 aria-label={`Play ${d.title}, by ${d.channel}. Loads the YouTube player.`}
               >
+                <img
+                  class="soft__thumb"
+                  src={thumbUrl(d.youtubeId)}
+                  data-fallback={thumbUrl(d.youtubeId, "mqdefault")}
+                  alt=""
+                  width="1280"
+                  height="720"
+                  loading="lazy"
+                  decoding="async"
+                  referrerpolicy="strict-origin-when-cross-origin"
+                />
                 <span class="soft__marks" aria-hidden="true" />
                 <span class="soft__mark" aria-hidden="true">
                   <Icon brand={d.brand} size={48} />
@@ -85,6 +101,17 @@ const { number } = Astro.props;
   // Click-to-play: the YouTube iframe only loads after a click, one demo at a time.
   let active: { frame: HTMLElement; button: HTMLButtonElement } | null = null;
 
+  // Fall back to YouTube's smaller thumbnail, then to the plain frame, if an image is missing.
+  document.querySelectorAll<HTMLImageElement>(".soft__thumb").forEach((img) => {
+    const fallback = () => {
+      const next = img.dataset.fallback;
+      if (next && !img.src.endsWith(next)) img.src = next;
+      else img.remove();
+    };
+    img.addEventListener("error", fallback);
+    if (img.complete && img.src && img.naturalWidth === 0) fallback();
+  });
+
   document
     .querySelectorAll<HTMLElement>(".soft__frame[data-embed]")
     .forEach((frame) => {
@@ -99,7 +126,6 @@ const { number } = Astro.props;
         iframe.title = frame.dataset.embedTitle ?? "YouTube video";
         iframe.allow =
           "autoplay; encrypted-media; picture-in-picture; fullscreen";
-        iframe.allowFullscreen = true;
         iframe.referrerPolicy = "strict-origin-when-cross-origin";
         frame.replaceChildren(iframe);
         frame.classList.add("is-live");
@@ -233,7 +259,44 @@ const { number } = Astro.props;
     outline: 2px solid var(--seafoam);
     outline-offset: -4px;
   }
+  .soft__thumb {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: saturate(0.85);
+    transition: filter 0.4s var(--ease-cut);
+  }
+  .soft__play::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(rgb(8 17 15 / 0.35), rgb(8 17 15 / 0.7)),
+      radial-gradient(90% 70% at 15% 0%, rgb(18 58 51 / 0.45), transparent 70%);
+    transition: opacity 0.4s var(--ease-cut);
+  }
+  .soft__play:hover .soft__thumb,
+  .soft__play:focus-visible .soft__thumb {
+    filter: none;
+  }
+  .soft__play:hover::after,
+  .soft__play:focus-visible::after {
+    opacity: 0.75;
+  }
+  .soft__mark,
+  .soft__cta,
+  .soft__note {
+    position: relative;
+    z-index: 1;
+  }
+  /* The thumbnail already shows the product; the icon tile is the no-thumbnail fallback. */
+  .soft__thumb ~ .soft__mark {
+    display: none;
+  }
   .soft__marks {
+    z-index: 1;
     position: absolute;
     inset: 14px;
     pointer-events: none;
