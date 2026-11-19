@@ -347,31 +347,6 @@ html[data-scene="contact"] {
   );
 }
 
-/* Experience: the track and nodes in the night grade. */
-.tl__fill {
-  background: linear-gradient(
-    180deg,
-    var(--cyan),
-    var(--violet) 60%,
-    var(--coral)
-  );
-  box-shadow: 0 0 16px rgb(160 140 255 / 0.45);
-}
-.tl__item.is-active .tl__node {
-  background: var(--violet);
-  border-color: var(--violet);
-  box-shadow: 0 0 18px rgb(160 140 255 / 0.7);
-}
-.tl__years {
-  -webkit-text-stroke-color: rgb(160 140 255 / 0.55);
-}
-.tl__item.is-active .tl__years {
-  -webkit-text-stroke-color: rgb(79 216 232 / 0.85);
-}
-.tl__item.is-active .tl__trim {
-  border-color: var(--violet);
-}
-
 /* Contact: the outlined line shades from seafoam to coral, letter by letter. */
 .cta__at {
   background: var(--grad-warm);

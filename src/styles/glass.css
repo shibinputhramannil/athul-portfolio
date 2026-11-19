@@ -34,7 +34,6 @@
 .glass,
 .fxp,
 .tool,
-.tl__body,
 .edu__item,
 .cta__panel,
 .stat,
@@ -55,7 +54,6 @@
 .glass::after,
 .fxp::after,
 .tool::after,
-.tl__body::after,
 .edu__item::after,
 .cta__panel::after,
 .stat::after,
@@ -85,7 +83,6 @@
 
 /* Hover sheen: one diagonal glint sweeps across interactive glass. */
 .tool,
-.tl__body,
 .stat,
 .cta__panel {
   background:
@@ -104,7 +101,6 @@
     transform 0.5s var(--ease-out);
 }
 .tool:hover,
-.tl__body:hover,
 .stat:hover,
 .cta__panel:hover {
   background-position:
@@ -388,9 +384,6 @@
 }
 
 /* ---------- Experience ---------- */
-.tl__body {
-  border-radius: 20px;
-}
 .edu__item {
   border-radius: 18px;
 }
@@ -465,7 +458,6 @@
 
 /* Keep content above the rim layer inside glass panels. */
 .fxp > *,
-.tl__body > :not(.tl__trim),
 .cta__panel > *,
 .wk-controls > *,
 .bin__panel > *,

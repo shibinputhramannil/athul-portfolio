@@ -287,3 +287,13 @@
     bottom: calc(var(--tabbar-h) + 26px + var(--host-inset, 0px));
   }
 }
+
+/* ---------- Readable long labels ----------
+   Uppercase mono suits short labels; whole place names and sentences read
+   better in normal case with tighter tracking. */
+.cta__loc,
+.profile__loc {
+  text-transform: none;
+  letter-spacing: 0.01em;
+  font-size: 13px;
+}

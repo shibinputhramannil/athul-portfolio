@@ -5,7 +5,6 @@ import Reveal from "./Reveal";
 import { toolMeta } from "../lib/icons";
 import { usePauseOffscreen } from "../lib/ticker";
 import { Scramble } from "./Kinetic";
-import ColourWheels from "./ColourWheels";
 
 // General product categories, not claims about specific projects.
 const toolUse = {
@@ -200,8 +199,6 @@ export default function Craft({ number, profile }) {
             ))}
           </ul>
         </div>
-
-        <ColourWheels number={number} />
       </div>
     </section>
   );

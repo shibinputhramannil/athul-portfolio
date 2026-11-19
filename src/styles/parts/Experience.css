@@ -1,174 +1,166 @@
-/* Ported from Experience.astro */
-.tl {
-  position: relative;
-  --track-x: 23px;
+/* =====================================================================
+   Experience: editorial rows. Dates, studio and role, then the work, on a
+   three-column grid with hairline rules; each rule draws across in the
+   scene's grade as the row arrives. Transforms and opacity only.
+   ===================================================================== */
+.xp {
+  margin: clamp(8px, 2vw, 24px) 0 0;
+  padding: 0;
+  list-style: none;
+  border-bottom: 1px solid var(--line);
 }
-.tl__track {
+.xp__row {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 3fr) minmax(0, 4.4fr) minmax(0, 4.6fr);
+  gap: 18px var(--gutter);
+  align-items: start;
+  padding: clamp(28px, 4vw, 52px) 0;
+}
+/* Hairline with a graded stroke that draws left to right. */
+.xp__line {
   position: absolute;
+  left: 0;
+  right: 0;
   top: 0;
-  bottom: 0;
-  left: var(--track-x);
-  width: 2px;
+  height: 1px;
   background: var(--line);
 }
-.tl__fill {
+.xp__line::after {
+  content: "";
   position: absolute;
   inset: 0;
-  background: linear-gradient(var(--seafoam), var(--crimson));
-  transform-origin: top;
-  box-shadow: 0 0 14px var(--glow-teal);
+  background: var(--sec-grad, var(--grad-night));
+  transform: scaleX(0);
+  transform-origin: 0 50%;
+  transition: transform 1.2s var(--ease-out) 0.1s;
 }
-.tl--animate .tl__fill {
-  transform: scaleY(0);
+.xp__row.is-active .xp__line::after {
+  transform: scaleX(1);
 }
-.tl__list {
+/* Soft glow behind the row on hover (painted once, faded with opacity). */
+.xp__row::before {
+  content: "";
+  position: absolute;
+  inset: 0 calc(var(--gutter) * -1);
+  z-index: -1;
+  border-radius: 18px;
+  background: radial-gradient(
+    60% 120% at 30% 50%,
+    color-mix(in oklab, var(--sec, var(--violet)) 9%, transparent),
+    transparent 70%
+  );
+  opacity: 0;
+  transition: opacity 0.5s;
+}
+@media (hover: hover) and (pointer: fine) {
+  .xp__row:hover::before {
+    opacity: 1;
+  }
+}
+
+.xp__when {
   display: grid;
-  gap: clamp(56px, 8vw, 120px);
-  margin: 0;
-  padding: clamp(24px, 4vw, 48px) 0;
-  list-style: none;
+  justify-items: start;
+  gap: 12px;
 }
-.tl__item {
-  position: relative;
-  display: grid;
-  grid-template-columns: 48px minmax(0, 5fr) minmax(0, 7fr);
-  gap: 0 var(--gutter);
-  align-items: center;
-  overflow-x: clip;
-}
-.tl__node {
-  grid-column: 1;
-  grid-row: 1;
-  justify-self: center;
-  width: 16px;
-  height: 16px;
-  border: 2px solid var(--seafoam);
-  background: var(--ink);
-  rotate: 45deg;
-  transition:
-    background-color 0.4s,
-    border-color 0.4s,
-    box-shadow 0.4s;
-}
-.tl__item.is-active .tl__node {
-  border-color: var(--crimson);
-  background: var(--crimson);
-  box-shadow: 0 0 16px var(--glow-red);
-}
-.tl__years {
-  grid-column: 2;
-  grid-row: 1;
+.xp__years {
   margin: 0;
   font-weight: 900;
   font-stretch: 75%;
-  font-size: clamp(3.2rem, 6.6vw, 7rem);
-  line-height: 0.85;
-  letter-spacing: -0.02em;
+  font-size: clamp(1.9rem, 3vw, 3rem);
+  line-height: 0.9;
+  letter-spacing: -0.01em;
+  font-variant-numeric: tabular-nums;
+  background: var(--sec-grad, var(--grad-night));
+  -webkit-background-clip: text;
+  background-clip: text;
   color: transparent;
-  -webkit-text-stroke: 1px rgb(142 210 190 / 0.5);
-  white-space: nowrap;
 }
-.tl__item.is-active .tl__years {
-  -webkit-text-stroke-color: rgb(142 210 190 / 0.85);
+.xp__dash {
+  padding: 0 0.12em;
+  opacity: 0.6;
 }
-.tl__body {
-  position: relative;
-  z-index: 1;
-  grid-column: 3;
-  grid-row: 1;
-  padding: clamp(22px, 3vw, 36px) clamp(26px, 3.4vw, 44px);
-  border: 1px solid var(--line-2);
-  border-radius: var(--radius);
-  background:
-    linear-gradient(180deg, rgb(18 58 51 / 0.35), transparent 40%),
-    rgb(11 23 20 / 0.82);
-  transition: border-color 0.4s;
-}
-.tl__item.is-active .tl__body {
-  border-color: rgb(142 210 190 / 0.4);
-}
-/* Trim handles, like the ends of a clip on the timeline. */
-.tl__trim {
-  position: absolute;
-  top: 14px;
-  bottom: 14px;
-  width: 6px;
-  border: 2px solid var(--seafoam);
-  opacity: 0.7;
-}
-.tl__trim--l {
-  left: 10px;
-  border-right: 0;
-  border-radius: 4px 0 0 4px;
-}
-.tl__trim--r {
-  right: 10px;
-  border-left: 0;
-  border-radius: 0 4px 4px 0;
-}
-.tl__item.is-active .tl__trim {
-  border-color: var(--crimson);
-}
-.tl__meta {
-  display: flex;
-  flex-wrap: wrap;
+.xp__badge {
+  display: inline-flex;
   align-items: center;
-  gap: 8px 16px;
-  margin: 0 0 12px;
-  color: var(--mist);
-}
-.tl__no {
-  color: var(--crimson);
-}
-.tl__badge {
-  padding: 2px 8px;
+  gap: 7px;
+  padding: 4px 10px;
   border: 1px solid var(--line-2);
   border-radius: 999px;
-  color: var(--seafoam);
+  color: var(--fog);
   font-size: 10px;
 }
-.tl__company {
+.xp__badge.is-latest {
+  border-color: color-mix(in oklab, var(--sec, var(--violet)) 50%, transparent);
+  color: var(--mist);
+}
+.xp__dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--sec, var(--violet));
+  box-shadow: 0 0 10px var(--sec, var(--violet));
+}
+
+.xp__company {
   margin: 0;
   font-weight: 900;
   font-stretch: 75%;
-  font-size: clamp(2.2rem, 4.8vw, 4.6rem);
+  font-size: clamp(2.2rem, 4vw, 3.8rem);
   line-height: 0.92;
   text-transform: uppercase;
+  transition: color 0.4s;
 }
-.tl__word {
+.xp__word {
   display: inline-block;
-  overflow: hidden;
+  overflow: clip;
+  overflow-clip-margin: 0.1em;
   padding-bottom: 0.06em;
   white-space: nowrap;
 }
-.tl__char {
+.xp__char {
   display: inline-block;
 }
-.tl--animate .tl__char {
-  transform: translateY(110%);
-}
-.tl--animate [data-tl-line] {
-  opacity: 0;
-}
-.tl--animate .tl__node {
-  transform: scale(0);
-}
-.tl__role {
+.xp__role {
   display: flex;
   align-items: center;
   gap: 8px;
-  margin: 14px 0 14px;
-  color: var(--seafoam);
+  margin: 12px 0 0;
+  color: var(--sec, var(--seafoam));
 }
-.tl__role .icon {
-  color: var(--crimson);
+.xp__role .icon {
+  color: var(--coral);
 }
-.tl__desc {
+.xp__desc {
   margin: 0;
-  max-width: 58ch;
-  color: rgb(230 236 233 / 0.82);
+  max-width: 52ch;
+  color: rgb(230 236 233 / 0.8);
+  font-size: clamp(1rem, 0.94rem + 0.2vw, 1.1rem);
+  line-height: 1.6;
 }
 
+/* Arrival: letters rise, then the lines fade up in order. */
+.js .xp__char {
+  transform: translate3d(0, 110%, 0);
+  transition: transform 0.7s var(--ease-out) calc(var(--c, 0) * 24ms);
+}
+.js .xp__row.is-active .xp__char {
+  transform: none;
+}
+.js [data-xp-line] {
+  opacity: 0;
+  transform: translate3d(0, 14px, 0);
+  transition:
+    opacity 0.6s var(--ease-out) calc(0.15s + var(--l, 0) * 0.1s),
+    transform 0.6s var(--ease-out) calc(0.15s + var(--l, 0) * 0.1s);
+}
+.js .xp__row.is-active [data-xp-line] {
+  opacity: 1;
+  transform: none;
+}
+
+/* ---------- Education ---------- */
 .edu {
   display: grid;
   grid-template-columns: repeat(12, minmax(0, 1fr));
@@ -225,79 +217,44 @@
   font-size: 0.95rem;
 }
 
-@media (max-width: 900px) {
-  .tl {
-    --track-x: 11px;
+@media (max-width: 960px) {
+  .xp__row {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.6fr);
   }
-  .tl__item {
-    grid-template-columns: 24px minmax(0, 1fr);
-    align-items: start;
-  }
-  .tl__node {
-    margin-top: 0.6em;
-    width: 12px;
-    height: 12px;
-  }
-  .tl__years {
+  .xp__desc {
     grid-column: 2;
-    font-size: clamp(2.6rem, 13vw, 4.5rem);
-  }
-  .tl__body {
-    grid-column: 2;
-    grid-row: 2;
-    margin-top: 16px;
   }
   .edu__title,
   .edu__list {
     grid-column: 1 / -1;
   }
 }
-@media (max-width: 600px) {
+@media (max-width: 640px) {
+  .xp__row {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+  .xp__when {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .xp__desc {
+    grid-column: auto;
+  }
   .edu__list {
     grid-template-columns: 1fr;
   }
-  .tl__trim {
-    display: none;
-  }
-}
-
-/* React port: the kinetic reveal runs on CSS transitions once an item is active. */
-.tl--animate .tl__char {
-  transition: transform 0.6s var(--ease-out) calc(var(--c, 0) * 25ms);
-}
-.tl--animate .tl__item.is-active .tl__char {
-  transform: none;
-}
-.tl--animate [data-tl-line] {
-  transform: translateY(16px);
-  transition:
-    opacity 0.6s var(--ease-out) calc(0.2s + var(--l, 0) * 0.1s),
-    transform 0.6s var(--ease-out) calc(0.2s + var(--l, 0) * 0.1s);
-}
-.tl--animate .tl__item.is-active [data-tl-line] {
-  opacity: 1;
-  transform: none;
-}
-.tl--animate .tl__node {
-  transition:
-    transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1),
-    background-color 0.4s,
-    border-color 0.4s,
-    box-shadow 0.4s;
-}
-.tl--animate .tl__item.is-active .tl__node {
-  transform: scale(1);
 }
 @media (prefers-reduced-motion: reduce) {
-  .tl--animate .tl__char,
-  .tl--animate [data-tl-line],
-  .tl--animate .tl__node {
-    transform: none;
+  .js .xp__char,
+  .js [data-xp-line] {
     opacity: 1;
+    transform: none;
+    transition: none;
   }
-}
-
-.tl__years,
-.tl__fill {
-  will-change: transform;
+  .xp__line::after {
+    transform: scaleX(1);
+    transition: none;
+  }
 }

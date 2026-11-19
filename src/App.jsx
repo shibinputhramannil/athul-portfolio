@@ -61,7 +61,7 @@ export default function App() {
         <Experience number={scene("experience")} profile={profile} />
         <Contact number={scene("contact")} profile={profile} />
       </main>
-      <Footer profile={profile} />
+      <Footer profile={profile} nav={nav} />
       <CommandPalette
         nav={nav}
         videos={videos}
