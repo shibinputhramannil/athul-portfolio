@@ -17,9 +17,12 @@
     />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <script>
-      // Runs before first paint. "js" unlocks the reveal styles; the letterbox
-      // opener plays once per visit (never under reduced motion), and
-      // "is-ready" starts the first scene while the bars are still opening.
+      // Runs before first paint. "js" unlocks the reveal styles. The opener
+      // ("Reframe") plays once per visit, never under reduced motion: a 9:16
+      // frame drawn in light edits the name in, then reframes out to the
+      // full screen. The reframe waits until the page has rendered (React
+      // sends "ak:ready"), so it always opens onto the hero, never onto an
+      // empty page; "is-ready" starts the hero as the frame opens.
       (function () {
         var d = document.documentElement;
         d.classList.add("js");
@@ -37,28 +40,82 @@
           requestAnimationFrame(ready);
           return;
         }
+        // The largest 9:16 frame that sits comfortably on this screen, and
+        // how far each edge must scale to reach the screen's edges.
+        var vw = innerWidth;
+        var vh = innerHeight;
+        var fh = Math.min(vh * 0.64, 660);
+        var fw = (fh * 9) / 16;
+        if (fw > vw * 0.78) {
+          fw = vw * 0.78;
+          fh = (fw * 16) / 9;
+        }
+        var s = d.style;
+        s.setProperty("--op-fw", fw.toFixed(1) + "px");
+        s.setProperty("--op-fh", fh.toFixed(1) + "px");
+        s.setProperty("--op-sx", (vw / fw).toFixed(3));
+        s.setProperty("--op-sy", (vh / fh).toFixed(3));
         d.classList.add("has-intro");
-        var t1 = setTimeout(ready, 620);
-        var t2 = setTimeout(done, 1450);
-        // Opener timecode: 00:00:00:00 to 00:00:01:00 while the line draws.
+
+        // The build runs on CSS animations, which start when the stylesheet
+        // arrives, not when this script runs. So the clock starts with the
+        // first opener animation, and the reframe waits for both the build
+        // (1.05 s) and the page.
         var t0 = performance.now();
+        var app = false;
+        var built = false;
+        var went = false;
+        var tGo = 0;
+        var tDone = 0;
+        var tCap = setTimeout(go, 3200); // never hold the visitor longer
+        function onStart(e) {
+          if (e.animationName !== "op-on") return;
+          removeEventListener("animationstart", onStart);
+          t0 = performance.now() - 80; // op-on starts after an 80 ms delay
+          tGo = setTimeout(function () {
+            built = true;
+            if (app) go();
+          }, 970);
+        }
+        addEventListener("animationstart", onStart);
+        addEventListener(
+          "ak:ready",
+          function () {
+            app = true;
+            if (built) go();
+          },
+          { once: true },
+        );
+        function go() {
+          if (went) return;
+          went = true;
+          clearTimeout(tGo);
+          clearTimeout(tCap);
+          ready();
+          d.classList.add("is-reframe");
+          tDone = setTimeout(done, 840);
+        }
+        // Running timecode at 24 fps until the reframe.
         (function count() {
           var el = document.getElementById("opener-tc");
-          var f = Math.min(
-            24,
-            Math.floor(((performance.now() - t0) / 600) * 24),
-          );
+          var f = Math.floor(((performance.now() - t0) / 1000) * 24);
           if (el)
             el.textContent =
-              "00:00:" + (f >= 24 ? "01:00" : "00:" + (f < 10 ? "0" : "") + f);
-          if (f < 24 && d.classList.contains("has-intro"))
+              "00:00:" +
+              ("0" + Math.floor(f / 24)).slice(-2) +
+              ":" +
+              ("0" + (f % 24)).slice(-2);
+          if (!went && d.classList.contains("has-intro"))
             requestAnimationFrame(count);
         })();
         function done() {
-          clearTimeout(t1);
-          clearTimeout(t2);
+          clearTimeout(tGo);
+          clearTimeout(tCap);
+          clearTimeout(tDone);
+          went = true;
           ready();
-          d.classList.remove("has-intro");
+          d.classList.remove("has-intro", "is-reframe");
+          removeEventListener("animationstart", onStart);
           removeEventListener("keydown", done);
           removeEventListener("pointerdown", done);
         }
@@ -68,16 +125,48 @@
     </script>
   </head>
   <body>
-    <!-- Letterbox opener, shown only while "has-intro" is set. -->
+    <!-- "Reframe" opener, shown only while "has-intro" is set. Four panels
+         surround a 9:16 window; each carries one edge of the light frame,
+         so when they slide apart the frame grows to the full screen. -->
     <div class="opener" aria-hidden="true">
-      <div class="opener__bar opener__bar--top"></div>
-      <div class="opener__bar opener__bar--bottom"></div>
-      <div class="opener__slit"></div>
-      <p class="opener__mark">Adhul U Krishna <em>Video Editor</em></p>
-      <p class="opener__meta">
-        <span>Reel 2026</span><b id="opener-tc">00:00:00:00</b
-        ><span>24 fps</span>
-      </p>
+      <div class="op__screen">
+        <div class="op__ui">
+          <p class="op__top">
+            <span class="op__rec"></span><b id="opener-tc">00:00:00:00</b
+            ><span class="op__ar">9:16</span>
+          </p>
+          <p class="op__name">
+            <span class="op__l1"
+              ><span style="--d: 150">A</span><span style="--d: 200">D</span
+              ><span style="--d: 250">H</span><span style="--d: 300">U</span
+              ><span style="--d: 350">L</span></span
+            >
+            <span class="op__l2"
+              ><span style="--d: 390">U</span><span class="op__gap"></span
+              ><span style="--d: 430">K</span><span style="--d: 460">R</span
+              ><span style="--d: 490">I</span><span style="--d: 520">S</span
+              ><span style="--d: 550">H</span><span style="--d: 575">N</span
+              ><span style="--d: 600">A</span></span
+            >
+          </p>
+          <p class="op__role">Video Editor</p>
+          <div class="op__scrub">
+            <span class="op__played"></span><span class="op__head"></span>
+          </div>
+        </div>
+      </div>
+      <div class="op__panel op__panel--t">
+        <span class="op__edge op__edge--h"><i class="op__line"></i></span>
+      </div>
+      <div class="op__panel op__panel--b">
+        <span class="op__edge op__edge--h"><i class="op__line"></i></span>
+      </div>
+      <div class="op__panel op__panel--l">
+        <span class="op__edge op__edge--v"><i class="op__line"></i></span>
+      </div>
+      <div class="op__panel op__panel--r">
+        <span class="op__edge op__edge--v"><i class="op__line"></i></span>
+      </div>
     </div>
 
     <div id="root"></div>

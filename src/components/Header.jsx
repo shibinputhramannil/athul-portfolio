@@ -154,10 +154,10 @@ export default function Header({ nav, profile }) {
             onClick={openPalette}
             // Starts with the visible words so voice control ("click
             // Search") and screen readers agree; the shortcut matches the OS.
-            aria-label={`Search (${mac ? "⌘K" : "Ctrl K"})`}
+            aria-label={`Search ${mac ? "⌘K" : "Ctrl K"}`}
           >
             <Icon name="search" size={16} />
-            <span className="site-header__search-text">Search</span>
+            <span className="site-header__search-text">Search</span>{" "}
             <kbd>{mac ? "⌘K" : "Ctrl K"}</kbd>
           </button>
           <a className="label site-header__cta" href="#contact" data-magnet="">

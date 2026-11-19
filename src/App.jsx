@@ -21,6 +21,11 @@ export default function App() {
   const [viewing, setViewing] = useState(null); // index into videos
 
   useEffect(() => startSmoothScroll(), []);
+  // Tell the opener (index.html) the page is on screen, so it can reframe
+  // onto the hero instead of onto an empty page.
+  useEffect(() => {
+    requestAnimationFrame(() => window.dispatchEvent(new Event("ak:ready")));
+  }, []);
   useMagnet();
 
   const hasWork = videos.length > 0;

@@ -532,21 +532,27 @@
 .js .intro__mask > span {
   translate: 0 105%;
 }
+/* Kicker, line and buttons rise out of a clip rather than fading in, so the
+   text is never shown at reduced contrast part-way through. The open clip
+   is generous, so button glows are never cut. */
 .js .intro__kicker,
 .js .intro__line,
 .js .intro__ctas {
-  opacity: 0;
+  clip-path: inset(0 0 100% 0);
   translate: 0 16px;
 }
-.is-ready .intro__mask > span,
+.is-ready .intro__mask > span {
+  translate: 0 0;
+  transition: translate 0.9s var(--ease-out);
+}
 .is-ready .intro__kicker,
 .is-ready .intro__line,
 .is-ready .intro__ctas {
-  opacity: 1;
+  clip-path: inset(-40% -10% -60% -10%);
   translate: 0 0;
   transition:
     translate 0.9s var(--ease-out),
-    opacity 0.9s var(--ease-out);
+    clip-path 0.9s var(--ease-out);
 }
 .is-ready .intro__kicker {
   transition-delay: 0.35s;
@@ -1115,7 +1121,10 @@
     animation: none !important;
   }
   .js .track,
-  .js .name__word span {
+  .js .name__word span,
+  .js .intro__kicker,
+  .js .intro__line,
+  .js .intro__ctas {
     opacity: 1;
     clip-path: none;
     translate: none;

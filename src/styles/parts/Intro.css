@@ -1,11 +1,47 @@
 /* =====================================================================
-   Opening: a cinematic letterbox. A graded scan line draws across the
-   centre, the name settles on it with a running timecode, then the black
-   bars glide apart while the first scene is already animating in behind
-   them, so there is no hard cut between the opener and the page.
-   Shown once per visit (html.has-intro, set in index.html); any key or
-   tap cuts it short. Never shown with reduced motion.
+   Opening: "Reframe".
+
+   A 9:16 frame, the shape of every edit on this site, is drawn in light at
+   the centre. Inside it the name is cut in letter by letter as a playhead
+   scrubs the clip, with a running timecode. Then the frame reframes: the
+   four panels around it slide apart, each carrying one edge of the light,
+   so the vertical crop grows out to the full screen and opens onto the
+   hero, which is already animating behind it.
+
+   Timing (index.html): the build lands by 0.92 s; the reframe starts
+   1.05 s into the build once the page has rendered (never later than
+   3.2 s) and takes 0.8 s. Once per visit; any key or tap skips it; never
+   shown with reduced motion. Everything moves with transform, scale,
+   opacity or a small clip-path.
    ===================================================================== */
+:root {
+  --op-spring: cubic-bezier(0.2, 1.35, 0.4, 1);
+  --op-out: cubic-bezier(0.76, 0, 0.24, 1);
+}
+@supports (animation-timing-function: linear(0, 1)) {
+  :root {
+    /* A real spring: quick rise, one soft overshoot, settle. */
+    --op-spring: linear(
+      0,
+      0.035 2.1%,
+      0.141 4.4%,
+      0.723 12.9%,
+      0.938 16.7%,
+      1.017 19.9%,
+      1.077,
+      1.121 24%,
+      1.149 26.3%,
+      1.163 29.7%,
+      1.154 32.3%,
+      1.073 41.2%,
+      1.009 50.4%,
+      0.989 59.3%,
+      1.001 76.5%,
+      1
+    );
+  }
+}
+
 .opener {
   display: none;
 }
@@ -14,176 +50,399 @@
   inset: 0;
   z-index: 95;
   display: block;
+  background: var(--ink);
   pointer-events: none;
 }
 .has-intro body {
   overflow: hidden;
 }
 
-.opener__bar {
-  position: absolute;
-  left: 0;
-  right: 0;
-  height: 50.2%;
-  background:
-    radial-gradient(
-      120% 80% at 50% 100%,
-      rgb(18 58 51 / 0.55),
-      transparent 60%
-    ),
-    var(--ink);
-  will-change: transform;
-  animation: opener-open 0.8s cubic-bezier(0.76, 0, 0.24, 1) 0.6s forwards;
-}
-.opener__bar--top {
-  top: 0;
-  --to: -101%;
-  box-shadow: inset 0 -1px 0 rgb(255 255 255 / 0.08);
-}
-.opener__bar--bottom {
-  bottom: 0;
-  --to: 101%;
-  transform: scaleY(-1);
-  box-shadow: inset 0 -1px 0 rgb(255 255 255 / 0.08);
-  animation-name: opener-open-down;
-}
-@keyframes opener-open {
-  to {
-    transform: translateY(var(--to));
-  }
-}
-@keyframes opener-open-down {
-  to {
-    transform: scaleY(-1) translateY(-101%);
-  }
-}
-
-.opener__slit {
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 50%;
-  height: 2px;
-  margin-top: -1px;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    var(--crimson) 18%,
-    var(--mist) 50%,
-    var(--seafoam) 82%,
-    transparent
-  );
-  box-shadow:
-    0 0 18px rgb(234 58 50 / 0.6),
-    0 0 40px rgb(142 210 190 / 0.35);
-  transform: scaleX(0);
-  will-change: transform, opacity;
-  animation:
-    opener-draw 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards,
-    opener-fade 0.3s ease-out 0.56s forwards;
-}
-@keyframes opener-draw {
-  to {
-    transform: scaleX(1);
-  }
-}
-@keyframes opener-fade {
-  to {
-    opacity: 0;
-    transform: scaleX(1.15);
-  }
-}
-
-.opener__mark,
-.opener__meta {
+/* ---------- The 9:16 screen ---------- */
+.op__screen {
   position: absolute;
   left: 50%;
-  display: flex;
-  gap: 14px;
-  align-items: baseline;
-  translate: -50% 0;
-  white-space: nowrap;
-  color: var(--mist);
+  top: 50%;
+  width: var(--op-fw, 300px);
+  height: var(--op-fh, 533px);
+  translate: -50% -50%;
+  background:
+    repeating-linear-gradient(
+      180deg,
+      rgb(255 255 255 / 0.018) 0 1px,
+      transparent 1px 3px
+    ),
+    radial-gradient(90% 60% at 26% 30%, rgb(18 58 51 / 0.65), transparent 70%),
+    radial-gradient(70% 45% at 85% 100%, rgb(255 122 89 / 0.12), transparent),
+    #0a1614;
   opacity: 0;
-  will-change: transform, opacity;
+  animation: op-on 0.5s ease-out 0.08s forwards;
 }
-.opener__mark {
-  bottom: calc(50% + 18px);
-  font-family: var(--font-display);
-  font-weight: 900;
-  font-stretch: 75%;
-  font-size: clamp(1.4rem, 3.2vw, 2.4rem);
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  animation:
-    opener-rise 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.08s forwards,
-    opener-out 0.34s cubic-bezier(0.7, 0, 0.84, 0) 0.46s forwards;
+@keyframes op-on {
+  to {
+    opacity: 1;
+  }
 }
-.opener__mark em {
-  font-family: var(--font-accent);
-  font-style: italic;
-  font-weight: 400;
-  font-synthesis: none;
-  font-stretch: 100%;
-  font-size: 0.95em;
-  letter-spacing: 0;
-  text-transform: none;
-  color: var(--crimson);
+
+.op__ui {
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  height: 100%;
+  padding: calc(var(--op-fw, 300px) * 0.085);
+  color: var(--mist);
 }
-.opener__meta {
-  top: calc(50% + 16px);
-  gap: 18px;
+.op__top {
+  display: flex;
+  align-items: center;
+  gap: 0.7em;
+  margin: 0;
   font-family: var(--font-mono);
-  font-size: 11px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
+  font-size: max(10px, calc(var(--op-fw, 300px) * 0.036));
   color: var(--fog);
-  animation:
-    opener-rise-down 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.16s forwards,
-    opener-out-down 0.34s cubic-bezier(0.7, 0, 0.84, 0) 0.46s forwards;
+  opacity: 0;
+  animation: op-on 0.4s ease-out 0.16s forwards;
 }
-.opener__meta b {
+.op__top b {
   font-weight: 500;
   color: var(--seafoam);
   font-variant-numeric: tabular-nums;
 }
-@keyframes opener-rise {
-  from {
-    opacity: 0;
-    transform: translateY(14px);
+.op__ar {
+  margin-left: auto;
+}
+.op__rec {
+  width: 0.62em;
+  height: 0.62em;
+  border-radius: 50%;
+  background: var(--crimson);
+  box-shadow: 0 0 10px var(--glow-red);
+  animation: op-blink 0.9s steps(2, jump-none) infinite;
+}
+@keyframes op-blink {
+  50% {
+    opacity: 0.25;
   }
-  to {
+}
+
+/* Name: letters cut in on the playhead, each settling on a spring. */
+.op__name {
+  align-self: end;
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-stretch: 75%;
+  line-height: 0.86;
+  text-transform: uppercase;
+}
+.op__l1,
+.op__l2 {
+  display: block;
+  white-space: nowrap;
+}
+.op__l1 {
+  font-size: calc(var(--op-fw, 300px) * 0.3);
+  letter-spacing: -0.01em;
+}
+.op__l1 > span {
+  /* The same light-to-teal fall as the hero name, letter by letter. */
+  background: linear-gradient(
+    180deg,
+    var(--mist) 18%,
+    #a8ecd8 62%,
+    var(--cyan) 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.op__l2 {
+  margin-top: 0.12em;
+  font-size: calc(var(--op-fw, 300px) * 0.128);
+  letter-spacing: 0.01em;
+}
+.op__gap {
+  display: inline-block;
+  width: 0.28em;
+}
+.op__name span[style] {
+  display: inline-block;
+  opacity: 0;
+  animation: op-cut 0.6s var(--op-spring) forwards;
+  animation-delay: calc(var(--d) * 1ms);
+}
+@keyframes op-cut {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, 24%, 0);
+  }
+  0.1% {
+    opacity: 1;
+  }
+  100% {
     opacity: 1;
     transform: none;
   }
 }
-@keyframes opener-out {
-  from {
-    opacity: 1;
-    transform: none;
-  }
+
+/* Role: a wipe transition, like a cut on the timeline. */
+.op__role {
+  justify-self: start;
+  margin: 0.24em 0 0;
+  padding-right: 0.12em;
+  font-family: var(--font-accent);
+  font-style: italic;
+  font-weight: 400;
+  font-synthesis: none;
+  font-size: calc(var(--op-fw, 300px) * 0.128);
+  line-height: 1.05;
+  background: var(--grad-warm);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  clip-path: inset(0 100% 0 0);
+  animation: op-wipe 0.4s cubic-bezier(0.65, 0, 0.35, 1) 0.52s forwards;
+}
+@keyframes op-wipe {
   to {
-    opacity: 0;
-    transform: translateY(-36px);
+    clip-path: inset(0 0 0 0);
   }
 }
-@keyframes opener-rise-down {
-  from {
-    opacity: 0;
-    transform: translateY(-10px);
-  }
+
+/* Scrub bar: the played part fills in the warm grade behind the playhead. */
+.op__scrub {
+  position: relative;
+  height: 3px;
+  margin-top: calc(var(--op-fw, 300px) * 0.09);
+  border-radius: 3px;
+  background: rgb(255 255 255 / 0.12);
+}
+.op__played,
+.op__head {
+  position: absolute;
+  inset: 0;
+}
+.op__played {
+  border-radius: inherit;
+  background: var(--grad-warm);
+  transform: scaleX(0);
+  transform-origin: 0 50%;
+  animation: op-play 0.76s cubic-bezier(0.45, 0, 0.2, 1) 0.12s forwards;
+}
+.op__head {
+  animation: op-scrub 0.76s cubic-bezier(0.45, 0, 0.2, 1) 0.12s forwards;
+}
+.op__head::before {
+  content: "";
+  position: absolute;
+  left: -1px;
+  top: -7px;
+  bottom: -7px;
+  width: 2px;
+  border-radius: 2px;
+  background: var(--crimson);
+  box-shadow: 0 0 10px var(--glow-red);
+}
+@keyframes op-play {
   to {
-    opacity: 1;
-    transform: none;
+    transform: scaleX(1);
   }
 }
-@keyframes opener-out-down {
+@keyframes op-scrub {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(100%, 0, 0);
+  }
+}
+
+/* ---------- Panels and the light frame ---------- */
+.op__panel {
+  position: absolute;
+  background: var(--ink);
+  will-change: transform;
+}
+.op__panel--t,
+.op__panel--b {
+  left: 0;
+  right: 0;
+  height: calc(50% - var(--op-fh, 533px) / 2 + 1px);
+}
+.op__panel--t {
+  top: 0;
+  --out: op-out-t;
+}
+.op__panel--b {
+  bottom: 0;
+  --out: op-out-b;
+}
+.op__panel--l,
+.op__panel--r {
+  top: 0;
+  bottom: 0;
+  width: calc(50% - var(--op-fw, 300px) / 2 + 1px);
+}
+.op__panel--l {
+  left: 0;
+  --out: op-out-l;
+}
+.op__panel--r {
+  right: 0;
+  --out: op-out-r;
+}
+/* Each edge runs a little past the corners, like crop marks. */
+.op__edge {
+  position: absolute;
+}
+.op__edge--h {
+  left: 50%;
+  width: calc(var(--op-fw, 300px) + 28px);
+  height: 1px;
+  translate: -50% 0;
+}
+.op__panel--t .op__edge {
+  bottom: 0;
+}
+.op__panel--b .op__edge {
+  top: 0;
+}
+.op__edge--v {
+  top: 50%;
+  width: 1px;
+  height: calc(var(--op-fh, 533px) + 28px);
+  translate: 0 -50%;
+}
+.op__panel--l .op__edge {
+  right: 0;
+}
+.op__panel--r .op__edge {
+  left: 0;
+}
+.op__line {
+  position: absolute;
+  inset: 0;
+  opacity: 0.8;
+  box-shadow: 0 0 12px rgb(79 216 232 / 0.5);
+  animation:
+    op-draw 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.04s forwards,
+    op-lock 0.5s ease-out 0.9s forwards;
+}
+.op__edge--h .op__line {
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--seafoam) 14px,
+    var(--cyan) 50%,
+    var(--seafoam) calc(100% - 14px),
+    transparent
+  );
+  scale: 0 1;
+}
+.op__edge--v .op__line {
+  background: linear-gradient(
+    180deg,
+    transparent,
+    var(--seafoam) 14px,
+    var(--cyan) 50%,
+    var(--seafoam) calc(100% - 14px),
+    transparent
+  );
+  scale: 1 0;
+}
+@keyframes op-draw {
+  to {
+    scale: 1 1;
+  }
+}
+/* The frame "locks": one brighter beat once the edit is in. */
+@keyframes op-lock {
+  0% {
+    opacity: 0.8;
+  }
+  30% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.9;
+  }
+}
+
+/* ---------- The reframe ---------- */
+.is-reframe .opener {
+  background: transparent;
+}
+.is-reframe .op__ui {
+  animation: op-ui-out 0.3s cubic-bezier(0.7, 0, 0.84, 0) forwards;
+}
+.is-reframe .op__screen {
+  animation: op-off 0.34s ease 0.06s forwards;
+}
+.is-reframe .op__panel {
+  animation: var(--out) 0.74s var(--op-out) 0.06s forwards;
+}
+.is-reframe .op__edge--h {
+  animation: op-grow-x 0.74s var(--op-out) 0.06s forwards;
+}
+.is-reframe .op__edge--v {
+  animation: op-grow-y 0.74s var(--op-out) 0.06s forwards;
+}
+@keyframes op-ui-out {
+  to {
+    opacity: 0;
+    transform: scale(1.06);
+  }
+}
+@keyframes op-off {
   from {
     opacity: 1;
-    transform: none;
   }
   to {
     opacity: 0;
-    transform: translateY(30px);
+  }
+}
+@keyframes op-out-t {
+  to {
+    transform: translate3d(0, -100%, 0);
+  }
+}
+@keyframes op-out-b {
+  to {
+    transform: translate3d(0, 100%, 0);
+  }
+}
+@keyframes op-out-l {
+  to {
+    transform: translate3d(-100%, 0, 0);
+  }
+}
+@keyframes op-out-r {
+  to {
+    transform: translate3d(100%, 0, 0);
+  }
+}
+/* The light edges stretch with the opening, then fade as it fills the screen. */
+@keyframes op-grow-x {
+  0% {
+    transform: none;
+    opacity: 1;
+  }
+  65% {
+    opacity: 1;
+  }
+  100% {
+    transform: scaleX(var(--op-sx, 4));
+    opacity: 0;
+  }
+}
+@keyframes op-grow-y {
+  0% {
+    transform: none;
+    opacity: 1;
+  }
+  65% {
+    opacity: 1;
+  }
+  100% {
+    transform: scaleY(var(--op-sy, 2));
+    opacity: 0;
   }
 }
