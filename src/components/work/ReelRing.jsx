@@ -16,6 +16,51 @@ import { usePauseOffscreen } from "../../lib/ticker";
 const mod = (a, n) => ((a % n) + n) % n;
 
 /**
+ * One card's preview. Muted and inline (set as attributes too, which some
+ * mobile browsers check) so it may autoplay. When it leaves the reel it
+ * drops its source, which frees the decoder at once: removed videos
+ * otherwise hold theirs until garbage collection, and phones only have a
+ * few, so after some spinning new edits could no longer start.
+ */
+function ReelVideo({ src, poster, index, register, ...events }) {
+  const ref = useRef(null);
+  useEffect(() => {
+    const v = ref.current;
+    if (!v) return;
+    // A development re-mount after a release: give the source back.
+    if (!v.getAttribute("src")) {
+      v.src = src;
+      v.load();
+    }
+    v.defaultMuted = true;
+    v.muted = true;
+    v.setAttribute("muted", "");
+    register(index, v);
+    return () => {
+      register(index, null);
+      v.pause();
+      v.removeAttribute("src");
+      v.load();
+    };
+  }, [src, index, register]);
+  return (
+    <video
+      ref={ref}
+      className="wk-card__video"
+      src={src}
+      poster={poster}
+      muted
+      playsInline
+      preload="auto"
+      disablePictureInPicture
+      aria-hidden="true"
+      tabIndex={-1}
+      {...events}
+    />
+  );
+}
+
+/**
  * The reel: every edit stands on a turning cylinder. The edit facing the
  * viewer plays, its light spills onto the studio floor, and the reel moves
  * on by itself when the clip ends.
@@ -180,26 +225,54 @@ export default function ReelRing({ videos, tones, onOpen, suspended }) {
   }, [near]);
 
   const live = inView && running && !suspended && !reduced;
+  const liveRef = useRef(live);
+  liveRef.current = live;
 
-  // Drive every loaded video: the front one plays to its end (then the reel
+  // Cards register their video as it mounts and unmounts. If the front
+  // edit's video arrives after the reel settled on it, the driver re-runs.
+  const [frontMounted, setFrontMounted] = useState(0);
+  const register = useCallback((i, el) => {
+    videoRefs.current[i] = el;
+    if (el && i === settledRef.current) setFrontMounted((t) => t + 1);
+  }, []);
+
+  // Drive the loaded videos: the front one plays to its end (then the reel
   // moves on); neighbours wait buffered on their first frame, so whichever
-  // one turns to the front starts instantly without decoding three at once.
+  // one turns to the front starts at once without decoding three together.
   useEffect(() => {
     videoRefs.current.forEach((v, i) => {
-      if (!v) return;
-      if (!live) {
-        v.pause();
-        return;
-      }
-      if (i === settled) {
-        v.loop = false;
-        if (v.duration && v.currentTime > v.duration * 0.6) v.currentTime = 0;
-        v.play().catch(() => {});
-      } else {
-        v.pause();
-      }
+      if (v && (i !== settled || !live)) v.pause();
     });
-  }, [live, settled]);
+    const v = videoRefs.current[settled];
+    if (!live || !v) return;
+    v.loop = false;
+    if (v.duration && v.currentTime > v.duration * 0.6) v.currentTime = 0;
+    // Start it, and keep at it: retry the moment it has data and check twice
+    // a second. A start refused while the data was still arriving (or by a
+    // busy decoder) would otherwise leave the front edit on its poster.
+    const start = () => {
+      if (v.paused && !v.ended) v.play().catch(() => {});
+    };
+    start();
+    v.addEventListener("loadeddata", start);
+    v.addEventListener("canplay", start);
+    const watchdog = window.setInterval(start, 500);
+    return () => {
+      v.removeEventListener("loadeddata", start);
+      v.removeEventListener("canplay", start);
+      window.clearInterval(watchdog);
+    };
+  }, [live, settled, frontMounted]);
+
+  // Called from inside input handlers. Power-saving modes (iPhone Low Power,
+  // data savers) only allow playback started by a tap, click or key, so the
+  // edit turning to the front is started right here, within the gesture,
+  // rather than after the spin has finished.
+  const primeFront = () => {
+    if (!liveRef.current || !n) return;
+    const v = videoRefs.current[mod(Math.round(target.current / step), n)];
+    if (v && v.paused) v.play().catch(() => {});
+  };
 
   /* ---------- Progress, timecode and ambient light ---------- */
   // The ambient glow is drawn into a tiny canvas with the blur applied inside
@@ -310,6 +383,7 @@ export default function ReelRing({ videos, tones, onOpen, suspended }) {
     const fling = Math.max(-3, Math.min(3, (-d.v * 260) / pitch.current));
     target.current = Math.round(target.current / step + fling) * step;
     kick();
+    primeFront();
   };
 
   // Trackpad: a sideways flick turns the reel.
@@ -341,17 +415,22 @@ export default function ReelRing({ videos, tones, onOpen, suspended }) {
       e.preventDefault();
       viaKeys.current = true;
       nudge(keys[e.key]);
+      primeFront();
     } else if (e.key === "Home" || e.key === "End") {
       e.preventDefault();
       viaKeys.current = true;
       goTo(e.key === "Home" ? 0 : n - 1);
+      primeFront();
     }
   };
 
   const onCardClick = (i) => {
     if (suppressClick.current) return;
     if (i === activeRef.current && i === settledRef.current) onOpen(i);
-    else goTo(i);
+    else {
+      goTo(i);
+      primeFront();
+    }
   };
 
   const onEnded = (i) => {
@@ -453,17 +532,11 @@ export default function ReelRing({ videos, tones, onOpen, suspended }) {
                     draggable="false"
                   />
                   {loaded && (
-                    <video
-                      ref={(el) => (videoRefs.current[i] = el)}
-                      className="wk-card__video"
+                    <ReelVideo
                       src={v.preview}
                       poster={v.poster}
-                      muted
-                      playsInline
-                      preload="auto"
-                      disablePictureInPicture
-                      aria-hidden="true"
-                      tabIndex={-1}
+                      index={i}
+                      register={register}
                       onPlaying={() => setPlay(i, true)}
                       onPause={() => setPlay(i, false)}
                       onEnded={() => onEnded(i)}
@@ -518,7 +591,10 @@ export default function ReelRing({ videos, tones, onOpen, suspended }) {
             <button
               type="button"
               className="wk-btn"
-              onClick={() => nudge(-1)}
+              onClick={() => {
+                nudge(-1);
+                primeFront();
+              }}
               aria-label="Previous edit"
             >
               <Icon name="chevron-left" size={20} />
@@ -526,7 +602,12 @@ export default function ReelRing({ videos, tones, onOpen, suspended }) {
             <button
               type="button"
               className="wk-btn wk-btn--play"
-              onClick={() => setRunning((r) => !r)}
+              onClick={() => {
+                // Resuming is a click: start the front edit inside it.
+                if (!running)
+                  videoRefs.current[settledRef.current]?.play().catch(() => {});
+                setRunning((r) => !r);
+              }}
               aria-label={running ? "Pause the reel" : "Play the reel"}
               aria-pressed={!running}
               disabled={reduced}
@@ -536,7 +617,10 @@ export default function ReelRing({ videos, tones, onOpen, suspended }) {
             <button
               type="button"
               className="wk-btn"
-              onClick={() => nudge(1)}
+              onClick={() => {
+                nudge(1);
+                primeFront();
+              }}
               aria-label="Next edit"
             >
               <Icon name="chevron-right" size={20} />
@@ -564,7 +648,10 @@ export default function ReelRing({ videos, tones, onOpen, suspended }) {
                 className="wk-strip__item"
                 style={{ "--tone": tone(i) }}
                 aria-current={i === active ? "true" : undefined}
-                onClick={() => goTo(i)}
+                onClick={() => {
+                  goTo(i);
+                  primeFront();
+                }}
               >
                 <span className="sr-only">Show {labelOf(v)}</span>
                 <img
