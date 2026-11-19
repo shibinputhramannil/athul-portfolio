@@ -1,25 +1,39 @@
+/* ------------------------------------------------------------------
+   "In the Edit Suite": near-black stage, seafoam teal, restrained
+   crimson. Every section plays like a scene in a post-production
+   session: slates, timecode, scopes, keyframes and cuts.
+   ------------------------------------------------------------------ */
 :root {
   --ink: #08110f;
+  --ink-2: #0b1714;
   --graphite: #121a18;
+  --panel: #0f1a17;
   --deep-teal: #123a33;
   --seafoam: #8ed2be;
+  --seafoam-2: #5fb7a0;
   --crimson: #ea3a32;
   --mist: #e6ece9;
   --fog: #879592;
   --line: rgb(230 236 233 / 0.12);
+  --line-2: rgb(230 236 233 / 0.22);
+  --glow-teal: rgb(142 210 190 / 0.35);
+  --glow-red: rgb(234 58 50 / 0.55);
 
   --font-display:
     "Archivo Variable", "Arial Narrow", "Helvetica Neue", sans-serif;
-  --font-accent: "Bodoni Moda", Didot, "Bodoni MT", Georgia, serif;
+  --font-accent: "Instrument Serif", "Iowan Old Style", Georgia, serif;
   --font-mono: "JetBrains Mono", ui-monospace, Consolas, monospace;
 
-  --margin: clamp(20px, 4vw, 64px);
-  --gutter: clamp(16px, 2vw, 24px);
-  --section: clamp(96px, 14vh, 200px);
+  --margin: clamp(16px, 4vw, 64px);
+  --gutter: clamp(14px, 2vw, 28px);
+  --section: clamp(88px, 13vh, 180px);
   --max: 1600px;
-  --header-h: 56px;
-  --tabbar-h: 60px;
+  --header-h: 60px;
+  --tabbar-h: 62px;
+  --radius: 14px;
   --ease-cut: cubic-bezier(0.2, 0.7, 0.1, 1);
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-snap: cubic-bezier(0.7, 0, 0.2, 1);
 
   color-scheme: dark;
 }
@@ -34,6 +48,10 @@ html {
   scroll-behavior: smooth;
   scroll-padding-top: var(--header-h);
   -webkit-text-size-adjust: 100%;
+  background: var(--ink);
+  /* Keep the scrollbar's space while scrolling is locked (opener, palette,
+     viewer) so the page never jumps sideways when it comes back. */
+  scrollbar-gutter: stable;
 }
 
 body {
@@ -55,13 +73,27 @@ body::after {
   inset: 0;
   z-index: 70;
   pointer-events: none;
-  opacity: 0.05;
+  opacity: 0.055;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* Scanline vignette on the frame edges: a monitor, not a page. */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 69;
+  pointer-events: none;
+  background: radial-gradient(
+    120% 90% at 50% 45%,
+    transparent 60%,
+    rgb(0 0 0 / 0.45)
+  );
 }
 
 @media (max-width: 720px) {
   body {
-    padding-bottom: calc(var(--tabbar-h) + env(safe-area-inset-bottom));
+    padding-bottom: calc(var(--tabbar-h) + 16px + env(safe-area-inset-bottom));
   }
 }
 
@@ -69,56 +101,6 @@ body::after {
   display: inline-block;
   flex: none;
   vertical-align: middle;
-}
-
-/* Selected work: dim the projects that are not the active (playing) one. */
-.work-stage .card__frame,
-.work-stage .card__meta {
-  transition: opacity 0.4s var(--ease-cut);
-}
-.work-stage:has(.card.is-playing)
-  .card:not(.is-playing, :focus-visible)
-  :is(.card__frame, .card__meta) {
-  opacity: 0.5;
-}
-
-/* Phone layouts: keep the card chrome to icons so the footage stays visible. */
-@media (max-width: 760px) {
-  .work-stage .card__hud {
-    top: 14px;
-    left: 14px;
-    right: 14px;
-  }
-  .work-stage .card__state {
-    font-size: 0;
-    gap: 0;
-    padding: 4px;
-  }
-  .work-stage .card__state .card__rec {
-    margin-right: 4px;
-  }
-  .work-stage .card__guides {
-    inset: 6px;
-  }
-  .work-stage .card__cta {
-    left: 10px;
-    bottom: 10px;
-    width: 40px;
-    min-height: 40px;
-    padding: 0;
-    gap: 0;
-    justify-content: center;
-    font-size: 0;
-  }
-  .work-stage .card__cta .icon + .icon {
-    display: none;
-  }
-  .work-stage .card__no {
-    font-size: 2rem;
-  }
-  .work-stage .card__title {
-    font-size: 0.95rem;
-  }
 }
 
 img,
@@ -182,6 +164,7 @@ button {
 }
 
 .section {
+  position: relative;
   padding: var(--section) 0 0;
 }
 
@@ -205,43 +188,99 @@ button {
   text-transform: uppercase;
 }
 
-.rule {
-  width: 48px;
-  height: 1px;
-  border: 0;
-  margin: 0;
-  background: var(--line);
+.outline {
+  color: transparent;
+  -webkit-text-stroke: 1.5px currentColor;
+}
+
+.rec {
+  display: inline-block;
+  flex: none;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--crimson);
+  box-shadow: 0 0 12px var(--glow-red);
+  animation: rec-blink 1.4s steps(2, jump-none) infinite;
+}
+@keyframes rec-blink {
+  50% {
+    opacity: 0.25;
+  }
+}
+
+/* Corner registration marks on any framed element. */
+.marks {
+  position: absolute;
+  inset: 10px;
+  pointer-events: none;
+  --m: var(--mist);
+  --s: 14px;
+  background:
+    linear-gradient(var(--m), var(--m)) left top / var(--s) 1.5px no-repeat,
+    linear-gradient(var(--m), var(--m)) left top / 1.5px var(--s) no-repeat,
+    linear-gradient(var(--m), var(--m)) right top / var(--s) 1.5px no-repeat,
+    linear-gradient(var(--m), var(--m)) right top / 1.5px var(--s) no-repeat,
+    linear-gradient(var(--m), var(--m)) left bottom / var(--s) 1.5px no-repeat,
+    linear-gradient(var(--m), var(--m)) left bottom / 1.5px var(--s) no-repeat,
+    linear-gradient(var(--m), var(--m)) right bottom / var(--s) 1.5px no-repeat,
+    linear-gradient(var(--m), var(--m)) right bottom / 1.5px var(--s) no-repeat;
+  opacity: 0.6;
 }
 
 .pill {
+  position: relative;
   display: inline-flex;
   align-items: center;
-  gap: 14px;
-  min-height: 48px;
-  padding: 0 22px;
+  gap: 12px;
+  min-height: 50px;
+  padding: 0 24px;
   border: 1px solid rgb(230 236 233 / 0.35);
   border-radius: 999px;
-  background: transparent;
+  background: rgb(8 17 15 / 0.35);
   font-family: var(--font-mono);
   font-size: 12px;
   letter-spacing: 0.12em;
   text-transform: uppercase;
   text-decoration: none;
   cursor: pointer;
+  overflow: hidden;
+  isolation: isolate;
   transition:
-    border-color 0.2s,
-    background-color 0.2s,
-    color 0.2s;
+    border-color 0.3s,
+    color 0.3s;
 }
-.pill:hover {
-  border-color: var(--crimson);
+/* Fill wipes in from the left like a transition on a clip. */
+.pill::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
   background: var(--crimson);
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform 0.45s var(--ease-snap);
+}
+.pill:hover::before,
+.pill:focus-visible::before {
+  transform: scaleX(1);
+  transform-origin: left;
+}
+.pill:hover,
+.pill:focus-visible {
+  border-color: var(--crimson);
   color: var(--ink);
 }
 .pill--solid {
   border-color: var(--seafoam);
   background: var(--seafoam);
   color: var(--ink);
+}
+.pill .icon {
+  transition: transform 0.35s var(--ease-out);
+}
+.pill:hover .icon:last-child {
+  transform: translateX(3px);
 }
 
 /* Scroll reveals (only when JS is running, so content is never hidden without it). */
@@ -253,32 +292,44 @@ button {
 .js .rl > span {
   display: block;
   transform: translateY(105%);
-  transition: transform 0.7s var(--ease-cut) calc(var(--i, 0) * 60ms);
+  transition: transform 0.8s var(--ease-out) calc(var(--i, 0) * 70ms);
 }
 .js .is-in .rl > span,
 .js .rl.is-in > span {
   transform: none;
 }
 
+/* Reveals animate only opacity and transform, which the GPU composites. */
 .js [data-fade] {
   opacity: 0;
-  transform: translateY(16px);
+  transform: translateY(18px);
   transition:
-    opacity 0.7s var(--ease-cut) calc(var(--i, 0) * 60ms),
-    transform 0.7s var(--ease-cut) calc(var(--i, 0) * 60ms);
+    opacity 0.8s var(--ease-out) calc(var(--i, 0) * 70ms),
+    transform 0.8s var(--ease-out) calc(var(--i, 0) * 70ms);
 }
 .js [data-fade].is-in {
   opacity: 1;
   transform: none;
 }
 
+/* Titles land from a wide stretch: a horizontal scale, not a font-stretch
+   animation (which would re-lay out the text on every frame). */
 .js [data-stretch] {
-  font-stretch: 125%;
-  transition: font-stretch 0.9s var(--ease-cut);
+  display: inline-block;
+  transform: scaleX(1.45);
+  transform-origin: 0 50%;
+  transition: transform 1s var(--ease-out);
 }
 .js .is-in [data-stretch],
 .js [data-stretch].is-in {
-  font-stretch: 75%;
+  transform: none;
+}
+
+/* Desktop pointer follower (see Cursor.astro); hidden for touch and reduced motion. */
+@media (hover: none), (pointer: coarse) {
+  .cursor {
+    display: none !important;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -295,11 +346,20 @@ button {
     animation-delay: 0s !important;
   }
   .js .rl > span,
-  .js [data-fade] {
+  .js [data-fade],
+  .js [data-stretch] {
     opacity: 1;
     transform: none;
   }
-  .js [data-stretch] {
-    font-stretch: 75%;
+  .cursor {
+    display: none !important;
   }
+}
+
+/* Decorative loops freeze while their section is off screen (see usePauseOffscreen). */
+[data-paused],
+[data-paused] *,
+[data-paused] *::before,
+[data-paused] *::after {
+  animation-play-state: paused !important;
 }

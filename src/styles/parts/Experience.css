@@ -1,0 +1,303 @@
+/* Ported from Experience.astro */
+.tl {
+  position: relative;
+  --track-x: 23px;
+}
+.tl__track {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: var(--track-x);
+  width: 2px;
+  background: var(--line);
+}
+.tl__fill {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(var(--seafoam), var(--crimson));
+  transform-origin: top;
+  box-shadow: 0 0 14px var(--glow-teal);
+}
+.tl--animate .tl__fill {
+  transform: scaleY(0);
+}
+.tl__list {
+  display: grid;
+  gap: clamp(56px, 8vw, 120px);
+  margin: 0;
+  padding: clamp(24px, 4vw, 48px) 0;
+  list-style: none;
+}
+.tl__item {
+  position: relative;
+  display: grid;
+  grid-template-columns: 48px minmax(0, 5fr) minmax(0, 7fr);
+  gap: 0 var(--gutter);
+  align-items: center;
+  overflow-x: clip;
+}
+.tl__node {
+  grid-column: 1;
+  grid-row: 1;
+  justify-self: center;
+  width: 16px;
+  height: 16px;
+  border: 2px solid var(--seafoam);
+  background: var(--ink);
+  rotate: 45deg;
+  transition:
+    background-color 0.4s,
+    border-color 0.4s,
+    box-shadow 0.4s;
+}
+.tl__item.is-active .tl__node {
+  border-color: var(--crimson);
+  background: var(--crimson);
+  box-shadow: 0 0 16px var(--glow-red);
+}
+.tl__years {
+  grid-column: 2;
+  grid-row: 1;
+  margin: 0;
+  font-weight: 900;
+  font-stretch: 75%;
+  font-size: clamp(3.2rem, 6.6vw, 7rem);
+  line-height: 0.85;
+  letter-spacing: -0.02em;
+  color: transparent;
+  -webkit-text-stroke: 1px rgb(142 210 190 / 0.5);
+  white-space: nowrap;
+}
+.tl__item.is-active .tl__years {
+  -webkit-text-stroke-color: rgb(142 210 190 / 0.85);
+}
+.tl__body {
+  position: relative;
+  z-index: 1;
+  grid-column: 3;
+  grid-row: 1;
+  padding: clamp(22px, 3vw, 36px) clamp(26px, 3.4vw, 44px);
+  border: 1px solid var(--line-2);
+  border-radius: var(--radius);
+  background:
+    linear-gradient(180deg, rgb(18 58 51 / 0.35), transparent 40%),
+    rgb(11 23 20 / 0.82);
+  transition: border-color 0.4s;
+}
+.tl__item.is-active .tl__body {
+  border-color: rgb(142 210 190 / 0.4);
+}
+/* Trim handles, like the ends of a clip on the timeline. */
+.tl__trim {
+  position: absolute;
+  top: 14px;
+  bottom: 14px;
+  width: 6px;
+  border: 2px solid var(--seafoam);
+  opacity: 0.7;
+}
+.tl__trim--l {
+  left: 10px;
+  border-right: 0;
+  border-radius: 4px 0 0 4px;
+}
+.tl__trim--r {
+  right: 10px;
+  border-left: 0;
+  border-radius: 0 4px 4px 0;
+}
+.tl__item.is-active .tl__trim {
+  border-color: var(--crimson);
+}
+.tl__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 16px;
+  margin: 0 0 12px;
+  color: var(--mist);
+}
+.tl__no {
+  color: var(--crimson);
+}
+.tl__badge {
+  padding: 2px 8px;
+  border: 1px solid var(--line-2);
+  border-radius: 999px;
+  color: var(--seafoam);
+  font-size: 10px;
+}
+.tl__company {
+  margin: 0;
+  font-weight: 900;
+  font-stretch: 75%;
+  font-size: clamp(2.2rem, 4.8vw, 4.6rem);
+  line-height: 0.92;
+  text-transform: uppercase;
+}
+.tl__word {
+  display: inline-block;
+  overflow: hidden;
+  padding-bottom: 0.06em;
+  white-space: nowrap;
+}
+.tl__char {
+  display: inline-block;
+}
+.tl--animate .tl__char {
+  transform: translateY(110%);
+}
+.tl--animate [data-tl-line] {
+  opacity: 0;
+}
+.tl--animate .tl__node {
+  transform: scale(0);
+}
+.tl__role {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 14px 0 14px;
+  color: var(--seafoam);
+}
+.tl__role .icon {
+  color: var(--crimson);
+}
+.tl__desc {
+  margin: 0;
+  max-width: 58ch;
+  color: rgb(230 236 233 / 0.82);
+}
+
+.edu {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: 18px var(--gutter);
+  margin-top: clamp(56px, 8vw, 112px);
+}
+.edu__title {
+  grid-column: 1 / span 3;
+  margin: 0;
+  color: var(--mist);
+}
+.edu__no {
+  color: var(--crimson);
+}
+.edu__list {
+  grid-column: 4 / -1;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--gutter);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.edu__item {
+  position: relative;
+  display: grid;
+  gap: 6px;
+  padding: 20px 22px 22px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: rgb(11 23 20 / 0.6);
+}
+.edu__item::before {
+  content: "";
+  position: absolute;
+  left: 22px;
+  top: -1px;
+  width: 36px;
+  height: 2px;
+  background: var(--seafoam);
+}
+.edu__period {
+  color: var(--seafoam);
+}
+.edu__q {
+  font-weight: 800;
+  font-stretch: 88%;
+  font-size: 1.2rem;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+.edu__inst {
+  color: rgb(230 236 233 / 0.75);
+  font-size: 0.95rem;
+}
+
+@media (max-width: 900px) {
+  .tl {
+    --track-x: 11px;
+  }
+  .tl__item {
+    grid-template-columns: 24px minmax(0, 1fr);
+    align-items: start;
+  }
+  .tl__node {
+    margin-top: 0.6em;
+    width: 12px;
+    height: 12px;
+  }
+  .tl__years {
+    grid-column: 2;
+    font-size: clamp(2.6rem, 13vw, 4.5rem);
+  }
+  .tl__body {
+    grid-column: 2;
+    grid-row: 2;
+    margin-top: 16px;
+  }
+  .edu__title,
+  .edu__list {
+    grid-column: 1 / -1;
+  }
+}
+@media (max-width: 600px) {
+  .edu__list {
+    grid-template-columns: 1fr;
+  }
+  .tl__trim {
+    display: none;
+  }
+}
+
+/* React port: the kinetic reveal runs on CSS transitions once an item is active. */
+.tl--animate .tl__char {
+  transition: transform 0.6s var(--ease-out) calc(var(--c, 0) * 25ms);
+}
+.tl--animate .tl__item.is-active .tl__char {
+  transform: none;
+}
+.tl--animate [data-tl-line] {
+  transform: translateY(16px);
+  transition:
+    opacity 0.6s var(--ease-out) calc(0.2s + var(--l, 0) * 0.1s),
+    transform 0.6s var(--ease-out) calc(0.2s + var(--l, 0) * 0.1s);
+}
+.tl--animate .tl__item.is-active [data-tl-line] {
+  opacity: 1;
+  transform: none;
+}
+.tl--animate .tl__node {
+  transition:
+    transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1),
+    background-color 0.4s,
+    border-color 0.4s,
+    box-shadow 0.4s;
+}
+.tl--animate .tl__item.is-active .tl__node {
+  transform: scale(1);
+}
+@media (prefers-reduced-motion: reduce) {
+  .tl--animate .tl__char,
+  .tl--animate [data-tl-line],
+  .tl--animate .tl__node {
+    transform: none;
+    opacity: 1;
+  }
+}
+
+.tl__years,
+.tl__fill {
+  will-change: transform;
+}

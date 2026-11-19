@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Adhul U Krishna | Video Editor</title>
+    <meta
+      name="description"
+      content="Adhul U Krishna, video editor. Short-form edits built on storytelling and finished with visual effects, colour grading and sound design."
+    />
+    <meta name="theme-color" content="#08110F" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Adhul U Krishna | Video Editor" />
+    <meta
+      property="og:description"
+      content="Adhul U Krishna, video editor. Short-form edits built on storytelling and finished with visual effects, colour grading and sound design."
+    />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <script>
+      // Runs before first paint. "js" unlocks the reveal styles; the letterbox
+      // opener plays once per visit (never under reduced motion), and
+      // "is-ready" starts the first scene while the bars are still opening.
+      (function () {
+        var d = document.documentElement;
+        d.classList.add("js");
+        var intro = false;
+        try {
+          intro =
+            !matchMedia("(prefers-reduced-motion: reduce)").matches &&
+            !sessionStorage.getItem("ak-leader");
+          if (intro) sessionStorage.setItem("ak-leader", "1");
+        } catch (e) {}
+        function ready() {
+          d.classList.add("is-ready");
+        }
+        if (!intro) {
+          requestAnimationFrame(ready);
+          return;
+        }
+        d.classList.add("has-intro");
+        var t1 = setTimeout(ready, 620);
+        var t2 = setTimeout(done, 1450);
+        // Opener timecode: 00:00:00:00 to 00:00:01:00 while the line draws.
+        var t0 = performance.now();
+        (function count() {
+          var el = document.getElementById("opener-tc");
+          var f = Math.min(
+            24,
+            Math.floor(((performance.now() - t0) / 600) * 24),
+          );
+          if (el)
+            el.textContent =
+              "00:00:" + (f >= 24 ? "01:00" : "00:" + (f < 10 ? "0" : "") + f);
+          if (f < 24 && d.classList.contains("has-intro"))
+            requestAnimationFrame(count);
+        })();
+        function done() {
+          clearTimeout(t1);
+          clearTimeout(t2);
+          ready();
+          d.classList.remove("has-intro");
+          removeEventListener("keydown", done);
+          removeEventListener("pointerdown", done);
+        }
+        addEventListener("keydown", done);
+        addEventListener("pointerdown", done);
+      })();
+    </script>
+  </head>
+  <body>
+    <!-- Letterbox opener, shown only while "has-intro" is set. -->
+    <div class="opener" aria-hidden="true">
+      <div class="opener__bar opener__bar--top"></div>
+      <div class="opener__bar opener__bar--bottom"></div>
+      <div class="opener__slit"></div>
+      <p class="opener__mark">Adhul U Krishna <em>Video Editor</em></p>
+      <p class="opener__meta">
+        <span>Reel 2026</span><b id="opener-tc">00:00:00:00</b
+        ><span>24 fps</span>
+      </p>
+    </div>
+
+    <div id="root"></div>
+
+    <noscript>
+      <main class="noscript wrap">
+        <h1>Adhul U Krishna, Video Editor</h1>
+        <p>
+          I cut stories that stop the scroll, built on storytelling and finished
+          with visual effects, colour grading and sound design. Based in
+          Kanyakumari District, Tamil Nadu, India.
+        </p>
+        <p><a href="mailto:akadhul@gmail.com">akadhul@gmail.com</a></p>
+        <p>Turn on JavaScript to watch the edits.</p>
+      </main>
+    </noscript>
+
+    <!-- Netlify Forms reads this at deploy time to register the "contact"
+         form; the React form posts the same fields to it. Never shown. -->
+    <form name="contact" data-netlify="true" netlify-honeypot="website" hidden>
+      <input name="name" />
+      <input name="email" type="email" />
+      <input name="project" />
+      <textarea name="message"></textarea>
+      <input name="website" />
+    </form>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>

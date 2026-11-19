@@ -1,0 +1,414 @@
+/* Ported from Contact.astro */
+.cta {
+  display: grid;
+  grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+  gap: clamp(32px, 5vw, 80px) var(--gutter);
+  align-items: end;
+}
+.cta__big {
+  margin: 0;
+  font-weight: 900;
+  font-stretch: 75%;
+  font-size: clamp(2.8rem, 6.6vw, 7.6rem);
+  line-height: 0.86;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+}
+/* The answer line switches voice: the editorial italic serif, lower case,
+   against the heavy condensed sans above it. */
+.cta__alt {
+  margin-top: 0.04em;
+  font-family: var(--font-accent);
+  font-style: italic;
+  font-weight: 400;
+  font-synthesis: none;
+  font-stretch: 100%;
+  font-size: 1.14em;
+  line-height: 0.92;
+  letter-spacing: -0.015em;
+  text-transform: none;
+}
+/* Italic letters lean past their boxes: give the mask room on the right. */
+.cta__alt .split__w {
+  overflow-clip-margin: 0.3em;
+  padding-right: 0.06em;
+}
+.cta__panel {
+  position: relative;
+  display: grid;
+  gap: 20px;
+  padding: clamp(24px, 3vw, 40px);
+  border: 1px solid var(--line-2);
+  border-radius: var(--radius);
+  background:
+    radial-gradient(
+      120% 100% at 100% 0%,
+      rgb(234 58 50 / 0.16),
+      transparent 60%
+    ),
+    rgb(11 23 20 / 0.85);
+}
+.cta__kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  color: var(--mist);
+}
+.cta__email {
+  position: relative;
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  max-width: 100%;
+  font-weight: 800;
+  font-stretch: 80%;
+  font-size: clamp(1.7rem, 2.6vw, 2.8rem);
+  line-height: 1.05;
+  text-decoration: none;
+  overflow-wrap: anywhere;
+  padding-bottom: 10px;
+  background: linear-gradient(var(--crimson), var(--crimson)) left bottom / 0%
+    3px no-repeat;
+  transition:
+    background-size 0.9s var(--ease-out) 0.4s,
+    color 0.25s;
+}
+.cta__at {
+  color: var(--crimson);
+}
+.cta__arrow {
+  display: inline-grid;
+  margin-left: 10px;
+  transition: translate 0.4s var(--ease-out);
+}
+.cta__email:hover {
+  color: var(--seafoam);
+}
+.cta__email:hover .cta__arrow {
+  translate: 6px 0;
+}
+.js .cta.is-in .cta__email,
+html:not(.js) .cta__email {
+  background-size: 100% 3px;
+}
+.cta__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}
+.cta__status {
+  color: var(--seafoam);
+}
+.cta__loc {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+}
+@media (max-width: 960px) {
+  .cta {
+    grid-template-columns: 1fr;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .cta__email {
+    background-size: 100% 3px;
+  }
+}
+
+/* ---- React port: lead column + brief form ---- */
+.cta {
+  grid-template-columns: minmax(0, 6fr) minmax(0, 5fr);
+  align-items: start;
+}
+.cta__lead {
+  display: grid;
+  gap: clamp(20px, 3vw, 32px);
+  align-content: start;
+}
+.cta__lead .cta__email {
+  font-size: clamp(1.6rem, 3.2vw, 3.2rem);
+  justify-self: start;
+}
+.form {
+  display: grid;
+  gap: 18px;
+}
+.form__row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+.form__field {
+  display: grid;
+  gap: 8px;
+}
+.form input:not([type="radio"]),
+.form textarea {
+  width: 100%;
+  padding: 13px 14px;
+  border: 1px solid var(--line-2);
+  border-radius: 10px;
+  background: rgb(8 17 15 / 0.65);
+  color: var(--mist);
+  font: inherit;
+  font-size: 1rem;
+  transition:
+    border-color 0.25s,
+    box-shadow 0.25s,
+    background-color 0.25s;
+}
+.form textarea {
+  resize: vertical;
+  min-height: 112px;
+}
+.form input::placeholder,
+.form textarea::placeholder {
+  color: rgb(135 149 146 / 0.7);
+}
+.form input:not([type="radio"]):focus,
+.form textarea:focus {
+  outline: none;
+  border-color: var(--seafoam);
+  background: rgb(18 58 51 / 0.35);
+  box-shadow: 0 0 0 3px rgb(142 210 190 / 0.18);
+}
+.form [aria-invalid="true"] {
+  border-color: var(--crimson) !important;
+}
+.form__err {
+  color: var(--crimson);
+  font-size: 0.85rem;
+}
+.form__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+.form__chips legend {
+  width: 100%;
+  margin-bottom: 8px;
+  padding: 0;
+}
+.chip {
+  position: relative;
+  cursor: pointer;
+}
+.chip input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+.chip span {
+  display: inline-flex;
+  align-items: center;
+  min-height: 36px;
+  padding: 0 14px;
+  border: 1px solid var(--line-2);
+  border-radius: 999px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--fog);
+  transition:
+    color 0.25s,
+    border-color 0.25s,
+    background-color 0.25s;
+}
+.chip:hover span {
+  color: var(--mist);
+  border-color: rgb(142 210 190 / 0.5);
+}
+.chip input:checked + span {
+  color: var(--ink);
+  border-color: var(--seafoam);
+  background: var(--seafoam);
+}
+.chip input:focus-visible + span {
+  outline: 2px solid var(--seafoam);
+  outline-offset: 2px;
+}
+.form__trap {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+.form__foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 14px;
+}
+.form__foot .pill[disabled] {
+  opacity: 0.6;
+  cursor: progress;
+}
+.form__status {
+  color: var(--seafoam);
+}
+.form--done {
+  justify-items: start;
+  padding: 12px 0;
+}
+.form__done-icon {
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--seafoam);
+  color: var(--ink);
+  animation: done-pop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+@keyframes done-pop {
+  from {
+    scale: 0.3;
+    opacity: 0;
+  }
+}
+.form__done-title {
+  margin: 0;
+  font-weight: 900;
+  font-stretch: 80%;
+  font-size: 2rem;
+  text-transform: uppercase;
+}
+@media (max-width: 560px) {
+  .form__row {
+    grid-template-columns: 1fr;
+  }
+}
+@media (max-width: 960px) {
+  .cta {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ---------- Audio track (Waveform.jsx) ---------- */
+.wave {
+  --loop: 9s;
+  margin-top: clamp(4px, 1vw, 12px);
+  max-width: 560px;
+}
+.wave__head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+  font-size: 10.5px;
+}
+.wave__tag {
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: color-mix(in oklab, var(--sec, var(--coral)) 22%, transparent);
+  color: var(--sec, var(--coral));
+}
+.wave__meta {
+  margin-left: auto;
+  color: var(--fog);
+}
+.wave__track {
+  position: relative;
+  height: clamp(64px, 8vw, 92px);
+  padding: 0 10px;
+  border: 1px solid rgb(255 255 255 / 0.08);
+  border-radius: 12px;
+  background:
+    linear-gradient(rgb(255 255 255 / 0.06), rgb(255 255 255 / 0.06)) center /
+      100% 1px no-repeat,
+    rgb(10 20 18 / 0.55);
+  overflow: hidden;
+}
+.wave__svg,
+.wave__defs {
+  position: absolute;
+  left: 10px;
+  top: 8px;
+  width: calc(100% - 20px);
+  height: calc(100% - 16px);
+  overflow: visible;
+}
+.wave__defs {
+  width: 0;
+  height: 0;
+}
+/* The "played" part: a window sliding open over a copy of the bars that
+   slides the other way, so the bars stay put while colour sweeps in. */
+.wave__lit,
+.wave__lit-in {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+.wave__lit {
+  animation: wave-window var(--loop) linear infinite;
+}
+.wave__lit-in {
+  animation: wave-contents var(--loop) linear infinite;
+}
+@keyframes wave-window {
+  from {
+    transform: translate3d(-100%, 0, 0);
+  }
+  to {
+    transform: translate3d(0, 0, 0);
+  }
+}
+@keyframes wave-contents {
+  from {
+    transform: translate3d(100%, 0, 0);
+  }
+  to {
+    transform: translate3d(0, 0, 0);
+  }
+}
+/* Playhead: a full-width layer whose left edge carries the line, so moving
+   it 100% of its own width crosses the whole track. */
+.wave__ph {
+  position: absolute;
+  inset: 0;
+  animation: wave-head var(--loop) linear infinite;
+  pointer-events: none;
+}
+.wave__ph::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: -1px;
+  width: 2px;
+  background: var(--crimson);
+  box-shadow: 0 0 12px var(--glow-red);
+}
+@keyframes wave-head {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(100%, 0, 0);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .wave__lit,
+  .wave__lit-in,
+  .wave__ph {
+    animation: none;
+  }
+  .wave__lit {
+    transform: translate3d(-40%, 0, 0);
+  }
+  .wave__lit-in {
+    transform: translate3d(40%, 0, 0);
+  }
+  .wave__ph {
+    transform: translate3d(60%, 0, 0);
+  }
+}

@@ -1,0 +1,25 @@
+/* Slim closing bar. */
+.credits {
+  margin-top: var(--section);
+}
+.credits__bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+  padding-top: 20px;
+  padding-bottom: 28px;
+  border-top: 1px solid var(--line);
+}
+.credits__top {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  text-decoration: none;
+  transition: color 0.25s;
+}
+.credits__top:hover {
+  color: var(--seafoam);
+}

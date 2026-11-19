@@ -1,0 +1,58 @@
+{
+  "name": "Adhul U Krishna",
+  "role": "Video Editor",
+  "email": "akadhul@gmail.com",
+  "location": "Kanyakumari District, Tamil Nadu, India",
+  "summary": "I cut stories that stop the scroll, built on storytelling and finished with visual effects, colour grading and sound design. I learn fast, keep up with new editing tools, and I'm ready to grow with a creative team.",
+  "experience": [
+    {
+      "company": "English House",
+      "role": "Video Editor",
+      "period": "2025–2026",
+      "description": "Edited videos end to end, shaping the footage with creative transitions and visual effects. The aim every time: clear storytelling and polished visuals that get the idea across."
+    },
+    {
+      "company": "Nextal Media",
+      "role": "Video Editor",
+      "period": "2024–2025",
+      "description": "Created visual content and edited professional videos, lifting raw footage with creative effects. Built each piece around strong storytelling and visuals with impact."
+    }
+  ],
+  "skills": [
+    "Editing & post-production",
+    "Storytelling & content creation",
+    "Motion graphics & visual effects",
+    "Sound design & audio editing",
+    "Colour grading & correction",
+    "Short-form social video",
+    "Transitions & effects",
+    "Content optimisation"
+  ],
+  "tools": ["Premiere Pro", "After Effects", "DaVinci Resolve"],
+  "education": [
+    {
+      "qualification": "B.E. Computer Science & Engineering",
+      "institution": "Ponjesly College of Engineering (PJCE), Nagercoil",
+      "period": "2020–2024"
+    },
+    {
+      "qualification": "Computer Science with Mathematics",
+      "institution": "Seventh-day Adventist Higher Secondary School, Pulieranghy",
+      "period": "2018–2020"
+    }
+  ],
+  "languages": [
+    {
+      "name": "English",
+      "level": "Professional"
+    },
+    {
+      "name": "Tamil",
+      "level": "Native"
+    },
+    {
+      "name": "Malayalam",
+      "level": "Native"
+    }
+  ]
+}

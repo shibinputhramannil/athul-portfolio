@@ -1,26 +1,58 @@
 # Adhul U Krishna — portfolio
 
-Portfolio site for Adhul U Krishna, video editor. Built with [Astro](https://astro.build) and TypeScript, output as a static site.
+Portfolio site for Adhul U Krishna, video editor.
 
-Design direction: "Cut on black". Near-black with seafoam teal and restrained crimson, cinematic motion, laid out mobile-first for vertical (9:16) edits.
+- **Frontend**: React 19 + Vite (JavaScript), [Motion](https://motion.dev) for animation and [Lenis](https://lenis.darkroom.engineering) for smooth scrolling. It builds to a static site for GitHub Pages.
+- **Backend (optional)**: Django REST Framework in [`backend/`](backend/README.md). It serves the profile and videos from an admin-managed database and receives the contact form. Without it, the site runs entirely on the bundled content, and the contact form is delivered by Netlify Forms (see Contact form below).
+
+## Design
+
+"In the edit suite": near-black with seafoam teal and restrained crimson, cinematic motion, built mobile-first for vertical (9:16) edits. The page plays out like a post-production session.
+
+- **Opener**: a cinematic letterbox, about 1.4 s, once per visit. A graded scan line draws across the centre, the name settles on it with a running timecode, then the black bars glide apart while the first scene is already animating in behind them. It is skipped under reduced motion, and any key or tap cuts it short. It lives in `index.html` so it shows before React loads.
+- **Type**: Archivo (variable width) for headlines and body, Instrument Serif italic as the editorial accent ("_Video Editor_", "_the next cut_"), and JetBrains Mono for timecode-style labels. Changing numbers use tabular figures so they don't jitter.
+- **Kinetic type** (`Kinetic.jsx`, `styles/kinetic.css`): headlines rise letter by letter out of a mask, letters lift under the pointer, and short mono labels decode like a timecode. On desktop, the giant name in the opening scene ripples in width under the pointer, using the font's variable width axis.
+- **Scene 01 · About** (`Hero.jsx`): the cut-out portrait between two layers of the name, and a colour-grade wipe from flat "log" to graded (hovering scrubs the split on desktop). Around it sit face-tracking brackets, a vectorscope, audio meters and a spinning badge. Below come the summary, which brightens word by word, rolling stat counters and languages.
+- **Tapes** (`Tapes.jsx`): two crossing skill marquees that speed up with scroll velocity.
+- **Scene 02 · Work** (`components/work/`):
+  - **The reel** (`ReelRing.jsx`): every edit stands on a 3D cylinder. The edit facing the viewer plays muted, inside a rotating light border. The edits either side keep their video buffered, and the front edit is promoted before the spin fully stops, so a new edit starts playing as it arrives. Its frames are sampled live into a blurred ambient glow, and its colour spills onto a receding studio floor. The reel advances on its own when the clip ends. Drag or swipe it, flick a trackpad sideways, use ← → or the filmstrip; click the front edit to watch it with sound.
+  - **Colour signatures**: each edit's accent colour is sampled from its poster frame (`lib/media.js`). It tints that edit's card, border, numbers, duration bar and viewer.
+  - **The bin** (`Bin.jsx`): every edit as a row in a project panel, filterable by running time and sortable. With a mouse, a preview floats beside the pointer and skims through the clip as you move across the row, with live timecode.
+  - **The viewer** (`Viewer.jsx`): a full-screen player with sound, custom controls, timecode, editor shortcuts (K play/pause, J/L shuttle, N/P next and previous edit, M mute, F full screen, Esc close) and an "Up next" card.
+- **Scene 03 · Craft** (`Craft.jsx`): skills as an effect-controls stack whose keyframes flash as a playhead passes, tilting tool tiles, and lift / gamma / gain colour wheels (`ColourWheels.jsx`) whose pucks drift towards a teal-and-orange grade.
+- **Experience, Contact**: clapperboard section slates (`SectionHead.jsx`), each title over an outlined echo split into the same letter boxes so it stays in register. Contact has a project-brief form and an audio track (`Waveform.jsx`) that a playhead lights up, and a slim glass footer closes the page.
+- **Colour grade** (`styles/color.css`): a teal-and-orange palette (cyan, seafoam, amber, coral, crimson, plus a violet night tone) with matching gradients. The gradients are balanced: every stop sits in one lightness band (OKLCH L 0.70–0.90) with real colour, a pale-gold bridge keeps teal-to-orange from turning khaki, and browsers that support it blend them in OKLab. Each scene has its own accent, so headings, rules and the header indicator change colour as you move through the page. Headings use a per-letter slice of one gradient, so words stay one continuous blend while the letters animate.
+- **Command palette** (`CommandPalette.jsx`, Ctrl/⌘ K or `/`): jump to any scene, play any edit, copy the email, write an email or share the portfolio from the keyboard. Glass toasts (`Toaster.jsx`) confirm actions.
+- **Text in motion**: a rolling word in the opening line ("cut for Reels / Shorts / Stories / Ads"), key skills in the summary that light up in their own gradient as you read, letters that rise in gradient, and labels that decode like timecode.
+- **Glass** (`styles/glass.css`): panels, chips and controls are frosted glass. Most of it is layered fills, a light-catching gradient rim and an inner highlight, painted once so it costs nothing while scrolling. Live backdrop blur is kept to small or fixed surfaces: header, mobile dock, cursor lens, hero chips and viewer controls.
+
+Everything settles to a static, fully readable layout under `prefers-reduced-motion`.
 
 ## Run it
 
-Requires Node 20.3+.
+Requires Node 20.19+ (CI uses 22).
 
 ```sh
 npm install
-npm run dev        # http://localhost:4321
+npm run dev        # http://127.0.0.1:5173
 npm run build      # static output in dist/
 npm run preview    # serve dist/
-npm run lint       # astro check (types) + prettier --check
+npm run lint       # prettier --check
 npm run format     # prettier --write
 ```
 
+To run the frontend against the Django API, start the backend (see [backend/README.md](backend/README.md)) and set `VITE_API_URL`:
+
+```sh
+VITE_API_URL=http://127.0.0.1:8000 npm run dev
+```
+
+If the API can't be reached, the site falls back to the bundled content.
+
 ## Content
 
-- `src/content/profile.ts`: name, summary, experience, skills, tools, education, languages and contact. Every value comes from the CV.
-- `src/content/videos.json`: the video list and showreel setting. This is the publishing gate (see below).
+- `src/content/profile.json`: name, summary, experience, skills, tools, education, languages and contact. Every value comes from the CV. The backend's `seed_portfolio` command reads the same file.
+- `src/content/videos.json`: the video list and display `order`. This is the publishing gate (see below). The old `showreel` key is no longer used; the reel in Selected work plays every visible edit.
 
 ## Videos and privacy
 
@@ -28,8 +60,8 @@ The repository is public, so anything committed is published. Video files are ne
 
 - Every video in `videos.json` has `"public": false` by default. Add `title`, `client`, `kind` (`"client"` or `"practice"`), `role` or `year` only once confirmed. Missing fields are not shown.
 - `media-src/`, `media.local.json` and `public/media/` are git-ignored.
-- The build only renders videos with `"public": true`. A build hook (`scripts/private-media-guard.mjs`) also deletes any private media folder from `dist/`.
-- Selected work and the hero previews only appear once at least one video is public. Selected work is a sideways strip of the visible edits; each plays a short muted preview loop while in view. The showreel is set to `null` (no separate Reel section). Set it to `{ "mode": "playlist" }` to add a Reel that plays every visible edit in full, or `{ "mode": "reel", "id": "video-0X" }` for a single cut reel.
+- The build only includes videos with `"public": true` (the `virtual:videos` module from `scripts/portfolio-videos.mjs`). A build hook (`scripts/private-media-guard.mjs`) also deletes any private media folder from `dist/`. The Django API applies the same rule.
+- Selected work only appears once at least one video is public.
 - Edits without a confirmed `title` are labelled "Edit 01", "Edit 02" and so on.
 
 Encoding (needs `ffmpeg` and `ffprobe` on PATH):
@@ -48,11 +80,58 @@ To publish a video once it has been confirmed:
 
 ## Profile photo
 
-Approved edit (natural crop, lighting, colour and an off-white background; face and features unchanged):
-
-- `src/assets/profile.jpg`: 4:5 About portrait, resized to WebP at build time.
+- `src/assets/profile.png`: the approved cut-out portrait (transparent background).
+- `src/assets/profile-{480,720,940}.webp`: the sizes the site serves, made from the PNG.
 - `public/og.jpg`: 1:1 link-preview image, emitted as `og:image` when `SITE_URL` is set.
 
 ## Deployment
 
-GitHub Pages, via `.github/workflows/deploy.yml`. It runs on every push to `main` (or manually from the Actions tab), builds with `SITE_URL=https://shibinputhramannil.github.io` and `BASE_PATH=/athul-portfolio`, and publishes `dist/` to https://shibinputhramannil.github.io/athul-portfolio/. One-time setup: Settings → Pages → Source: **GitHub Actions**. `.github/workflows/ci.yml` only lints and builds pull requests.
+### Netlify
+
+The site is deployed to Netlify on the `shibi-ii` team. `netlify.toml` declares the build (`npm run build` → `dist/`) and headers, and `public/_headers` carries the same caching and security headers into prebuilt deploys:
+
+```sh
+SITE_URL=https://<site>.netlify.app npm run build
+npx netlify-cli deploy --prod --dir dist
+```
+
+Connecting the GitHub repository in the Netlify dashboard turns this into a deploy on every push. Netlify hosts only the static frontend; the Django REST backend runs elsewhere if used.
+
+Netlify's free plan adds a "Powered by Netlify" badge in the bottom-right corner. It is part of the plan, so the site doesn't hide it: `src/lib/hostBadge.js` measures it, and the footer, phone dock and toasts move above it.
+
+#### Contact form
+
+The form sends, in order of preference:
+
+1. **Django API** when the site is built with `VITE_API_URL` (stored in the admin, emailed to `CONTACT_NOTIFY_EMAIL`).
+2. **Netlify Forms** on Netlify: a hidden `<form name="contact" data-netlify="true">` in `index.html` registers the fields at deploy time, and the React form posts to it. Form detection must be on (Netlify → Forms), and an email notification for new submissions sends each brief to the portfolio address. A `website` honeypot field filters bots.
+3. **The visitor's email app** (`mailto:`) anywhere else. Other hosts answer the post with 404/405, which triggers this fallback.
+
+#### Caching
+
+Media URLs carry a short content hash (`poster.jpg?v=…`, added by `scripts/portfolio-videos.mjs`), so `/media/*` is cached for a year like the hashed `/assets/*`. Replacing a video changes its hash, and visitors get the new file.
+
+#### Performance notes
+
+- The first render runs as a React transition (`main.jsx`), so building the page never blocks the main thread in one long task.
+- The first screen's fonts and the portrait are preloaded from the HTML (`preloadFirstScreen` in `vite.config.js`).
+- The reel requests no posters or videos until it is within a screen of the viewport.
+- `scrollbar-gutter: stable` keeps the page from jumping sideways when scrolling is locked (opener, palette, viewer). Animated layers move with transforms only, so the page has no layout shift.
+
+### Vercel
+
+The site deploys to Vercel as the `adhul-portfolio` project on the `shibin1` team. `vercel.json` sets the Vite build, long-lived caching for hashed assets and media, and basic security headers. `.vercelignore` keeps the Django backend and any unconfirmed media out of the upload; it follows the same publishing gate as `.gitignore`. The production domain is picked up automatically for the `og:image` URL.
+
+```sh
+npx vercel deploy --prod --scope shibin1   # from the repo root, once linked to adhul-portfolio
+```
+
+To deploy on every push instead, connect the GitHub repository to the project in the Vercel dashboard (Settings → Git).
+
+### GitHub Pages
+
+The frontend deploys to GitHub Pages via `.github/workflows/deploy.yml`. It runs on every push to `main` (or manually from the Actions tab), builds with `SITE_URL=https://shibinputhramannil.github.io` and `BASE_PATH=/athul-portfolio`, and publishes `dist/` to https://shibinputhramannil.github.io/athul-portfolio/. One-time setup: Settings → Pages → Source: **GitHub Actions**.
+
+`.github/workflows/ci.yml` checks formatting and builds the frontend, and runs the Django test suite.
+
+GitHub Pages can only host the static frontend. To use the backend in production, deploy `backend/` to a Python host (see its README). Then add a `VITE_API_URL` env value to the build step of `deploy.yml`, and add the Pages origin to the API's `CORS_ALLOWED_ORIGINS`.

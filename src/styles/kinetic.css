@@ -1,0 +1,99 @@
+/* =====================================================================
+   Kinetic type: masked character reveals, hover lift and decoding labels.
+   Everything animates with transform/opacity only.
+   ===================================================================== */
+.split {
+  display: inline-block;
+}
+.split__w {
+  display: inline-block;
+  overflow: clip;
+  overflow-clip-margin: 0.12em;
+  padding-bottom: 0.06em;
+  vertical-align: top;
+  white-space: nowrap;
+}
+.split__sp {
+  display: inline-block;
+  width: 0.24em;
+}
+.split__c {
+  display: inline-block;
+  transform-origin: 0 100%;
+}
+.js .split__c {
+  transform: translate3d(0, 108%, 0) rotate(7deg);
+  transition: transform 0.95s cubic-bezier(0.16, 1, 0.3, 1)
+    calc(var(--d, 0ms) + var(--i) * var(--st, 24ms));
+}
+.js .split.is-in .split__c,
+.js.is-ready .split--ready .split__c {
+  transform: none;
+}
+
+/* Hover: letters lift one by one as the pointer passes. */
+@media (hover: hover) and (pointer: fine) {
+  .split--hover .split__c:hover {
+    transform: translate3d(0, -9%, 0);
+    color: var(--seafoam);
+    transition:
+      transform 0.25s var(--ease-out),
+      color 0.25s;
+  }
+}
+
+.scramble {
+  font-variant-numeric: tabular-nums;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .js .split__c {
+    transform: none;
+    transition: none;
+  }
+}
+
+/* Block-level kinetic lines keep their block layout. */
+p.split,
+h2.split,
+h3.split {
+  display: block;
+}
+
+/* Hero name: the width ripple eases between values and stays contained. */
+.name {
+  contain: layout style;
+}
+.name__word span {
+  transition: font-stretch 0.55s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Contact headline: one kinetic line per row. */
+.cta__line {
+  display: block;
+}
+
+/* Copy sets cleanly: short intros balance their lines, and longer
+   paragraphs avoid leaving a single word stranded on the last line. */
+.sh__kicker,
+.cta__big {
+  text-wrap: balance;
+}
+.profile__summary,
+.tl__desc,
+.noscript p {
+  text-wrap: pretty;
+}
+
+/* Numbers that change in place (timecodes, counters, durations) use
+   fixed-width figures, so they tick over without jittering sideways. */
+.stat__value,
+.wk-pill,
+.wk-now__tc,
+.vw-tc,
+.bin__dur .label,
+.fxp__tc,
+.site-header__tc,
+.hud {
+  font-variant-numeric: tabular-nums;
+}

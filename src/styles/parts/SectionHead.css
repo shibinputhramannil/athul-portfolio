@@ -1,0 +1,202 @@
+/* Ported from SectionHead.astro */
+.sh {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 18px;
+  margin-bottom: clamp(32px, 5vw, 64px);
+}
+.sh__top {
+  display: flex;
+  align-items: flex-end;
+  gap: 18px;
+}
+.sh__slate {
+  position: relative;
+  flex: none;
+  width: 92px;
+  padding-top: 13px;
+}
+.sh__clap {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 11px;
+  border-radius: 2px;
+  background: repeating-linear-gradient(
+    -55deg,
+    var(--mist) 0 7px,
+    var(--ink) 7px 14px
+  );
+  transform-origin: 2px 100%;
+  rotate: 0deg;
+}
+.js .sh__clap {
+  rotate: -24deg;
+}
+.js .sh.is-in .sh__clap {
+  animation: clap 0.5s var(--ease-snap) 0.1s forwards;
+}
+@keyframes clap {
+  0% {
+    rotate: -24deg;
+  }
+  70% {
+    rotate: 2deg;
+  }
+  100% {
+    rotate: 0deg;
+  }
+}
+.sh__board {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 6px 8px 5px;
+  border-radius: 2px;
+  background: var(--panel);
+  border: 1px solid var(--line-2);
+}
+.sh__board .label {
+  font-size: 9px;
+}
+.sh__board b {
+  font-weight: 900;
+  font-stretch: 75%;
+  font-size: 22px;
+  line-height: 1;
+  color: var(--crimson);
+}
+.sh__meta {
+  display: grid;
+  gap: 2px;
+  color: var(--mist);
+}
+.sh__tc {
+  color: var(--seafoam);
+  font-variant-numeric: tabular-nums;
+}
+.sh__kicker {
+  margin: 0 0 0 auto;
+  max-width: 34ch;
+  color: var(--fog);
+  font-size: 0.95rem;
+  line-height: 1.45;
+  text-align: right;
+}
+.sh__title {
+  position: relative;
+  margin: 0;
+  overflow-x: clip;
+  font-weight: 900;
+  font-stretch: 75%;
+  font-size: clamp(2.8rem, 8.4vw, 8rem);
+  line-height: 0.88;
+  letter-spacing: -0.015em;
+  text-transform: uppercase;
+}
+/* Outlined echo: same letter boxes as the title (see SectionHead.jsx), set
+   a touch down and right so it reads as an extruded shadow of the word. */
+.sh__echo {
+  position: absolute;
+  left: 0;
+  top: 0;
+  color: transparent;
+  -webkit-text-stroke: 1px rgb(142 210 190 / 0.5);
+  translate: 0.05em 0.06em;
+  pointer-events: none;
+  white-space: nowrap;
+}
+.sh__echo-in,
+.sh__echo-c {
+  display: inline-block;
+}
+.js .sh__echo {
+  opacity: 0;
+  translate: 0 0;
+  transition:
+    opacity 0.6s 0.5s,
+    translate 1.2s var(--ease-out) 0.5s;
+}
+.js .sh.is-in .sh__echo {
+  opacity: 1;
+  translate: 0.05em 0.06em;
+}
+.sh__title .rl {
+  position: relative;
+}
+.sh__cut {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 100%;
+  background: var(--crimson);
+  transform: scaleX(0);
+  pointer-events: none;
+}
+.js .sh.is-in .sh__cut {
+  animation: cut 0.5s var(--ease-snap) 0.15s;
+}
+@keyframes cut {
+  0% {
+    transform-origin: left;
+    transform: scaleX(0);
+  }
+  50% {
+    transform-origin: left;
+    transform: scaleX(1);
+  }
+  50.1% {
+    transform-origin: right;
+  }
+  100% {
+    transform-origin: right;
+    transform: scaleX(0);
+  }
+}
+.sh__rule {
+  position: relative;
+  height: 9px;
+  margin-top: clamp(6px, 1.4vw, 18px);
+  background:
+    linear-gradient(var(--line), var(--line)) left bottom / 100% 1px no-repeat,
+    repeating-linear-gradient(
+        90deg,
+        rgb(135 149 146 / 0.5) 0 1px,
+        transparent 1px 48px
+      )
+      left bottom / 100% 6px no-repeat;
+  transform-origin: left;
+}
+.sh__head {
+  position: absolute;
+  left: 100%;
+  bottom: -4px;
+  width: 9px;
+  height: 9px;
+  translate: -50% 0;
+  background: var(--crimson);
+  box-shadow: 0 0 12px var(--glow-red);
+}
+.js .sh .sh__rule {
+  transform: scaleX(0);
+  transition: transform 1.2s var(--ease-out) 0.2s;
+}
+.js .sh.is-in .sh__rule {
+  transform: none;
+}
+.js .sh .sh__head {
+  left: 0;
+  transition: left 1.2s var(--ease-out) 0.2s;
+}
+.js .sh.is-in .sh__head {
+  left: 100%;
+}
+@media (max-width: 760px) {
+  .sh__kicker {
+    display: none;
+  }
+  .sh__slate {
+    width: 78px;
+  }
+}

@@ -1,0 +1,130 @@
+/* Ported from FloatingBg.astro */
+.fbg {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+}
+.fbg__orb {
+  position: absolute;
+  width: 46vmax;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  will-change: transform;
+}
+.fbg__orb--teal {
+  top: -14vmax;
+  left: -10vmax;
+  background: radial-gradient(circle, rgb(142 210 190 / 0.2), transparent 65%);
+  animation: fbg-drift-a 34s ease-in-out infinite alternate;
+}
+.fbg__orb--deep {
+  bottom: -18vmax;
+  left: 30%;
+  width: 56vmax;
+  background: radial-gradient(circle, rgb(18 58 51 / 0.75), transparent 65%);
+  animation: fbg-drift-b 42s ease-in-out infinite alternate;
+}
+.fbg__orb--crimson {
+  top: 24%;
+  right: -16vmax;
+  width: 38vmax;
+  background: radial-gradient(circle, rgb(234 58 50 / 0.16), transparent 65%);
+  animation: fbg-drift-c 30s ease-in-out infinite alternate;
+}
+.fbg__word {
+  position: absolute;
+  left: var(--x);
+  top: var(--y);
+  font-size: var(--s);
+  font-weight: 900;
+  font-stretch: 125%;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  color: transparent;
+  -webkit-text-stroke: 1px rgb(142 210 190 / 0.07);
+  animation: fbg-float var(--d) ease-in-out var(--delay) infinite alternate;
+  will-change: transform;
+}
+.fbg__word:nth-of-type(even) {
+  -webkit-text-stroke-color: rgb(234 58 50 / 0.07);
+}
+.fbg__mark {
+  position: absolute;
+  left: var(--x);
+  top: var(--y);
+  width: 10px;
+  aspect-ratio: 1;
+  border: 1.5px solid;
+  transform: rotate(45deg);
+  opacity: 0.45;
+  animation: fbg-bob var(--d) ease-in-out var(--delay) infinite alternate;
+}
+.fbg__mark--teal {
+  color: var(--seafoam);
+}
+.fbg__mark--crimson {
+  color: var(--crimson);
+}
+
+@keyframes fbg-drift-a {
+  to {
+    transform: translate(18vw, 22vh) scale(1.15);
+  }
+}
+@keyframes fbg-drift-b {
+  to {
+    transform: translate(-22vw, -16vh) scale(0.9);
+  }
+}
+@keyframes fbg-drift-c {
+  to {
+    transform: translate(-16vw, 28vh) scale(1.2);
+  }
+}
+@keyframes fbg-float {
+  from {
+    transform: translate3d(0, 0, 0) rotate(-2deg);
+  }
+  to {
+    transform: translate3d(4vw, -6vh, 0) rotate(2deg);
+  }
+}
+@keyframes fbg-bob {
+  from {
+    transform: translate3d(0, 0, 0) rotate(45deg);
+  }
+  to {
+    transform: translate3d(-3vw, -9vh, 0) rotate(225deg);
+  }
+}
+
+@media (max-width: 720px) {
+  .fbg__word {
+    font-size: calc(var(--s) * 1.6);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fbg__orb,
+  .fbg__word,
+  .fbg__mark {
+    animation: none !important;
+  }
+}
+
+.fbg__orb--amber {
+  top: 58%;
+  left: -12vmax;
+  width: 34vmax;
+  background: radial-gradient(circle, rgb(255 181 71 / 0.1), transparent 65%);
+  animation: fbg-drift-c 38s ease-in-out -9s infinite alternate;
+}
+.fbg__orb--violet {
+  top: -10vmax;
+  right: -8vmax;
+  width: 40vmax;
+  background: radial-gradient(circle, rgb(160 140 255 / 0.1), transparent 65%);
+  animation: fbg-drift-b 46s ease-in-out -14s infinite alternate;
+}

@@ -1,0 +1,18 @@
+# Only the static frontend deploys to Vercel.
+backend/
+node_modules/
+dist/
+.vercel/
+.github/
+media-src/
+media.local.json
+*.log
+
+# public/media/ is uploaded as-is (Vercel's ignore file has no re-include
+# rules). The build's private-media guard still removes any edit that is
+# not "public": true in src/content/videos.json from the served output.
+
+# Local secrets (CLI tokens) never upload.
+.env
+.env.*
+.netlify/

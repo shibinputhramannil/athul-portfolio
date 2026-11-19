@@ -1,0 +1,70 @@
+/* Ported from Tapes.astro */
+.tapes {
+  position: relative;
+  height: clamp(170px, 20vw, 280px);
+  margin-top: clamp(64px, 10vw, 140px);
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+  --speed: 1;
+}
+.tape {
+  position: absolute;
+  left: -5%;
+  right: -5%;
+  display: flex;
+  align-items: center;
+  height: clamp(52px, 6vw, 84px);
+  overflow: hidden;
+}
+.tape--red {
+  rotate: -4deg;
+  background: var(--crimson);
+  color: var(--ink);
+  z-index: 1;
+  box-shadow: 0 20px 50px -20px var(--glow-red);
+}
+.tape--line {
+  rotate: 3deg;
+  background: var(--ink-2);
+  border-block: 1px solid rgb(142 210 190 / 0.4);
+  color: var(--seafoam);
+}
+.tape__track {
+  display: flex;
+  width: max-content;
+  animation: tape 48s linear infinite;
+}
+.tape__track--rev {
+  animation-direction: reverse;
+  animation-duration: 56s;
+}
+.tape__run {
+  display: flex;
+  align-items: center;
+}
+.tape__word {
+  padding: 0 clamp(14px, 1.6vw, 28px);
+  font-weight: 900;
+  font-stretch: 75%;
+  font-size: clamp(1.6rem, 3.4vw, 3rem);
+  line-height: 1;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.tape--line .tape__word {
+  color: transparent;
+  -webkit-text-stroke: 1px var(--seafoam);
+}
+.tape__star {
+  font-style: normal;
+  font-size: clamp(0.9rem, 1.4vw, 1.3rem);
+}
+.tape--line .tape__star {
+  color: var(--crimson);
+}
+@keyframes tape {
+  to {
+    transform: translateX(-50%);
+  }
+}

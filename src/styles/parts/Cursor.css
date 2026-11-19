@@ -1,0 +1,75 @@
+/* Ported from Cursor.astro */
+.cursor {
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 80;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s;
+  will-change: transform;
+}
+.cursor.is-on {
+  opacity: 1;
+}
+.cursor__ring {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 34px;
+  height: 34px;
+  translate: -50% -50%;
+  border: 1.5px solid var(--seafoam);
+  border-radius: 50%;
+  transition:
+    width 0.35s var(--ease-out),
+    height 0.35s var(--ease-out),
+    background-color 0.35s,
+    border-color 0.35s;
+}
+.cursor.is-link .cursor__ring {
+  width: 58px;
+  height: 58px;
+  background: rgb(142 210 190 / 0.12);
+}
+.cursor.is-play .cursor__ring {
+  width: 92px;
+  height: 92px;
+  border-color: var(--crimson);
+  background: var(--crimson);
+}
+.cursor.is-down .cursor__ring {
+  scale: 0.85;
+}
+.cursor__label {
+  position: absolute;
+  left: 0;
+  top: 0;
+  translate: -50% -50%;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink);
+  opacity: 0;
+  scale: 0.6;
+  transition:
+    opacity 0.25s,
+    scale 0.35s var(--ease-out);
+}
+.cursor.is-play .cursor__label {
+  opacity: 1;
+  scale: 1;
+}
+
+.cursor.is-play.is-tag .cursor__ring {
+  width: 62px;
+  height: 62px;
+  background: rgb(234 58 50 / 0.82);
+}
+.cursor.is-tag .cursor__label {
+  font-size: 10px;
+  letter-spacing: 0.1em;
+}

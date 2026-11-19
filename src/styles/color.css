@@ -1,0 +1,488 @@
+/* =====================================================================
+   Colour grade system.
+
+   The portfolio's palette extended into a teal-and-orange "grade" (the
+   signature look of colour grading): cool cyan and seafoam on one side,
+   amber, coral and crimson on the other, plus a violet night tone. Each
+   scene carries its own accent pair; headings, rules and glass rims pick
+   it up so the page shifts colour as you move through it.
+   ===================================================================== */
+:root {
+  --amber: #ffb547;
+  --coral: #ff6b4a;
+  --cyan: #4fd8e8;
+  --violet: #a08cff;
+
+  /* Balanced gradients. Every stop sits in one lightness band (OKLCH L
+     0.70 to 0.90) with real colour (C 0.08 and up), so no letter reads
+     washed out or heavy and both ends of a word carry the same weight.
+     A pale-gold bridge keeps the teal-to-orange grade from passing through
+     khaki. These sRGB versions are the fallback; the @supports block below
+     blends the same stops in OKLab for smoother joins. */
+  --grad-grade: linear-gradient(
+    100deg,
+    #4fd8e8 0%,
+    #7fe3c4 26%,
+    #f6d77a 52%,
+    #ffb547 72%,
+    #ff7a59 100%
+  );
+  --grad-cool: linear-gradient(120deg, #a8ecd8 0%, #7fe3c4 40%, #4fd8e8 100%);
+  --grad-warm: linear-gradient(120deg, #ffc861 0%, #ff8f4f 50%, #ff6150 100%);
+  --grad-night: linear-gradient(120deg, #4fd8e8 0%, #6fb6ff 45%, #a08cff 100%);
+  --grad-dawn: linear-gradient(120deg, #ffd88a 0%, #ffb547 50%, #ff7a59 100%);
+
+  /* Scene accent (set on <html data-scene> by the scroll spy). */
+  --accent: #8ed2be;
+  --accent-2: #4fd8e8;
+
+  --glass-rim: linear-gradient(
+    140deg,
+    rgb(255 255 255 / 0.4),
+    rgb(79 216 232 / 0.14) 30%,
+    rgb(255 181 71 / 0.1) 64%,
+    rgb(234 58 50 / 0.3)
+  );
+}
+@supports (background-image: linear-gradient(in oklab, red, blue)) {
+  :root {
+    --grad-grade: linear-gradient(
+      100deg in oklab,
+      #4fd8e8 0%,
+      #7fe3c4 26%,
+      #f6d77a 52%,
+      #ffb547 72%,
+      #ff7a59 100%
+    );
+    --grad-cool: linear-gradient(
+      120deg in oklab,
+      #a8ecd8 0%,
+      #7fe3c4 40%,
+      #4fd8e8 100%
+    );
+    --grad-warm: linear-gradient(
+      120deg in oklab,
+      #ffc861 0%,
+      #ff8f4f 50%,
+      #ff6150 100%
+    );
+    --grad-night: linear-gradient(
+      120deg in oklab,
+      #4fd8e8 0%,
+      #6fb6ff 45%,
+      #a08cff 100%
+    );
+    --grad-dawn: linear-gradient(
+      120deg in oklab,
+      #ffd88a 0%,
+      #ffb547 50%,
+      #ff7a59 100%
+    );
+  }
+}
+html[data-scene="work"] {
+  --accent: #8ed2be;
+  --accent-2: #ffb547;
+}
+html[data-scene="craft"] {
+  --accent: #ffb547;
+  --accent-2: #ff6b4a;
+}
+html[data-scene="experience"] {
+  --accent: #a08cff;
+  --accent-2: #4fd8e8;
+}
+html[data-scene="contact"] {
+  --accent: #ff6b4a;
+  --accent-2: #ea3a32;
+}
+
+/* Section-local grade: --sec / --sec-2 and a matching gradient. */
+[data-section="about"] {
+  --sec: #8ed2be;
+  --sec-2: #4fd8e8;
+  --sec-grad: var(--grad-cool);
+}
+[data-section="work"] {
+  --sec: #8ed2be;
+  --sec-2: #ffb547;
+  --sec-grad: var(--grad-grade);
+}
+[data-section="craft"] {
+  --sec: #ffb547;
+  --sec-2: #ff6b4a;
+  --sec-grad: var(--grad-dawn);
+}
+[data-section="experience"] {
+  --sec: #a08cff;
+  --sec-2: #4fd8e8;
+  --sec-grad: var(--grad-night);
+}
+[data-section="contact"] {
+  --sec: #ff6b4a;
+  --sec-2: #ea3a32;
+  --sec-grad: var(--grad-warm);
+}
+
+/* A faint wash of each scene's colour where it begins. */
+.section[data-section]::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  z-index: -1;
+  height: min(70vh, 720px);
+  background:
+    radial-gradient(
+      55% 60% at 12% 0%,
+      color-mix(in srgb, var(--sec) 11%, transparent),
+      transparent 70%
+    ),
+    radial-gradient(
+      40% 50% at 92% 18%,
+      color-mix(in srgb, var(--sec-2) 8%, transparent),
+      transparent 70%
+    );
+  pointer-events: none;
+}
+
+/* ---------- Gradient letters (per-letter slice of one gradient) ---------- */
+.split--grade {
+  --g: var(--grad-grade);
+}
+.split--cool {
+  --g: var(--grad-cool);
+}
+.split--warm {
+  --g: var(--grad-warm);
+}
+.split--night {
+  --g: var(--grad-night);
+}
+.split--dawn {
+  --g: var(--grad-dawn);
+}
+.split--sec {
+  --g: var(--sec-grad, var(--grad-cool));
+}
+.split--grad .split__c {
+  background-image: var(--g);
+  background-size: calc(var(--n, 1) * 100%) 100%;
+  background-position: calc(var(--i) / max(var(--n, 2) - 1, 1) * 100%) 0;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+@media (hover: hover) and (pointer: fine) {
+  .split--grad.split--hover .split__c:hover {
+    color: transparent;
+    filter: brightness(1.25);
+  }
+}
+
+/* ---------- Section slates pick up the scene grade ---------- */
+.sh__board b {
+  background: var(--sec-grad, var(--grad-warm));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.sh__echo {
+  -webkit-text-stroke-color: color-mix(
+    in oklab,
+    var(--sec, #8ed2be) 55%,
+    transparent
+  );
+}
+.sh__cut {
+  background: var(--sec-grad, var(--grad-warm));
+}
+.sh__head {
+  background: var(--sec-2, var(--crimson));
+  box-shadow: 0 0 14px
+    color-mix(in srgb, var(--sec-2, #ea3a32) 70%, transparent);
+}
+.sh__rule {
+  background:
+    linear-gradient(
+        90deg,
+        color-mix(in srgb, var(--sec, #8ed2be) 60%, transparent),
+        var(--line) 40%
+      )
+      left bottom / 100% 1px no-repeat,
+    repeating-linear-gradient(
+        90deg,
+        rgb(135 149 146 / 0.5) 0 1px,
+        transparent 1px 48px
+      )
+      left bottom / 100% 6px no-repeat;
+}
+
+/* ---------- Buttons ---------- */
+.pill--solid {
+  border-color: transparent;
+  background:
+    linear-gradient(
+        115deg,
+        transparent 30%,
+        rgb(255 255 255 / 0.45) 48%,
+        transparent 62%
+      ) -120%
+      0 / 220% 100% no-repeat,
+    linear-gradient(120deg, #a8e6d4, #8ed2be 45%, #4fd8e8);
+  transition:
+    background-position 0.8s var(--ease-out),
+    border-color 0.3s,
+    color 0.3s;
+}
+.pill--solid:hover,
+.pill--solid:focus-visible {
+  background-position:
+    120% 0,
+    0 0;
+}
+.site-header__cta {
+  background: var(--grad-warm);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.35),
+    0 10px 26px -12px rgb(255 107 74 / 0.8);
+}
+.wk-btn--sound {
+  background: linear-gradient(140deg, #a8e6d4, #8ed2be 45%, #4fd8e8);
+}
+.badge__core {
+  background: var(--grad-warm);
+}
+
+/* ---------- Header follows the scene ---------- */
+.site-nav__ind {
+  background: linear-gradient(120deg, var(--accent), var(--accent-2));
+  box-shadow: 0 6px 22px -8px var(--accent-2);
+}
+.site-header__progress {
+  background: var(--grad-grade);
+  box-shadow: 0 0 12px rgb(79 216 232 / 0.4);
+}
+.cursor__ring {
+  border-color: var(--accent);
+  transition:
+    width 0.35s var(--ease-out),
+    height 0.35s var(--ease-out),
+    background-color 0.35s,
+    border-color 0.6s;
+}
+@media (max-width: 720px) {
+  .dock a::before {
+    background: linear-gradient(90deg, var(--accent), var(--accent-2));
+  }
+  .dock a[aria-current="true"] {
+    color: var(--accent);
+  }
+}
+
+/* ---------- Opening scene ---------- */
+.intro__no,
+.kit__no,
+.edu__no {
+  color: var(--amber);
+}
+.glow__amber {
+  position: absolute;
+  right: 6%;
+  top: 8%;
+  width: 34vw;
+  height: 34vw;
+  max-width: 560px;
+  max-height: 560px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgb(255 181 71 / 0.14), transparent 65%);
+}
+.name__word--back {
+  background: linear-gradient(
+    180deg,
+    var(--mist) 22%,
+    #a8e6d4 62%,
+    rgb(79 216 232 / 0.85) 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+
+/* Stats: rolling digits in alternating cool and warm grades. One gradient
+   per digit column, repeated per row, so every digit gets the same blend. */
+.stat__digit > span {
+  background: var(--grad-cool) 0 0 / 100% 10% repeat-y;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.stat:nth-child(even) .stat__digit > span {
+  background: var(--grad-dawn) 0 0 / 100% 10% repeat-y;
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+.stat::before {
+  background: var(--grad-grade);
+}
+.lang__bar span {
+  background: var(--grad-night);
+}
+.lang__bar span.is-native {
+  background: var(--grad-grade);
+}
+
+/* Craft: keyframes and the sweep read in the warm grade. */
+.fxp__key {
+  background: linear-gradient(135deg, var(--amber), var(--coral));
+}
+.fxp__render {
+  border-right-color: var(--amber);
+}
+.fxp__seg {
+  background: linear-gradient(
+    90deg,
+    rgb(255 181 71 / 0.6),
+    rgb(255 107 74 / 0.6)
+  );
+}
+
+/* Experience: the track and nodes in the night grade. */
+.tl__fill {
+  background: linear-gradient(
+    180deg,
+    var(--cyan),
+    var(--violet) 60%,
+    var(--coral)
+  );
+  box-shadow: 0 0 16px rgb(160 140 255 / 0.45);
+}
+.tl__item.is-active .tl__node {
+  background: var(--violet);
+  border-color: var(--violet);
+  box-shadow: 0 0 18px rgb(160 140 255 / 0.7);
+}
+.tl__years {
+  -webkit-text-stroke-color: rgb(160 140 255 / 0.55);
+}
+.tl__item.is-active .tl__years {
+  -webkit-text-stroke-color: rgb(79 216 232 / 0.85);
+}
+.tl__item.is-active .tl__trim {
+  border-color: var(--violet);
+}
+
+/* Contact: the outlined line shades from seafoam to coral, letter by letter. */
+.cta__at {
+  background: var(--grad-warm);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.cta__email {
+  background: var(--grad-grade) left bottom / 0% 3px no-repeat;
+}
+
+/* Work: the title of the edit on the reel takes that edit's colour. */
+.wk-now__title {
+  /* From a light tint of the edit's colour to the colour itself: both ends
+     carry colour, so the title never fades to white on one side. */
+  --g: linear-gradient(
+    120deg,
+    color-mix(in oklab, rgb(var(--tone)) 45%, var(--mist)),
+    rgb(var(--tone))
+  );
+}
+.wk-now__title .split__c {
+  background-image: var(--g);
+  background-size: calc(var(--n, 1) * 100%) 100%;
+  background-position: calc(var(--i) / max(var(--n, 2) - 1, 1) * 100%) 0;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* ---------- Rolling word ---------- */
+.roll {
+  position: relative;
+  display: inline-grid;
+  vertical-align: bottom;
+}
+.roll > * {
+  grid-area: 1 / 1;
+}
+.roll__size {
+  visibility: hidden;
+}
+.roll__word {
+  display: inline-flex;
+  overflow: clip;
+  overflow-clip-margin: 0.1em;
+}
+.roll__c {
+  display: inline-block;
+  background: var(--grad-dawn);
+  background-size: 600% 100%;
+  background-position: calc(var(--i) * 12%) 0;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: roll-in 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: calc(var(--i) * 32ms);
+}
+@keyframes roll-in {
+  from {
+    transform: translate3d(0, 105%, 0) rotate(8deg);
+  }
+}
+
+/* ---------- Summary keywords light up in their grade ---------- */
+.profile__word.kw {
+  position: relative;
+  /* A phrase ("visual effects") is one unit: one gradient, one underline. */
+  white-space: nowrap;
+  background: var(--kwg, var(--grad-cool));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.profile__word.kw::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0.02em;
+  height: 0.07em;
+  border-radius: 1em;
+  background: var(--kwg, var(--grad-cool));
+  transform-origin: 0 50%;
+  transform: scaleX(
+    clamp(0, calc(var(--p, 0) * var(--n) * 1.15 - var(--i) - 0.4), 1)
+  );
+}
+.kw--cool {
+  --kwg: var(--grad-cool);
+}
+.kw--night {
+  --kwg: var(--grad-night);
+}
+.kw--warm {
+  --kwg: var(--grad-warm);
+}
+.kw--dawn {
+  --kwg: var(--grad-dawn);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .roll__c {
+    animation: none;
+  }
+  .profile__word.kw::after {
+    transform: none;
+  }
+}
+
+/* Solid pills shine instead of the crimson wipe. */
+.pill--solid::before {
+  display: none;
+}

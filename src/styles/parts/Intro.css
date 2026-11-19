@@ -1,0 +1,189 @@
+/* =====================================================================
+   Opening: a cinematic letterbox. A graded scan line draws across the
+   centre, the name settles on it with a running timecode, then the black
+   bars glide apart while the first scene is already animating in behind
+   them, so there is no hard cut between the opener and the page.
+   Shown once per visit (html.has-intro, set in index.html); any key or
+   tap cuts it short. Never shown with reduced motion.
+   ===================================================================== */
+.opener {
+  display: none;
+}
+.has-intro .opener {
+  position: fixed;
+  inset: 0;
+  z-index: 95;
+  display: block;
+  pointer-events: none;
+}
+.has-intro body {
+  overflow: hidden;
+}
+
+.opener__bar {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 50.2%;
+  background:
+    radial-gradient(
+      120% 80% at 50% 100%,
+      rgb(18 58 51 / 0.55),
+      transparent 60%
+    ),
+    var(--ink);
+  will-change: transform;
+  animation: opener-open 0.8s cubic-bezier(0.76, 0, 0.24, 1) 0.6s forwards;
+}
+.opener__bar--top {
+  top: 0;
+  --to: -101%;
+  box-shadow: inset 0 -1px 0 rgb(255 255 255 / 0.08);
+}
+.opener__bar--bottom {
+  bottom: 0;
+  --to: 101%;
+  transform: scaleY(-1);
+  box-shadow: inset 0 -1px 0 rgb(255 255 255 / 0.08);
+  animation-name: opener-open-down;
+}
+@keyframes opener-open {
+  to {
+    transform: translateY(var(--to));
+  }
+}
+@keyframes opener-open-down {
+  to {
+    transform: scaleY(-1) translateY(-101%);
+  }
+}
+
+.opener__slit {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 2px;
+  margin-top: -1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--crimson) 18%,
+    var(--mist) 50%,
+    var(--seafoam) 82%,
+    transparent
+  );
+  box-shadow:
+    0 0 18px rgb(234 58 50 / 0.6),
+    0 0 40px rgb(142 210 190 / 0.35);
+  transform: scaleX(0);
+  will-change: transform, opacity;
+  animation:
+    opener-draw 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards,
+    opener-fade 0.3s ease-out 0.56s forwards;
+}
+@keyframes opener-draw {
+  to {
+    transform: scaleX(1);
+  }
+}
+@keyframes opener-fade {
+  to {
+    opacity: 0;
+    transform: scaleX(1.15);
+  }
+}
+
+.opener__mark,
+.opener__meta {
+  position: absolute;
+  left: 50%;
+  display: flex;
+  gap: 14px;
+  align-items: baseline;
+  translate: -50% 0;
+  white-space: nowrap;
+  color: var(--mist);
+  opacity: 0;
+  will-change: transform, opacity;
+}
+.opener__mark {
+  bottom: calc(50% + 18px);
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-stretch: 75%;
+  font-size: clamp(1.4rem, 3.2vw, 2.4rem);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  animation:
+    opener-rise 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.08s forwards,
+    opener-out 0.34s cubic-bezier(0.7, 0, 0.84, 0) 0.46s forwards;
+}
+.opener__mark em {
+  font-family: var(--font-accent);
+  font-style: italic;
+  font-weight: 400;
+  font-synthesis: none;
+  font-stretch: 100%;
+  font-size: 0.95em;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--crimson);
+}
+.opener__meta {
+  top: calc(50% + 16px);
+  gap: 18px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--fog);
+  animation:
+    opener-rise-down 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.16s forwards,
+    opener-out-down 0.34s cubic-bezier(0.7, 0, 0.84, 0) 0.46s forwards;
+}
+.opener__meta b {
+  font-weight: 500;
+  color: var(--seafoam);
+  font-variant-numeric: tabular-nums;
+}
+@keyframes opener-rise {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes opener-out {
+  from {
+    opacity: 1;
+    transform: none;
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-36px);
+  }
+}
+@keyframes opener-rise-down {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes opener-out-down {
+  from {
+    opacity: 1;
+    transform: none;
+  }
+  to {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+}
