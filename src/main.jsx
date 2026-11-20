@@ -12,6 +12,7 @@ import "./styles/parts/SectionHead.css";
 import "./styles/parts/About.css";
 import "./styles/parts/Tapes.css";
 import "./styles/parts/Craft.css";
+import "./styles/parts/Toolkit.css";
 import "./styles/parts/Experience.css";
 import "./styles/parts/Contact.css";
 import "./styles/parts/Footer.css";

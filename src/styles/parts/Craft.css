@@ -230,18 +230,16 @@
 }
 .tool {
   position: relative;
-  display: grid;
-  align-content: end;
-  gap: 6px;
-  min-height: clamp(200px, 20vw, 280px);
-  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  padding: 22px;
   border: 1px solid var(--line-2);
   border-radius: var(--radius);
   background: var(--panel);
   overflow: hidden;
   isolation: isolate;
-  transform: rotateX(calc(var(--ty, 0) * -8deg))
-    rotateY(calc(var(--tx, 0) * 10deg));
+  transform: rotateX(calc(var(--ty, 0) * -6deg))
+    rotateY(calc(var(--tx, 0) * 8deg));
   transition:
     transform 0.5s var(--ease-out),
     border-color 0.4s;
@@ -254,42 +252,67 @@
 }
 .tool__glow {
   position: absolute;
-  inset: auto -20% -50% auto;
+  inset: auto -20% -40% auto;
   z-index: -1;
   width: 90%;
   aspect-ratio: 1;
   border-radius: 50%;
-  background: radial-gradient(circle, rgb(var(--glow) / 0.35), transparent 65%);
+  background: radial-gradient(circle, rgb(var(--glow) / 0.3), transparent 65%);
   translate: calc(var(--tx, 0) * 30px) calc(var(--ty, 0) * 30px);
   transition: opacity 0.4s;
 }
+.tool__head {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
 .tool__icon {
-  position: absolute;
-  top: 24px;
-  left: 24px;
   display: grid;
   place-items: center;
-  width: 76px;
-  height: 76px;
+  flex: none;
+  width: 52px;
+  height: 52px;
   border: 1px solid var(--line);
-  border-radius: 18px;
+  border-radius: 14px;
   background: var(--ink);
-  box-shadow: 0 16px 40px -18px rgb(var(--glow) / 0.8);
+  box-shadow: 0 14px 34px -16px rgb(var(--glow) / 0.8);
+}
+/* The job, in the editorial italic and the warm grade. */
+.tool__verb {
+  padding-right: 0.08em;
+  font-family: var(--font-accent);
+  font-style: italic;
+  font-weight: 400;
+  font-synthesis: none;
+  font-size: clamp(1.7rem, 1.3rem + 1vw, 2.3rem);
+  line-height: 1;
+  background: var(--grad-warm);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.tool__no {
+  margin-left: auto;
+  align-self: flex-start;
 }
 .tool__name {
   font-weight: 800;
   font-stretch: 85%;
-  font-size: clamp(1.3rem, 1rem + 1vw, 1.9rem);
+  font-size: clamp(1.2rem, 0.95rem + 0.8vw, 1.6rem);
   line-height: 1.05;
   text-transform: uppercase;
 }
 .tool__use {
+  margin-top: 6px;
   color: var(--seafoam);
 }
-.tool__no {
-  position: absolute;
-  top: 26px;
-  right: 24px;
+.tool__desc {
+  margin: 12px 0 0;
+  max-width: 40ch;
+  color: rgb(230 236 233 / 0.72);
+  font-size: 14.5px;
+  line-height: 1.55;
+  text-wrap: pretty;
 }
 
 @media (max-width: 860px) {
@@ -315,15 +338,7 @@
     grid-template-columns: 1fr;
   }
   .tool {
-    min-height: 0;
-    padding: 20px 20px 20px 112px;
-    align-content: center;
-    min-height: 120px;
-  }
-  .tool__icon {
-    top: 50%;
-    left: 20px;
-    translate: 0 -50%;
+    padding: 18px;
   }
 }
 @media (prefers-reduced-motion: reduce) {

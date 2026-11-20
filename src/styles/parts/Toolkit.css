@@ -1,0 +1,810 @@
+/* =====================================================================
+   Toolkit screens (ToolStage.jsx): one job per piece of software.
+   Every loop is 6 s. Base styles are the still frame shown under reduced
+   motion; the animations (fill-mode both) take over while playing. Only
+   transform, opacity, stroke-dashoffset, fill and a small clip-path move,
+   and the Craft section pauses them all off screen.
+   ===================================================================== */
+.tool__stage {
+  --loop: 6s;
+  position: relative;
+  aspect-ratio: 16 / 9;
+  margin: 18px 0 20px;
+  overflow: hidden;
+  border: 1px solid rgb(255 255 255 / 0.08);
+  border-radius: 12px;
+  background:
+    radial-gradient(120% 90% at 50% 0%, rgb(18 58 51 / 0.45), transparent 60%),
+    #091311;
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.05);
+}
+.tk {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.tk text {
+  font-family: var(--font-mono);
+  font-size: 7px;
+  letter-spacing: 0.04em;
+  fill: var(--fog);
+}
+.tk__frame {
+  fill: #050c0b;
+  stroke: rgb(255 255 255 / 0.12);
+  stroke-width: 0.8;
+}
+.tk__ruler {
+  fill: none;
+  stroke: rgb(255 255 255 / 0.22);
+  stroke-width: 0.8;
+}
+.tk__clip {
+  fill-opacity: 0.82;
+}
+.tk__on {
+  font-family: var(--font-display) !important;
+  font-weight: 800;
+  font-size: 7.5px !important;
+  fill: #08110f !important;
+}
+.tk__playhead {
+  fill: var(--crimson);
+}
+.tk__playhead-line {
+  stroke: var(--crimson);
+  stroke-width: 1.2;
+}
+
+/* ---------- Premiere Pro: cut ---------- */
+.tk-cut__audio {
+  fill: rgb(142 210 190 / 0.1);
+  stroke: rgb(142 210 190 / 0.35);
+  stroke-width: 0.6;
+}
+.tk-cut__wave {
+  fill: none;
+  stroke: var(--seafoam);
+  stroke-width: 1.4;
+  stroke-linecap: round;
+  opacity: 0.85;
+}
+.tk-cut__razor {
+  fill: none;
+  stroke: #fff;
+  stroke-width: 1;
+  stroke-dasharray: 2 2;
+  opacity: 0;
+}
+/* Still frame: after the cut and the ripple, playhead part-way along. */
+.tk-cut__head {
+  transform: translateX(172px);
+}
+.tk-cut__shot--a,
+.tk-cut__shot--b,
+.tk-cut__lift {
+  opacity: 0;
+}
+.tk-cut__ripple {
+  transform: translateX(-36.5px);
+}
+
+.tk-cut__head {
+  animation: tk-cut-head var(--loop) linear infinite both;
+}
+@keyframes tk-cut-head {
+  0% {
+    transform: translateX(0);
+    opacity: 0;
+  }
+  3% {
+    opacity: 1;
+  }
+  92% {
+    transform: translateX(264px);
+    opacity: 1;
+  }
+  97% {
+    transform: translateX(264px);
+    opacity: 0;
+  }
+  100% {
+    transform: translateX(0);
+    opacity: 0;
+  }
+}
+/* Program monitor: a hard cut each time the playhead crosses a clip. */
+.tk-cut__shot--a {
+  animation: tk-shot-a var(--loop) step-end infinite both;
+}
+.tk-cut__shot--b {
+  animation: tk-shot-b var(--loop) step-end infinite both;
+}
+.tk-cut__shot--c {
+  animation: tk-shot-c var(--loop) step-end infinite both;
+}
+@keyframes tk-shot-a {
+  0% {
+    opacity: 1;
+  }
+  28.6%,
+  100% {
+    opacity: 0;
+  }
+}
+@keyframes tk-shot-b {
+  0% {
+    opacity: 0;
+  }
+  28.6% {
+    opacity: 1;
+  }
+  40.8%,
+  100% {
+    opacity: 0;
+  }
+}
+@keyframes tk-shot-c {
+  0% {
+    opacity: 0;
+  }
+  40.8%,
+  100% {
+    opacity: 1;
+  }
+}
+/* Razor at the playhead, the piece lifts away, the rest ripples left. */
+.tk-cut__razor {
+  animation: tk-razor var(--loop) linear infinite both;
+}
+@keyframes tk-razor {
+  0%,
+  40.5% {
+    opacity: 0;
+  }
+  41.5% {
+    opacity: 1;
+  }
+  47%,
+  100% {
+    opacity: 0;
+  }
+}
+.tk-cut__lift {
+  animation: tk-lift var(--loop) var(--ease-out) infinite both;
+}
+@keyframes tk-lift {
+  0%,
+  42% {
+    opacity: 1;
+    transform: none;
+  }
+  48%,
+  92% {
+    opacity: 0;
+    transform: translateY(-7px);
+  }
+  100% {
+    opacity: 1;
+    transform: none;
+  }
+}
+.tk-cut__ripple {
+  animation: tk-ripple var(--loop) var(--ease-out) infinite both;
+}
+@keyframes tk-ripple {
+  0%,
+  48% {
+    transform: none;
+  }
+  56%,
+  92% {
+    transform: translateX(-36.5px);
+  }
+  100% {
+    transform: none;
+  }
+}
+.tk-cut__title {
+  opacity: 0.7;
+  animation: tk-title-hot var(--loop) step-end infinite both;
+}
+@keyframes tk-title-hot {
+  0% {
+    opacity: 0.7;
+  }
+  42.5% {
+    opacity: 1;
+  }
+  64.8%,
+  100% {
+    opacity: 0.7;
+  }
+}
+
+/* ---------- After Effects: animate ---------- */
+.tk-ae__safe {
+  fill: none;
+  stroke: rgb(255 255 255 / 0.07);
+  stroke-width: 0.7;
+  stroke-dasharray: 3 3;
+}
+.tk-ae__handle {
+  stroke: rgb(255 255 255 / 0.25);
+  stroke-width: 0.7;
+}
+.tk-ae__grip {
+  fill: #050c0b;
+  stroke: rgb(255 255 255 / 0.5);
+  stroke-width: 0.8;
+}
+.tk-ae__path {
+  fill: none;
+  stroke: rgb(255 255 255 / 0.28);
+  stroke-width: 1.1;
+  stroke-dasharray: 1.5 3.5;
+  stroke-linecap: round;
+}
+.tk-ae__trace {
+  fill: none;
+  stroke: url(#tka-path);
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 0;
+}
+.tk-ae__key {
+  fill: var(--fog);
+  stroke: #050c0b;
+  stroke-width: 0.6;
+}
+.tk-ae__ring {
+  fill: none;
+  stroke: rgb(255 255 255 / 0.35);
+  stroke-width: 0.8;
+  stroke-dasharray: 2 2;
+}
+.tk-ae__lname {
+  font-family: var(--font-display) !important;
+  font-weight: 900;
+  font-stretch: 75%;
+  font-size: 9px !important;
+  letter-spacing: 0.02em !important;
+  fill: var(--mist) !important;
+}
+.tk-ae__lrole {
+  font-family: var(--font-accent) !important;
+  font-style: italic;
+  font-size: 8.5px !important;
+  letter-spacing: 0 !important;
+  fill: #ffc861 !important;
+}
+.tk-ae__layer {
+  fill: rgb(160 140 255 / 0.22);
+  stroke: rgb(160 140 255 / 0.45);
+  stroke-width: 0.6;
+}
+.tk-ae__layer--title {
+  fill: rgb(255 143 79 / 0.18);
+  stroke: rgb(255 143 79 / 0.45);
+}
+/* Still frame: the move has landed and the lower third is up. */
+.tk-ae__obj {
+  transform: translate(216px, -62px);
+}
+.tk-ae__key--end,
+.tk-ae__tl {
+  fill: #ffb547;
+}
+.tk-ae__cti {
+  transform: translateX(200px);
+}
+
+.tk-ae__obj {
+  animation: tk-move var(--loop) linear infinite both;
+}
+.tk-ae__ghost1 {
+  animation-delay: 0.06s;
+}
+.tk-ae__ghost2 {
+  animation-delay: 0.12s;
+}
+.tk-ae__ghost3 {
+  animation-delay: 0.18s;
+}
+/* Points sampled along the bezier on an ease-in-out clock. */
+@keyframes tk-move {
+  0%,
+  8% {
+    transform: translate(0, 0);
+    opacity: 1;
+  }
+  12.5% {
+    transform: translate(0.5px, 0);
+  }
+  17% {
+    transform: translate(3.7px, 0.1px);
+  }
+  21.5% {
+    transform: translate(12.3px, -0.2px);
+  }
+  26% {
+    transform: translate(28.1px, -3.3px);
+  }
+  30.5% {
+    transform: translate(52.5px, -13.7px);
+  }
+  35% {
+    transform: translate(89.2px, -35.5px);
+  }
+  39.5% {
+    transform: translate(132.6px, -55.7px);
+  }
+  44% {
+    transform: translate(168.9px, -63.3px);
+  }
+  48.5% {
+    transform: translate(194.9px, -63.9px);
+  }
+  53% {
+    transform: translate(209.5px, -62.8px);
+  }
+  57.5% {
+    transform: translate(215.2px, -62.1px);
+  }
+  62%,
+  92% {
+    transform: translate(216px, -62px);
+    opacity: 1;
+  }
+  96% {
+    transform: translate(216px, -62px);
+    opacity: 0;
+  }
+  97% {
+    transform: translate(0, 0);
+    opacity: 0;
+  }
+  100% {
+    transform: translate(0, 0);
+    opacity: 1;
+  }
+}
+.tk-ae__trace {
+  animation: tk-trace var(--loop) infinite both;
+}
+@keyframes tk-trace {
+  0%,
+  8% {
+    stroke-dashoffset: 1;
+    opacity: 1;
+    animation-timing-function: cubic-bezier(0.65, 0, 0.35, 1);
+  }
+  62%,
+  90% {
+    stroke-dashoffset: 0;
+    opacity: 1;
+  }
+  96% {
+    stroke-dashoffset: 0;
+    opacity: 0;
+  }
+  97% {
+    stroke-dashoffset: 1;
+    opacity: 0;
+  }
+  100% {
+    stroke-dashoffset: 1;
+    opacity: 1;
+  }
+}
+.tk-ae__key--end {
+  animation: tk-key-end var(--loop) step-end infinite both;
+}
+@keyframes tk-key-end {
+  0% {
+    fill: var(--fog);
+  }
+  61%,
+  96% {
+    fill: #ffb547;
+  }
+  100% {
+    fill: var(--fog);
+  }
+}
+.tk-ae__lower {
+  animation: tk-lower var(--loop) var(--ease-out) infinite both;
+}
+@keyframes tk-lower {
+  0%,
+  57% {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+  63%,
+  90% {
+    opacity: 1;
+    transform: none;
+  }
+  96%,
+  100% {
+    opacity: 0;
+    transform: none;
+  }
+}
+.tk-ae__lbar {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+  animation: tk-lbar var(--loop) var(--ease-out) infinite both;
+}
+@keyframes tk-lbar {
+  0%,
+  56% {
+    transform: scaleY(0);
+  }
+  60%,
+  100% {
+    transform: none;
+  }
+}
+.tk-ae__cti {
+  animation: tk-cti var(--loop) linear infinite both;
+}
+@keyframes tk-cti {
+  0% {
+    transform: translateX(0);
+    opacity: 0;
+  }
+  3% {
+    opacity: 1;
+  }
+  92% {
+    transform: translateX(240px);
+    opacity: 1;
+  }
+  97% {
+    transform: translateX(240px);
+    opacity: 0;
+  }
+  100% {
+    transform: translateX(0);
+    opacity: 0;
+  }
+}
+/* Timeline keyframes light as the time indicator reaches them. */
+.tk-ae__tl {
+  animation: var(--k) var(--loop) step-end infinite both;
+}
+.tk-ae__tl--1 {
+  --k: tk-tl-1;
+}
+.tk-ae__tl--2 {
+  --k: tk-tl-2;
+}
+.tk-ae__tl--3 {
+  --k: tk-tl-3;
+}
+.tk-ae__tl--4 {
+  --k: tk-tl-4;
+}
+@keyframes tk-tl-1 {
+  0% {
+    fill: var(--fog);
+  }
+  8%,
+  96% {
+    fill: #ffb547;
+  }
+  100% {
+    fill: var(--fog);
+  }
+}
+@keyframes tk-tl-2 {
+  0% {
+    fill: var(--fog);
+  }
+  62%,
+  96% {
+    fill: #ffb547;
+  }
+  100% {
+    fill: var(--fog);
+  }
+}
+@keyframes tk-tl-3 {
+  0% {
+    fill: var(--fog);
+  }
+  56%,
+  96% {
+    fill: #ff8f4f;
+  }
+  100% {
+    fill: var(--fog);
+  }
+}
+@keyframes tk-tl-4 {
+  0% {
+    fill: var(--fog);
+  }
+  66%,
+  96% {
+    fill: #ff8f4f;
+  }
+  100% {
+    fill: var(--fog);
+  }
+}
+
+/* ---------- DaVinci Resolve: grade ---------- */
+.tk-gr__view {
+  position: absolute;
+  left: 6.25%;
+  right: 6.25%;
+  top: 4.4%;
+  height: 53.5%;
+  overflow: hidden;
+  border: 1px solid rgb(255 255 255 / 0.12);
+  border-radius: 4px;
+}
+.tk-gr__scene {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.tk-gr__graded {
+  position: absolute;
+  inset: 0;
+  clip-path: inset(0 45% 0 0);
+}
+.tk-gr__tag {
+  position: absolute;
+  top: 6px;
+  padding: 1px 6px;
+  border-radius: 3px;
+  background: rgb(8 17 15 / 0.72);
+  color: var(--mist);
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.06em;
+}
+.tk-gr__tag--log {
+  right: 6px;
+}
+.tk-gr__tag--graded {
+  left: 6px;
+  color: #ffd88a;
+}
+/* The split rides a full-width layer, so it moves by transform. */
+.tk-gr__split {
+  position: absolute;
+  inset: 0;
+  transform: translateX(55%);
+  pointer-events: none;
+}
+.tk-gr__split::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: -1px;
+  width: 2px;
+  background: #fff;
+  box-shadow: 0 0 10px rgb(255 255 255 / 0.7);
+}
+.tk-gr__tools {
+  position: absolute;
+  left: 6.25%;
+  bottom: 4.4%;
+  width: 87.5%;
+  height: auto;
+}
+.tk-gr__box {
+  fill: #050c0b;
+  stroke: rgb(255 255 255 / 0.12);
+  stroke-width: 0.8;
+}
+.tk-gr__grid {
+  fill: none;
+  stroke: rgb(255 255 255 / 0.06);
+  stroke-width: 0.6;
+}
+.tk-gr__line {
+  stroke: rgb(255 255 255 / 0.18);
+  stroke-width: 0.8;
+  stroke-dasharray: 2 2;
+}
+.tk-gr__curve {
+  fill: none;
+  stroke: url(#tkg-curve);
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 0;
+}
+.tk-gr__pt {
+  fill: var(--mist);
+}
+.tk-gr__tr {
+  fill: none;
+  stroke-width: 1.2;
+  stroke-linecap: round;
+  opacity: 0.85;
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+}
+.tk-gr__tr--r {
+  stroke: #ff7a59;
+}
+.tk-gr__tr--g {
+  stroke: #7fe3c4;
+  transform: scaleY(0.9);
+}
+.tk-gr__tr--b {
+  stroke: #6fb6ff;
+  transform: scaleY(0.78);
+}
+
+/* Sweep to graded, hold, sweep back to log. */
+.tk-gr__graded {
+  animation: tk-reveal var(--loop) infinite both;
+}
+@keyframes tk-reveal {
+  0%,
+  10% {
+    clip-path: inset(0 100% 0 0);
+    animation-timing-function: cubic-bezier(0.65, 0, 0.35, 1);
+  }
+  55%,
+  86% {
+    clip-path: inset(0 0 0 0);
+    animation-timing-function: cubic-bezier(0.65, 0, 0.35, 1);
+  }
+  98%,
+  100% {
+    clip-path: inset(0 100% 0 0);
+  }
+}
+.tk-gr__split {
+  animation: tk-split var(--loop) infinite both;
+}
+@keyframes tk-split {
+  0%,
+  8% {
+    transform: translateX(0);
+    opacity: 0;
+  }
+  10% {
+    transform: translateX(0);
+    opacity: 1;
+    animation-timing-function: cubic-bezier(0.65, 0, 0.35, 1);
+  }
+  55% {
+    transform: translateX(100%);
+    opacity: 1;
+  }
+  58%,
+  84% {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  86% {
+    transform: translateX(100%);
+    opacity: 1;
+    animation-timing-function: cubic-bezier(0.65, 0, 0.35, 1);
+  }
+  98% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(0);
+    opacity: 0;
+  }
+}
+.tk-gr__curve {
+  animation: tk-curve var(--loop) infinite both;
+}
+@keyframes tk-curve {
+  0%,
+  10% {
+    stroke-dashoffset: 1;
+    animation-timing-function: cubic-bezier(0.65, 0, 0.35, 1);
+  }
+  55%,
+  86% {
+    stroke-dashoffset: 0;
+    animation-timing-function: cubic-bezier(0.65, 0, 0.35, 1);
+  }
+  98%,
+  100% {
+    stroke-dashoffset: 1;
+  }
+}
+.tk-gr__pt {
+  animation: tk-pt var(--loop) ease infinite both;
+}
+@keyframes tk-pt {
+  0%,
+  28% {
+    opacity: 0;
+  }
+  36%,
+  86% {
+    opacity: 1;
+  }
+  92%,
+  100% {
+    opacity: 0;
+  }
+}
+.tk-gr__tr {
+  animation: var(--tr) var(--loop) infinite both;
+}
+.tk-gr__tr--r {
+  --tr: tk-tr-r;
+}
+.tk-gr__tr--g {
+  --tr: tk-tr-g;
+}
+.tk-gr__tr--b {
+  --tr: tk-tr-b;
+}
+@keyframes tk-tr-r {
+  0%,
+  10% {
+    transform: scaleY(0.5);
+    animation-timing-function: cubic-bezier(0.65, 0, 0.35, 1);
+  }
+  55%,
+  86% {
+    transform: none;
+    animation-timing-function: cubic-bezier(0.65, 0, 0.35, 1);
+  }
+  98%,
+  100% {
+    transform: scaleY(0.5);
+  }
+}
+@keyframes tk-tr-g {
+  0%,
+  10% {
+    transform: scaleY(0.5);
+    animation-timing-function: cubic-bezier(0.65, 0, 0.35, 1);
+  }
+  55%,
+  86% {
+    transform: scaleY(0.9);
+    animation-timing-function: cubic-bezier(0.65, 0, 0.35, 1);
+  }
+  98%,
+  100% {
+    transform: scaleY(0.5);
+  }
+}
+@keyframes tk-tr-b {
+  0%,
+  10% {
+    transform: scaleY(0.5);
+    animation-timing-function: cubic-bezier(0.65, 0, 0.35, 1);
+  }
+  55%,
+  86% {
+    transform: scaleY(0.78);
+    animation-timing-function: cubic-bezier(0.65, 0, 0.35, 1);
+  }
+  98%,
+  100% {
+    transform: scaleY(0.5);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tk *,
+  .tk {
+    animation: none !important;
+  }
+}

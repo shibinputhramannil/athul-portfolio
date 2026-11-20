@@ -5,12 +5,29 @@ import Reveal from "./Reveal";
 import { toolMeta } from "../lib/icons";
 import { usePauseOffscreen } from "../lib/ticker";
 import { Scramble } from "./Kinetic";
+import { AnimateStage, CutStage, GradeStage } from "./ToolStage";
 
-// General product categories, not claims about specific projects.
-const toolUse = {
-  premiere: "Editing & assembly",
-  aftereffects: "Motion graphics & VFX",
-  resolve: "Colour grading & finishing",
+// What each tool is for, as a general product role (not a claim about any
+// specific project), and the screen that shows that job.
+const toolInfo = {
+  premiere: {
+    verb: "Cut",
+    use: "Editing & assembly",
+    desc: "Where the story is cut: footage assembled on the timeline, paced, trimmed and mixed with sound.",
+    Stage: CutStage,
+  },
+  aftereffects: {
+    verb: "Animate",
+    use: "Motion graphics & VFX",
+    desc: "Where things move: keyframed titles, motion paths, graphics and visual effects.",
+    Stage: AnimateStage,
+  },
+  resolve: {
+    verb: "Grade",
+    use: "Colour grading & finishing",
+    desc: "Where the look is set: flat log footage graded to its final colour, shot by shot.",
+    Stage: GradeStage,
+  },
 };
 const toolGlow = {
   premiere: "153 153 255",
@@ -31,9 +48,15 @@ function buildLanes(count) {
   });
 }
 
+/**
+ * One station of the workflow: the tool, the verb it stands for, a small
+ * working screen of that job, and a plain sentence on what it is for.
+ */
 function Tool({ name, i }) {
   const meta = toolMeta[name];
-  if (!meta) return null;
+  const info = meta && toolInfo[meta.brand];
+  if (!info) return null;
+  const { Stage } = info;
   return (
     <Reveal
       as="li"
@@ -43,14 +66,21 @@ function Tool({ name, i }) {
       style={{ "--glow": toolGlow[meta.brand] }}
     >
       <span className="tool__glow" aria-hidden="true" />
-      <span className="tool__icon">
-        <Icon brand={meta.brand} size={44} />
-      </span>
+      <div className="tool__head">
+        <span className="tool__icon">
+          <Icon brand={meta.brand} size={30} />
+        </span>
+        <span className="tool__verb">{info.verb}</span>
+        <span className="tool__no label" aria-hidden="true">
+          0{i + 1}
+        </span>
+      </div>
+      <div className="tool__stage" aria-hidden="true">
+        <Stage />
+      </div>
       <span className="tool__name">{meta.name}</span>
-      <span className="label tool__use">{toolUse[meta.brand]}</span>
-      <span className="tool__no label" aria-hidden="true">
-        0{i + 1}
-      </span>
+      <span className="label tool__use">{info.use}</span>
+      <p className="tool__desc">{info.desc}</p>
     </Reveal>
   );
 }
