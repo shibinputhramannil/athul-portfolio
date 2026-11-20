@@ -3,30 +3,36 @@ import SectionHead from "./SectionHead";
 import Icon from "./Icon";
 import Reveal from "./Reveal";
 import { toolMeta } from "../lib/icons";
-import { usePauseOffscreen } from "../lib/ticker";
+import { usePauseOffscreen, useScrollFrame } from "../lib/ticker";
 import { Scramble } from "./Kinetic";
-import { AnimateStage, CutStage, GradeStage } from "./ToolStage";
+import { MaskDemo, ReframeDemo, RotoDemo } from "./ToolAI";
 
-// What each tool is for, as a general product role (not a claim about any
-// specific project), and the screen that shows that job.
+// What each tool is for (a general product role, not a claim about any
+// specific project), and one real AI feature of it, played as a demo.
 const toolInfo = {
   premiere: {
     verb: "Cut",
     use: "Editing & assembly",
-    desc: "Where the story is cut: footage assembled on the timeline, paced, trimmed and mixed with sound.",
-    Stage: CutStage,
+    feature: "Auto Reframe",
+    desc: "Premiere's AI finds the subject and keeps it in frame, turning a wide shot into a vertical 9:16 cut.",
+    steps: ["Detect the subject", "Track the motion", "Reframe to 9:16"],
+    Demo: ReframeDemo,
   },
   aftereffects: {
     verb: "Animate",
     use: "Motion graphics & VFX",
-    desc: "Where things move: keyframed titles, motion paths, graphics and visual effects.",
-    Stage: AnimateStage,
+    feature: "Roto Brush",
+    desc: "After Effects' AI separates the subject from the background on every frame, so titles and effects can sit behind it.",
+    steps: ["Paint the subject", "Propagate the mask", "Composite behind"],
+    Demo: RotoDemo,
   },
   resolve: {
     verb: "Grade",
     use: "Colour grading & finishing",
-    desc: "Where the look is set: flat log footage graded to its final colour, shot by shot.",
-    Stage: GradeStage,
+    feature: "Magic Mask",
+    desc: "Resolve's Neural Engine masks a person from a single stroke, so the subject and the background are graded separately.",
+    steps: ["Stroke the person", "Neural mask", "Grade subject and background"],
+    Demo: MaskDemo,
   },
 };
 const toolGlow = {
@@ -49,41 +55,63 @@ function buildLanes(count) {
 }
 
 /**
- * One station of the workflow: the tool, the verb it stands for, a small
- * working screen of that job, and a plain sentence on what it is for.
+ * One tool as a big card: its AI demo on the left; on the right the tool,
+ * its job, the feature, what it does, and the three steps of the demo
+ * filling in as it plays.
  */
 function Tool({ name, i }) {
   const meta = toolMeta[name];
   const info = meta && toolInfo[meta.brand];
   if (!info) return null;
-  const { Stage } = info;
+  const { Demo } = info;
   return (
     <Reveal
       as="li"
       className="tool"
       i={i}
-      data-tilt=""
       style={{ "--glow": toolGlow[meta.brand] }}
     >
       <span className="tool__glow" aria-hidden="true" />
-      <div className="tool__head">
-        <span className="tool__icon">
-          <Icon brand={meta.brand} size={30} />
-        </span>
-        <span className="tool__verb">{info.verb}</span>
-        <span className="tool__no label" aria-hidden="true">
-          0{i + 1}
-        </span>
-      </div>
       <div className="tool__stage" aria-hidden="true">
-        <Stage />
+        <Demo />
       </div>
-      <span className="tool__name">{meta.name}</span>
-      <span className="label tool__use">{info.use}</span>
-      <p className="tool__desc">{info.desc}</p>
+      <div className="tool__info">
+        <div className="tool__head">
+          <span className="tool__icon">
+            <Icon brand={meta.brand} size={30} />
+          </span>
+          <span className="tool__verb">{info.verb}</span>
+          <span className="tool__no label" aria-hidden="true">
+            0{i + 1}
+          </span>
+        </div>
+        <span className="tool__name">{meta.name}</span>
+        <span className="label tool__use">{info.use}</span>
+        <p className="tool__feature">
+          <span className="tool__ai">AI</span>
+          {info.feature}
+        </p>
+        <p className="tool__desc">{info.desc}</p>
+        <ol className="ai-steps" aria-label={`${info.feature} steps`}>
+          {info.steps.map((step, k) => (
+            <li className={`ai-step ai-step--${k + 1}`} key={step}>
+              <span className="ai-step__n" aria-hidden="true">
+                {k + 1}
+              </span>
+              <span className="ai-step__t">{step}</span>
+              <span className="ai-step__bar" aria-hidden="true">
+                <i />
+              </span>
+            </li>
+          ))}
+        </ol>
+      </div>
+      <span className="tool__shade" aria-hidden="true" />
     </Reveal>
   );
 }
+
+const clamp01 = (v) => Math.min(1, Math.max(0, v));
 
 export default function Craft({ number, profile }) {
   const lanes = useMemo(
@@ -93,37 +121,62 @@ export default function Craft({ number, profile }) {
   const tcRef = useRef(null);
   const kitRef = useRef(null);
 
-  // Tool tiles tilt toward the pointer.
-  useEffect(() => {
-    const fine = window.matchMedia("(hover: hover) and (pointer: fine)");
-    const tiles = kitRef.current?.querySelectorAll(".tool") ?? [];
-    if (!fine.matches) return;
-    const offs = [];
-    tiles.forEach((el) => {
-      const move = (e) => {
-        const r = el.getBoundingClientRect();
-        el.style.setProperty(
-          "--tx",
-          (((e.clientX - r.left) / r.width) * 2 - 1).toFixed(3),
-        );
-        el.style.setProperty(
-          "--ty",
-          (((e.clientY - r.top) / r.height) * 2 - 1).toFixed(3),
-        );
-      };
-      const leave = () => {
-        el.style.setProperty("--tx", "0");
-        el.style.setProperty("--ty", "0");
-      };
-      el.addEventListener("pointermove", move);
-      el.addEventListener("pointerleave", leave);
-      offs.push(() => {
-        el.removeEventListener("pointermove", move);
-        el.removeEventListener("pointerleave", leave);
+  // Stacked deck (wide screens): the cards stick in turn, and as the next
+  // one slides over, the card beneath eases back and dims. Geometry is
+  // cached on resize; scrolling only writes scale and opacity on change.
+  const deck = useRef({ on: false, items: [] });
+  useScrollFrame(
+    (y) => {
+      const d = deck.current;
+      if (!d.on) return;
+      d.items.forEach((it, k) => {
+        const next = d.items[k + 1];
+        if (!next) return;
+        const nextTop = Math.max(next.stick, next.top - y);
+        const p =
+          Math.round(clamp01((it.stick + it.h - nextTop) / it.h) * 500) / 500;
+        if (p === it.p) return;
+        it.p = p;
+        it.el.style.scale = p ? String(1 - p * 0.06) : "";
+        if (it.shade) it.shade.style.opacity = String(p * 0.55);
       });
-    });
-    return () => offs.forEach((off) => off());
-  }, [profile.tools]);
+    },
+    () => {
+      const list = kitRef.current;
+      const d = deck.current;
+      const wide = window.matchMedia(
+        "(min-width: 1001px) and (min-height: 700px)",
+      ).matches;
+      const still = window.matchMedia(
+        "(prefers-reduced-motion: reduce)",
+      ).matches;
+      const cards = Array.from(list?.children ?? []);
+      d.items.forEach((it) => {
+        it.el.style.scale = "";
+        if (it.shade) it.shade.style.opacity = "";
+      });
+      d.on = !!list && wide && !still;
+      if (!d.on) {
+        d.items = [];
+        return;
+      }
+      // Natural (unstuck) positions: the list's top plus the cards above.
+      const gap = parseFloat(getComputedStyle(list).rowGap) || 0;
+      let top = list.getBoundingClientRect().top + window.scrollY;
+      d.items = cards.map((el) => {
+        const item = {
+          el,
+          shade: el.querySelector(".tool__shade"),
+          top,
+          h: el.offsetHeight,
+          stick: parseFloat(getComputedStyle(el).top) || 0,
+          p: -1,
+        };
+        top += el.offsetHeight + gap;
+        return item;
+      });
+    },
+  );
 
   // Keyframe sweeps pause off screen; the panel timecode only runs on screen.
   const sectionRef = useRef(null);
