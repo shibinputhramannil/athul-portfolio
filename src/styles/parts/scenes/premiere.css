@@ -1,0 +1,1360 @@
+/* =====================================================================
+   Premiere Pro scenes 2–5 (components/scenes/premiere.jsx), on the shared
+   10 s loop: title 0–12%, find 13.8–29.6%, process 29.6–49%, result
+   49–94.7% (badge from 80%), reset under the closing wipe. Base styles are
+   the finished result (the reduced-motion still).
+   ===================================================================== */
+.pr-rule {
+  fill: none;
+  stroke: rgb(255 255 255 / 0.1);
+  stroke-width: 0.8;
+}
+/* Ambient loops (not tied to the scene clock). */
+@keyframes pr-talk {
+  from {
+    transform: scaleY(0.35);
+  }
+  to {
+    transform: scaleY(1.2);
+  }
+}
+@keyframes pr-arc {
+  0% {
+    opacity: 0;
+  }
+  30% {
+    opacity: 0.9;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+@keyframes pr-blink {
+  50% {
+    opacity: 0.25;
+  }
+}
+@keyframes pr-twinkle {
+  from {
+    transform: scale(0.5) rotate(0deg);
+  }
+  to {
+    transform: scale(1.1) rotate(45deg);
+  }
+}
+@keyframes pr-buzz {
+  from {
+    transform: translate(0, 0);
+  }
+  to {
+    transform: translate(0.8px, -0.8px);
+  }
+}
+
+/* ---------- 2 · Scene Edit Detection ---------- */
+.pr2-graph {
+  fill: none;
+  stroke: url(#pr2-line);
+  stroke-width: 1.4;
+  stroke-linejoin: round;
+  stroke-dasharray: 1;
+  animation: pr2-draw var(--loop) linear infinite both;
+}
+@keyframes pr2-draw {
+  0%,
+  13.8% {
+    stroke-dashoffset: 1;
+  }
+  47%,
+  96% {
+    stroke-dashoffset: 0;
+  }
+  97.5%,
+  100% {
+    stroke-dashoffset: 1;
+  }
+}
+.pr2-thr {
+  fill: none;
+  stroke: rgb(255 97 80 / 0.75);
+  stroke-width: 0.9;
+  stroke-dasharray: 3 3;
+}
+.ai .pr2-thr-t {
+  fill: #ff8f4f;
+}
+/* The playhead reaches the cuts at 19.8, 27.1, 34.4 and 41%. */
+.pr2-head {
+  opacity: 0;
+  animation: pr2-head var(--loop) linear infinite both;
+}
+@keyframes pr2-head {
+  0%,
+  13.8% {
+    transform: none;
+    opacity: 0;
+  }
+  14.6% {
+    opacity: 1;
+  }
+  47% {
+    transform: translateX(300px);
+    opacity: 1;
+  }
+  49%,
+  100% {
+    transform: translateX(300px);
+    opacity: 0;
+  }
+}
+/* Shots cut as the playhead passes each spike, then shrink to a sheet. */
+.pr2-s {
+  transform-origin: 16px 16px;
+  transform: translate(var(--tx), var(--ty)) scale(0.5);
+  animation:
+    pr2-tile var(--loop) cubic-bezier(0.65, 0, 0.35, 1) infinite both,
+    var(--v) var(--loop) linear infinite both;
+}
+.pr2-s--1 {
+  --v: pr2-v1;
+}
+.pr2-s--2 {
+  --v: pr2-v2;
+}
+.pr2-s--3 {
+  --v: pr2-v3;
+}
+.pr2-s--4 {
+  --v: pr2-v4;
+}
+@keyframes pr2-tile {
+  0%,
+  49.5% {
+    transform: none;
+  }
+  55%,
+  95.5% {
+    transform: translate(var(--tx), var(--ty)) scale(0.5);
+  }
+  97.5%,
+  100% {
+    transform: none;
+  }
+}
+@keyframes pr2-v1 {
+  0%,
+  19.7% {
+    opacity: 1;
+  }
+  19.8%,
+  40.9% {
+    opacity: 0;
+  }
+  41%,
+  100% {
+    opacity: 1;
+  }
+}
+@keyframes pr2-v2 {
+  0%,
+  19.7% {
+    opacity: 0;
+  }
+  19.8%,
+  27% {
+    opacity: 1;
+  }
+  27.1%,
+  49.5% {
+    opacity: 0;
+  }
+  51.5%,
+  96% {
+    opacity: 1;
+  }
+  97%,
+  100% {
+    opacity: 0;
+  }
+}
+@keyframes pr2-v3 {
+  0%,
+  27% {
+    opacity: 0;
+  }
+  27.1%,
+  34.3% {
+    opacity: 1;
+  }
+  34.4%,
+  49.5% {
+    opacity: 0;
+  }
+  51.5%,
+  96% {
+    opacity: 1;
+  }
+  97%,
+  100% {
+    opacity: 0;
+  }
+}
+@keyframes pr2-v4 {
+  0%,
+  34.3% {
+    opacity: 0;
+  }
+  34.4%,
+  40.9% {
+    opacity: 1;
+  }
+  41%,
+  49.5% {
+    opacity: 0;
+  }
+  51.5%,
+  96% {
+    opacity: 1;
+  }
+  97%,
+  100% {
+    opacity: 0;
+  }
+}
+.pr2-sep {
+  fill: none;
+  stroke: #0a1311;
+  stroke-width: 2;
+}
+.pr2-sheet {
+  animation: pr2-sheet var(--loop) linear infinite both;
+}
+@keyframes pr2-sheet {
+  0%,
+  54% {
+    opacity: 0;
+  }
+  56.5%,
+  95% {
+    opacity: 1;
+  }
+  96.5%,
+  100% {
+    opacity: 0;
+  }
+}
+.pr2-hit {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: var(--h) var(--loop) cubic-bezier(0.34, 1.56, 0.64, 1) infinite
+    both;
+}
+.pr2-hit--1 {
+  --h: pr2-h1;
+}
+.pr2-hit--2 {
+  --h: pr2-h2;
+}
+.pr2-hit--3 {
+  --h: pr2-h3;
+}
+.pr2-hit--4 {
+  --h: pr2-h4;
+}
+@keyframes pr2-h1 {
+  0%,
+  19.5% {
+    opacity: 0;
+    transform: scale(0.3);
+  }
+  20.8%,
+  95% {
+    opacity: 1;
+    transform: none;
+  }
+  96.5%,
+  100% {
+    opacity: 0;
+    transform: none;
+  }
+}
+@keyframes pr2-h2 {
+  0%,
+  26.8% {
+    opacity: 0;
+    transform: scale(0.3);
+  }
+  28.1%,
+  95% {
+    opacity: 1;
+    transform: none;
+  }
+  96.5%,
+  100% {
+    opacity: 0;
+    transform: none;
+  }
+}
+@keyframes pr2-h3 {
+  0%,
+  34.1% {
+    opacity: 0;
+    transform: scale(0.3);
+  }
+  35.4%,
+  95% {
+    opacity: 1;
+    transform: none;
+  }
+  96.5%,
+  100% {
+    opacity: 0;
+    transform: none;
+  }
+}
+@keyframes pr2-h4 {
+  0%,
+  40.7% {
+    opacity: 0;
+    transform: scale(0.3);
+  }
+  42%,
+  95% {
+    opacity: 1;
+    transform: none;
+  }
+  96.5%,
+  100% {
+    opacity: 0;
+    transform: none;
+  }
+}
+.pr2-razor {
+  stroke-width: 1.4;
+  animation: pr2-razor var(--loop) cubic-bezier(0.16, 1, 0.3, 1) infinite both;
+}
+@keyframes pr2-razor {
+  0%,
+  51% {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  54.5%,
+  94.7% {
+    opacity: 1;
+    transform: none;
+  }
+  96.5%,
+  100% {
+    opacity: 0;
+    transform: none;
+  }
+}
+.pr2-seg {
+  transform: translateX(var(--sx));
+  animation: pr2-split var(--loop) cubic-bezier(0.65, 0, 0.35, 1) infinite both;
+}
+@keyframes pr2-split {
+  0%,
+  54% {
+    transform: none;
+  }
+  59%,
+  94.7% {
+    transform: translateX(var(--sx));
+  }
+  97%,
+  100% {
+    transform: none;
+  }
+}
+/* One export (bar and bin row) until the split. */
+.pr2-one {
+  opacity: 0;
+  animation: pr2-one var(--loop) linear infinite both;
+}
+@keyframes pr2-one {
+  0%,
+  51% {
+    opacity: 1;
+  }
+  53.5%,
+  96.5% {
+    opacity: 0;
+  }
+  98%,
+  100% {
+    opacity: 1;
+  }
+}
+.pr2-row {
+  animation: pr2-row var(--loop) cubic-bezier(0.16, 1, 0.3, 1) infinite both;
+}
+@keyframes pr2-row {
+  0%,
+  53% {
+    opacity: 0;
+    transform: translateX(14px);
+  }
+  57.5%,
+  95% {
+    opacity: 1;
+    transform: none;
+  }
+  96.5%,
+  100% {
+    opacity: 0;
+    transform: none;
+  }
+}
+
+/* ---------- 3 · Speech to Text ---------- */
+.pr3-mouth {
+  transform-origin: 130px 90.5px;
+  animation: pr-talk 0.28s ease-in-out infinite alternate both;
+}
+.pr3-arc {
+  fill: none;
+  stroke: #7fe3c4;
+  stroke-width: 1.4;
+  stroke-linecap: round;
+  animation: pr-arc 1.2s ease-out infinite both;
+}
+.pr3-arc--2 {
+  animation-delay: 0.2s;
+}
+.pr3-arc--3 {
+  animation-delay: 0.4s;
+}
+.pr3-waves {
+  opacity: 0;
+  animation: pr3-waves var(--loop) linear infinite both;
+}
+@keyframes pr3-waves {
+  0%,
+  13.8% {
+    opacity: 0;
+  }
+  15%,
+  47% {
+    opacity: 1;
+  }
+  49%,
+  100% {
+    opacity: 0;
+  }
+}
+.pr3-st {
+  opacity: 0;
+  animation: var(--st) var(--loop) linear infinite both;
+}
+.pr3-st--1 {
+  --st: pr3-st1;
+}
+.pr3-st--2 {
+  --st: pr3-st2;
+}
+@keyframes pr3-st1 {
+  0%,
+  13.8% {
+    opacity: 0;
+  }
+  15%,
+  29% {
+    opacity: 1;
+  }
+  30%,
+  100% {
+    opacity: 0;
+  }
+}
+@keyframes pr3-st2 {
+  0%,
+  29.6% {
+    opacity: 0;
+  }
+  30.6%,
+  48% {
+    opacity: 1;
+  }
+  49.5%,
+  100% {
+    opacity: 0;
+  }
+}
+.pr3-head {
+  opacity: 0;
+  animation: pr3-head var(--loop) linear infinite both;
+}
+@keyframes pr3-head {
+  0%,
+  13.8% {
+    transform: none;
+    opacity: 0;
+  }
+  14.6% {
+    opacity: 1;
+  }
+  48% {
+    transform: translateX(292px);
+    opacity: 1;
+  }
+  49.5%,
+  100% {
+    transform: translateX(292px);
+    opacity: 0;
+  }
+}
+.pr3-block {
+  transform-box: fill-box;
+  transform-origin: 0 50%;
+  animation: pr3-block var(--loop) cubic-bezier(0.16, 1, 0.3, 1) infinite both;
+}
+@keyframes pr3-block {
+  0%,
+  56% {
+    opacity: 0;
+    transform: scaleX(0.4);
+  }
+  59%,
+  94.7% {
+    opacity: 1;
+    transform: none;
+  }
+  96.5%,
+  100% {
+    opacity: 0;
+    transform: none;
+  }
+}
+.ai .pr3-sub {
+  font-family: var(--font-display);
+  font-size: 8.5px;
+  font-weight: 600;
+  letter-spacing: 0;
+  fill: #fff;
+}
+.pr3-subt {
+  animation: pr3-subt var(--loop) cubic-bezier(0.16, 1, 0.3, 1) infinite both;
+}
+@keyframes pr3-subt {
+  0%,
+  60% {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  63%,
+  94.7% {
+    opacity: 1;
+    transform: none;
+  }
+  96.5%,
+  100% {
+    opacity: 0;
+    transform: none;
+  }
+}
+.pr3-bone {
+  fill: rgb(255 255 255 / 0.1);
+  animation: pr-blink 1.1s ease-in-out infinite;
+}
+.pr3-skel {
+  opacity: 0;
+  animation: pr3-skel var(--loop) linear infinite both;
+}
+@keyframes pr3-skel {
+  0%,
+  29.6% {
+    opacity: 1;
+  }
+  31%,
+  96.5% {
+    opacity: 0;
+  }
+  98%,
+  100% {
+    opacity: 1;
+  }
+}
+.ai .pr3-w {
+  font-size: 8.5px;
+  fill: var(--mist);
+}
+/* Words land one by one (0.32 s apart, set inline). */
+.pr3-word {
+  animation: pr3-word var(--loop) cubic-bezier(0.16, 1, 0.3, 1) infinite both;
+}
+@keyframes pr3-word {
+  0%,
+  30% {
+    opacity: 0;
+    transform: translateY(3px);
+  }
+  31.5%,
+  95% {
+    opacity: 1;
+    transform: none;
+  }
+  96.5%,
+  100% {
+    opacity: 0;
+    transform: none;
+  }
+}
+.pr3-hl {
+  fill: #4fd8e8;
+  opacity: 0;
+  animation: pr3-hl var(--loop) linear infinite both;
+}
+@keyframes pr3-hl {
+  0%,
+  30% {
+    opacity: 0;
+  }
+  30.8%,
+  33.2% {
+    opacity: 0.35;
+  }
+  34%,
+  100% {
+    opacity: 0;
+  }
+}
+.pr3-btn {
+  transform-origin: 409px 176px;
+  animation: pr3-btn var(--loop) ease-in-out infinite both;
+}
+@keyframes pr3-btn {
+  0%,
+  54% {
+    transform: none;
+  }
+  55.2% {
+    transform: scale(0.93);
+  }
+  56.8%,
+  100% {
+    transform: none;
+  }
+}
+.pr3-cursor {
+  opacity: 0;
+  transform: translate(420px, 175px);
+  animation: pr3-cursor var(--loop) cubic-bezier(0.65, 0, 0.35, 1) infinite both;
+}
+@keyframes pr3-cursor {
+  0%,
+  49% {
+    opacity: 0;
+    transform: translate(446px, 140px);
+  }
+  50% {
+    opacity: 1;
+  }
+  54%,
+  57% {
+    opacity: 1;
+    transform: translate(420px, 175px);
+  }
+  60%,
+  100% {
+    opacity: 0;
+    transform: translate(420px, 175px);
+  }
+}
+
+/* ---------- 4 · Enhance Speech ---------- */
+.pr4-car {
+  transform: translateX(-330px);
+  animation: pr4-car var(--loop) linear infinite both;
+}
+@keyframes pr4-car {
+  0%,
+  12% {
+    transform: translateX(130px);
+  }
+  42%,
+  100% {
+    transform: translateX(-330px);
+  }
+}
+.pr4-honk {
+  animation: pr-blink 0.35s steps(1) infinite;
+}
+.pr4-mouth {
+  transform-origin: 80.5px 67.5px;
+  animation: pr-talk 0.3s ease-in-out infinite alternate both;
+}
+.pr4-noisy path {
+  fill: none;
+  stroke: #c9d2cf;
+  stroke-width: 1.2;
+  stroke-linecap: round;
+  opacity: 0.75;
+  animation: pr-buzz 0.18s steps(2) infinite alternate;
+}
+.pr4-noisy {
+  opacity: 0;
+  animation: pr4-noisy var(--loop) linear infinite both;
+}
+@keyframes pr4-noisy {
+  0%,
+  40% {
+    opacity: 1;
+  }
+  46%,
+  96.5% {
+    opacity: 0;
+  }
+  98%,
+  100% {
+    opacity: 1;
+  }
+}
+.pr4-arc {
+  fill: none;
+  stroke: #7fe3c4;
+  stroke-width: 1.4;
+  stroke-linecap: round;
+  animation: pr-arc 1.2s ease-out infinite both;
+}
+.pr4-arc--2 {
+  animation-delay: 0.2s;
+}
+.pr4-arc--3 {
+  animation-delay: 0.4s;
+}
+.pr4-clear {
+  animation: pr4-clear var(--loop) linear infinite both;
+}
+@keyframes pr4-clear {
+  0%,
+  48% {
+    opacity: 0;
+  }
+  52%,
+  94.7% {
+    opacity: 1;
+  }
+  96.5%,
+  100% {
+    opacity: 0;
+  }
+}
+/* The scan clears the noise chunk by chunk (delays set inline, 0.14–1.56 s).
+   The staggered resets land after 95.5%, while the box is hidden under the
+   closing wipe and the next title card. */
+.pr4-noisebox {
+  animation: pr4-box var(--loop) linear infinite both;
+}
+@keyframes pr4-box {
+  0%,
+  12.5% {
+    opacity: 0;
+  }
+  14%,
+  95% {
+    opacity: 1;
+  }
+  96%,
+  100% {
+    opacity: 0;
+  }
+}
+.pr4-noise {
+  fill: rgb(201 210 207 / 0.34);
+  transform-box: fill-box;
+  transform-origin: center;
+  opacity: 0;
+  animation: pr4-noise var(--loop) ease-in infinite both;
+}
+@keyframes pr4-noise {
+  0%,
+  30% {
+    opacity: 1;
+    transform: none;
+  }
+  32.5%,
+  95.5% {
+    opacity: 0;
+    transform: scaleY(0.15);
+  }
+  95.6%,
+  100% {
+    opacity: 1;
+    transform: none;
+  }
+}
+.pr4-voice {
+  animation: pr4-voice var(--loop) linear infinite both;
+}
+@keyframes pr4-voice {
+  0%,
+  30% {
+    opacity: 0;
+  }
+  32%,
+  95.5% {
+    opacity: 1;
+  }
+  95.6%,
+  100% {
+    opacity: 0;
+  }
+}
+.pr4-scan {
+  opacity: 0;
+  animation: pr4-scan var(--loop) linear infinite both;
+}
+@keyframes pr4-scan {
+  0%,
+  30% {
+    transform: translateX(-15px);
+    opacity: 0;
+  }
+  31% {
+    opacity: 1;
+  }
+  46% {
+    opacity: 1;
+  }
+  47%,
+  100% {
+    transform: translateX(309px);
+    opacity: 0;
+  }
+}
+.pr4-on {
+  animation: pr4-on var(--loop) linear infinite both;
+}
+@keyframes pr4-on {
+  0%,
+  30% {
+    opacity: 0;
+  }
+  32%,
+  96% {
+    opacity: 1;
+  }
+  97.5%,
+  100% {
+    opacity: 0;
+  }
+}
+.pr4-knob {
+  animation: pr4-knob var(--loop) cubic-bezier(0.65, 0, 0.35, 1) infinite both;
+}
+@keyframes pr4-knob {
+  0%,
+  30% {
+    transform: translateX(-10px);
+  }
+  32%,
+  96% {
+    transform: none;
+  }
+  97.5%,
+  100% {
+    transform: translateX(-10px);
+  }
+}
+.pr4-fill {
+  transform-origin: 362px 105px;
+  animation: pr4-fill var(--loop) linear infinite both;
+}
+@keyframes pr4-fill {
+  0%,
+  31% {
+    transform: scaleX(0);
+  }
+  47%,
+  96% {
+    transform: none;
+  }
+  97.5%,
+  100% {
+    transform: scaleX(0);
+  }
+}
+.pr4-thumb {
+  animation: pr4-thumb var(--loop) linear infinite both;
+}
+@keyframes pr4-thumb {
+  0%,
+  31% {
+    transform: translateX(-92px);
+  }
+  47%,
+  96% {
+    transform: none;
+  }
+  97.5%,
+  100% {
+    transform: translateX(-92px);
+  }
+}
+.pr4-v0 {
+  opacity: 0;
+  animation: pr4-v0 var(--loop) linear infinite both;
+}
+@keyframes pr4-v0 {
+  0%,
+  46% {
+    opacity: 1;
+  }
+  47%,
+  96.5% {
+    opacity: 0;
+  }
+  98%,
+  100% {
+    opacity: 1;
+  }
+}
+.pr4-v1 {
+  animation: pr4-v1 var(--loop) linear infinite both;
+}
+@keyframes pr4-v1 {
+  0%,
+  46% {
+    opacity: 0;
+  }
+  47%,
+  96.5% {
+    opacity: 1;
+  }
+  98%,
+  100% {
+    opacity: 0;
+  }
+}
+.pr4-nm {
+  transform-origin: 362px 138px;
+  transform: scaleX(0.08);
+  animation: pr4-nm var(--loop) linear infinite both;
+}
+@keyframes pr4-nm {
+  0%,
+  30% {
+    transform: scaleX(0.85);
+  }
+  47%,
+  96% {
+    transform: scaleX(0.08);
+  }
+  97.5%,
+  100% {
+    transform: scaleX(0.85);
+  }
+}
+.pr4-vm {
+  transform-origin: 362px 168px;
+  transform: scaleX(0.72);
+  animation: pr4-vm 0.5s ease-in-out infinite alternate both;
+}
+@keyframes pr4-vm {
+  from {
+    transform: scaleX(0.6);
+  }
+  to {
+    transform: scaleX(0.8);
+  }
+}
+
+/* ---------- 5 · Generative Extend ---------- */
+.pr5-sun {
+  transform: translateY(8px);
+  animation: pr5-sun var(--loop) linear infinite both;
+}
+@keyframes pr5-sun {
+  0%,
+  12% {
+    transform: none;
+  }
+  97% {
+    transform: translateY(8px);
+  }
+  98.7%,
+  100% {
+    transform: none;
+  }
+}
+.pr5-wave {
+  fill: none;
+  stroke: #fff;
+  stroke-opacity: 0.3;
+  stroke-width: 1.2;
+  animation: pr5-wave 3s linear infinite;
+}
+.pr5-wave--2 {
+  animation-name: pr5-wave2;
+  animation-duration: 4s;
+}
+@keyframes pr5-wave {
+  to {
+    transform: translateX(-40px);
+  }
+}
+@keyframes pr5-wave2 {
+  to {
+    transform: translateX(-48px);
+  }
+}
+.pr5-boat {
+  transform: translateX(110px);
+  animation: pr5-boat var(--loop) linear infinite both;
+}
+@keyframes pr5-boat {
+  0%,
+  12% {
+    transform: none;
+  }
+  97% {
+    transform: translateX(110px);
+  }
+  98.7%,
+  100% {
+    transform: none;
+  }
+}
+/* The playhead runs off the end of the clip into the gap. */
+.pr5-black {
+  opacity: 0;
+  animation: pr5-black var(--loop) linear infinite both;
+}
+@keyframes pr5-black {
+  0%,
+  26.8% {
+    opacity: 0;
+  }
+  27%,
+  30.5% {
+    opacity: 1;
+  }
+  31.5%,
+  100% {
+    opacity: 0;
+  }
+}
+.pr5-shim {
+  opacity: 0;
+  animation: pr5-shim var(--loop) linear infinite both;
+}
+@keyframes pr5-shim {
+  0%,
+  30.5% {
+    opacity: 0;
+  }
+  32% {
+    opacity: 0.9;
+  }
+  35% {
+    opacity: 0.35;
+  }
+  38% {
+    opacity: 0.9;
+  }
+  41% {
+    opacity: 0.35;
+  }
+  44% {
+    opacity: 0.9;
+  }
+  48%,
+  100% {
+    opacity: 0;
+  }
+}
+.pr5-chip {
+  opacity: 0;
+  animation: var(--c) var(--loop) linear infinite both;
+}
+.pr5-chip--gen {
+  --c: pr5-gen;
+}
+.pr5-chip--done {
+  --c: pr5-done;
+  opacity: 1;
+}
+.pr5-dot {
+  animation: pr-blink 0.6s steps(1) infinite;
+}
+@keyframes pr5-gen {
+  0%,
+  30.5% {
+    opacity: 0;
+  }
+  31.5%,
+  48% {
+    opacity: 1;
+  }
+  49%,
+  100% {
+    opacity: 0;
+  }
+}
+@keyframes pr5-done {
+  0%,
+  62.5% {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  64.5%,
+  94.7% {
+    opacity: 1;
+    transform: none;
+  }
+  96.5%,
+  100% {
+    opacity: 0;
+    transform: none;
+  }
+}
+.ai .pr5-gap-t {
+  fill: #ff8f4f;
+  font-size: 7.5px;
+}
+.pr5-gap {
+  opacity: 0;
+  animation: pr5-gap var(--loop) linear infinite both;
+}
+@keyframes pr5-gap {
+  0%,
+  20% {
+    opacity: 1;
+  }
+  23% {
+    opacity: 0.45;
+  }
+  26% {
+    opacity: 1;
+  }
+  29% {
+    opacity: 0.45;
+  }
+  32%,
+  48% {
+    opacity: 1;
+  }
+  49%,
+  96.5% {
+    opacity: 0;
+  }
+  98%,
+  100% {
+    opacity: 1;
+  }
+}
+/* Generated frames: they pop in as noise and resolve (0.45 s apart). */
+.pr5-tile {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: pr5-tile var(--loop) cubic-bezier(0.34, 1.56, 0.64, 1) infinite
+    both;
+}
+@keyframes pr5-tile {
+  0%,
+  31% {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+  33.5%,
+  94.7% {
+    opacity: 1;
+    transform: none;
+  }
+  96.5%,
+  100% {
+    opacity: 0;
+    transform: none;
+  }
+}
+.pr5-noise {
+  opacity: 0;
+  animation: pr5-noise var(--loop) linear infinite both;
+}
+@keyframes pr5-noise {
+  0%,
+  33% {
+    opacity: 1;
+  }
+  37.5%,
+  100% {
+    opacity: 0;
+  }
+}
+.pr5-out {
+  animation: pr5-out var(--loop) linear infinite both;
+}
+@keyframes pr5-out {
+  0%,
+  48% {
+    opacity: 0;
+  }
+  51%,
+  94.7% {
+    opacity: 1;
+  }
+  96.5%,
+  100% {
+    opacity: 0;
+  }
+}
+.pr5-spark {
+  opacity: 0;
+  animation: pr5-spark var(--loop) linear infinite both;
+}
+.pr5-spark path {
+  fill: #ffd88a;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: pr-twinkle 0.8s ease-in-out infinite alternate;
+}
+@keyframes pr5-spark {
+  0%,
+  31% {
+    opacity: 0;
+  }
+  33%,
+  47% {
+    opacity: 1;
+  }
+  50%,
+  100% {
+    opacity: 0;
+  }
+}
+.pr5-ring {
+  transform-box: fill-box;
+  transform-origin: center;
+  opacity: 0;
+  animation: pr5-ring var(--loop) ease-out infinite both;
+}
+@keyframes pr5-ring {
+  0%,
+  84.5% {
+    opacity: 0;
+    transform: scale(0.4);
+  }
+  85.5% {
+    opacity: 1;
+  }
+  91%,
+  100% {
+    opacity: 0;
+    transform: scale(2.4);
+  }
+}
+/* Playhead: into the gap; parked while it generates; then plays the new
+   frames up to the beat (it crosses into them at 63%). */
+.pr5-head {
+  transform: translateX(300px);
+  animation: pr5-head var(--loop) linear infinite both;
+}
+@keyframes pr5-head {
+  0%,
+  13.8% {
+    transform: translateX(150px);
+    opacity: 1;
+  }
+  27% {
+    transform: translateX(232px);
+  }
+  29.6% {
+    transform: translateX(240px);
+    opacity: 1;
+  }
+  31% {
+    opacity: 0.35;
+  }
+  49% {
+    transform: translateX(240px);
+    opacity: 0.35;
+  }
+  50.5% {
+    transform: translateX(190px);
+    opacity: 1;
+  }
+  85%,
+  100% {
+    transform: translateX(300px);
+    opacity: 1;
+  }
+}
+.pr5-new {
+  animation: pr5-new var(--loop) linear infinite both;
+}
+@keyframes pr5-new {
+  0%,
+  38% {
+    opacity: 0;
+  }
+  44%,
+  95% {
+    opacity: 1;
+  }
+  96.5%,
+  100% {
+    opacity: 0;
+  }
+}
+.pr5-prog {
+  transform-origin: 362px 116px;
+  animation: pr5-prog var(--loop) linear infinite both;
+}
+@keyframes pr5-prog {
+  0%,
+  31% {
+    transform: scaleX(0);
+  }
+  47%,
+  96% {
+    transform: none;
+  }
+  97.5%,
+  100% {
+    transform: scaleX(0);
+  }
+}
+.pr5-btn {
+  transform-origin: 409px 176px;
+  animation: pr5-btn var(--loop) ease-in-out infinite both;
+}
+@keyframes pr5-btn {
+  0%,
+  29.6% {
+    transform: none;
+  }
+  30.6% {
+    transform: scale(0.93);
+  }
+  32%,
+  100% {
+    transform: none;
+  }
+}
+.pr5-cursor {
+  opacity: 0;
+  transform: translate(420px, 175px);
+  animation: pr5-cursor var(--loop) cubic-bezier(0.65, 0, 0.35, 1) infinite both;
+}
+@keyframes pr5-cursor {
+  0%,
+  25% {
+    opacity: 0;
+    transform: translate(446px, 140px);
+  }
+  26% {
+    opacity: 1;
+  }
+  29%,
+  31% {
+    opacity: 1;
+    transform: translate(420px, 175px);
+  }
+  34%,
+  100% {
+    opacity: 0;
+    transform: translate(420px, 175px);
+  }
+}

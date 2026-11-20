@@ -1,8 +1,8 @@
 /* =====================================================================
-   Toolkit AI demos (ToolAI.jsx) and their step lists.
+   Toolkit scenes (ToolAI.jsx, scenes/*.jsx) and the player around them.
 
-   One 10 s loop shared by every demo, so the player and the steps beside
-   each one can follow along:
+   Every scene is one topic on the same 10 s loop, so the title card,
+   narration and playlist can follow along:
      intro  0–12%     title card (it returns over the reset at the end)
      A   13.8–29.6%   find the subject
      B   29.6–49%     process it
@@ -803,174 +803,58 @@
   }
 }
 
-/* ---------- Step list beside each demo ---------- */
-.ai-steps {
-  display: grid;
-  gap: 12px;
-  margin: 22px 0 0;
-  padding: 0;
-  list-style: none;
-  counter-reset: step;
-}
-.ai-step {
-  display: grid;
-  grid-template-columns: 26px minmax(0, 1fr);
-  align-items: center;
-  gap: 6px 12px;
-}
-.ai-step__n {
-  display: grid;
-  place-items: center;
-  width: 26px;
-  height: 26px;
-  border: 1px solid rgb(255 255 255 / 0.16);
-  border-radius: 50%;
-  font-family: var(--font-mono);
-  font-size: 11px;
-  color: var(--mist);
-}
-.ai-step__t {
-  color: var(--mist);
-  font-size: 14.5px;
-}
-.ai-step__bar {
-  grid-column: 2;
-  height: 3px;
-  overflow: hidden;
-  border-radius: 3px;
-  background: rgb(255 255 255 / 0.08);
-}
-.ai-step__bar i {
-  display: block;
-  height: 100%;
-  background: var(--grad-grade);
-  transform-origin: 0 50%;
-}
-.ai-step {
-  animation: var(--row) var(--loop) linear infinite both;
-}
-.ai-step__bar i {
-  animation: var(--bar) var(--loop) linear infinite both;
-}
-.ai-step--1 {
-  --row: ai-r1;
-  --bar: ai-s1;
-}
-.ai-step--2 {
-  --row: ai-r2;
-  --bar: ai-s2;
-}
-.ai-step--3 {
-  --row: ai-r3;
-  --bar: ai-s3;
-}
-@keyframes ai-r1 {
-  0%,
-  12%,
-  12.88% {
-    opacity: 0.45;
-  }
-  13.76%,
-  96.48% {
-    opacity: 1;
-  }
-  99.12%,
-  100% {
-    opacity: 0.45;
-  }
-}
-@keyframes ai-r2 {
-  0%,
-  12%,
-  28.72% {
-    opacity: 0.45;
-  }
-  29.6%,
-  96.48% {
-    opacity: 1;
-  }
-  99.12%,
-  100% {
-    opacity: 0.45;
-  }
-}
-@keyframes ai-r3 {
-  0%,
-  12%,
-  48.08% {
-    opacity: 0.45;
-  }
-  48.96%,
-  96.48% {
-    opacity: 1;
-  }
-  99.12%,
-  100% {
-    opacity: 0.45;
-  }
-}
-@keyframes ai-s1 {
-  0%,
-  12%,
-  13.76% {
-    transform: scaleX(0);
-  }
-  29.6%,
-  96.48% {
-    transform: none;
-  }
-  99.12%,
-  100% {
-    transform: scaleX(0);
-  }
-}
-@keyframes ai-s2 {
-  0%,
-  12%,
-  29.6% {
-    transform: scaleX(0);
-  }
-  48.96%,
-  96.48% {
-    transform: none;
-  }
-  99.12%,
-  100% {
-    transform: scaleX(0);
-  }
-}
-@keyframes ai-s3 {
-  0%,
-  12%,
-  48.96% {
-    transform: scaleX(0);
-  }
-  94.72%,
-  96.48% {
-    transform: none;
-  }
-  99.12%,
-  100% {
-    transform: scaleX(0);
-  }
-}
-
 /* =====================================================================
-   The player (AIPlayer.jsx): title card, camera, captions, result badge
-   and the player bar. Same 10 s loop.
+   The player (AIPlayer.jsx): a programme of five 10 s scenes.
+     --loop     10 s   one scene: title card, three beats, result
+     --program  50 s   the scrubber, playhead and clock
+   Only the playing scene is mounted; the script lines it up with the
+   programme clock (the scrubber fill's own animation).
    ===================================================================== */
+.tool {
+  --program: 50s;
+}
 .aip__video {
   position: relative;
   aspect-ratio: 16 / 9;
   container-type: inline-size;
   overflow: hidden;
 }
-.tool[data-hold],
-.tool[data-hold] * {
+.aip__scene {
+  position: absolute;
+  inset: 0;
+}
+/* Paused while the card is off screen (data-away), so each explainer
+   starts from its first topic when you reach it. */
+.tool[data-away],
+.tool[data-away] * {
   animation-play-state: paused !important;
 }
 
 /* ---------- Camera: push in while the AI works, pull back for the result ---------- */
+/* Any scene: <g className="ai-cam" style={{"--cx": "170px", "--cy": "110px", "--cz": 1.3}}> */
+.ai-cam {
+  transform-origin: var(--cx, 178px) var(--cy, 107px);
+  animation: ai-cam var(--loop) cubic-bezier(0.65, 0, 0.35, 1) infinite both;
+}
+@keyframes ai-cam {
+  0%,
+  13% {
+    transform: scale(1.06);
+  }
+  19%,
+  31% {
+    transform: scale(var(--cz, 1.25));
+  }
+  41%,
+  49% {
+    transform: none;
+  }
+  93%,
+  100% {
+    transform: scale(1.05);
+  }
+}
+/* The first scene of each tool keeps its own tuned push. */
 .cam--pr {
   transform-origin: 90px 140px;
   animation: cam-pr var(--loop) cubic-bezier(0.65, 0, 0.35, 1) infinite both;
@@ -1038,7 +922,7 @@
   }
 }
 
-/* ---------- Title card ---------- */
+/* ---------- Title card: opens each topic, covers each reset ---------- */
 .aip__intro {
   position: absolute;
   inset: 0;
@@ -1046,7 +930,9 @@
   display: grid;
   place-content: center;
   justify-items: center;
-  gap: 1.6cqw;
+  gap: 1.5cqw;
+  padding: 0 6cqw;
+  text-align: center;
   background:
     radial-gradient(
       60% 70% at 50% 40%,
@@ -1089,14 +975,14 @@
 .aip__chip {
   display: inline-flex;
   align-items: center;
-  gap: 0.8cqw;
-  padding: 0.5cqw 1.4cqw;
+  gap: 0.9cqw;
+  padding: 0.5cqw 0.6cqw 0.5cqw 1.4cqw;
   border: 1px solid rgb(255 255 255 / 0.16);
   border-radius: 999px;
   background: rgb(255 255 255 / 0.05);
   color: var(--mist);
   font-family: var(--font-mono);
-  font-size: max(9px, 1.7cqw);
+  font-size: max(9px, 1.6cqw);
   letter-spacing: 0.08em;
 }
 .aip__dot {
@@ -1108,41 +994,60 @@
   background: var(--grad-grade);
   box-shadow: 0 0 10px rgb(79 216 232 / 0.8);
 }
+.aip__kind {
+  padding: 0.2cqw 1cqw;
+  border: 1px solid rgb(255 255 255 / 0.2);
+  border-radius: 999px;
+  color: var(--fog);
+  font-size: 0.9em;
+  letter-spacing: 0.06em;
+}
+.aip__kind.is-ai {
+  border-color: transparent;
+  background: var(--grad-grade);
+  color: #08110f;
+  font-weight: 500;
+}
 .aip__title {
+  max-width: 100%;
   padding: 0 0.06em 0.06em;
   font-weight: 900;
   font-stretch: 75%;
-  font-size: 9.5cqw;
+  font-size: 7.4cqw;
   line-height: 0.95;
   text-transform: uppercase;
+  text-wrap: balance;
   background: var(--grad-grade);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
 }
-.aip__product {
+.aip__algo {
   color: var(--fog);
   font-family: var(--font-accent);
   font-style: italic;
-  font-size: max(12px, 2.8cqw);
+  font-size: max(12px, 2.7cqw);
 }
 .aip__chip,
 .aip__title,
-.aip__product {
+.aip__algo {
   animation: aip-rise var(--loop) cubic-bezier(0.16, 1, 0.3, 1) infinite both;
 }
 .aip__title {
   animation-delay: 0.08s;
 }
-.aip__product {
+.aip__algo {
   animation-delay: 0.16s;
 }
+/* Starts a beat late, so a topic change under the closed card never
+   flashes the previous title. */
 @keyframes aip-rise {
-  0% {
+  0%,
+  1.5% {
     opacity: 0;
     transform: translateY(40%);
   }
-  5%,
+  6.5%,
   12.5% {
     opacity: 1;
     transform: none;
@@ -1245,8 +1150,7 @@
   }
 }
 
-/* ---------- Narration ---------- */
-/* Centred in the band under the shot (y 214 to 270 of 270). */
+/* ---------- Narration: centred in the band under the shot (y 214–270) ---------- */
 .aip__captions {
   position: absolute;
   left: 3.3%;
@@ -1270,14 +1174,19 @@
   animation: var(--cap) var(--loop) cubic-bezier(0.16, 1, 0.3, 1)
     calc(var(--k) * 70ms) infinite both;
 }
+/* Words rise in one by one; the whole line leaves at once, so the next
+   line never overlaps the tail of the last. */
 .aip__cap--1 {
   --cap: aip-c1;
+  animation: aip-l1 var(--loop) step-end infinite both;
 }
 .aip__cap--2 {
   --cap: aip-c2;
+  animation: aip-l2 var(--loop) step-end infinite both;
 }
 .aip__cap--3 {
   --cap: aip-c3;
+  animation: aip-l3 var(--loop) linear infinite both;
 }
 .aip__cap--1 .aip__w,
 .aip__cap--2 .aip__w {
@@ -1290,13 +1199,8 @@
     transform: translateY(45%);
   }
   15.5%,
-  28.6% {
-    opacity: 1;
-    transform: none;
-  }
-  29.6%,
   100% {
-    opacity: 0;
+    opacity: 1;
     transform: none;
   }
 }
@@ -1307,13 +1211,8 @@
     transform: translateY(45%);
   }
   31.3%,
-  48% {
-    opacity: 1;
-    transform: none;
-  }
-  49%,
   100% {
-    opacity: 0;
+    opacity: 1;
     transform: none;
   }
 }
@@ -1324,96 +1223,116 @@
     transform: translateY(45%);
   }
   50.7%,
-  93% {
+  100% {
     opacity: 1;
     transform: none;
+  }
+}
+@keyframes aip-l1 {
+  0% {
+    opacity: 1;
+  }
+  29.4%,
+  100% {
+    opacity: 0;
+  }
+}
+@keyframes aip-l2 {
+  0% {
+    opacity: 1;
+  }
+  48.8%,
+  100% {
+    opacity: 0;
+  }
+}
+@keyframes aip-l3 {
+  0%,
+  93% {
+    opacity: 1;
   }
   95%,
   100% {
     opacity: 0;
-    transform: none;
   }
 }
 
-/* ---------- Player bar ---------- */
+/* ---------- Progress bar ---------- */
 .aip__bar {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 10px 14px 22px;
+  padding: 14px 14px 12px;
   border-top: 1px solid rgb(255 255 255 / 0.06);
   background: rgb(5 12 11 / 0.6);
 }
-.aip__play {
-  display: grid;
-  place-items: center;
-  flex: none;
-  width: 32px;
-  height: 32px;
-  border: 1px solid rgb(255 255 255 / 0.16);
-  border-radius: 50%;
-  background: rgb(255 255 255 / 0.06);
-  color: var(--mist);
-  cursor: pointer;
-  transition:
-    border-color 0.25s,
-    background-color 0.25s;
-}
-.aip__play:hover {
-  border-color: rgb(79 216 232 / 0.7);
-  background: rgb(255 255 255 / 0.1);
-}
-.aip__scrub {
-  position: relative;
-  flex: 1;
-  min-width: 0;
-}
+/* Five segments, one per topic, like chapters on a video. */
 .aip__track {
   position: relative;
   height: 4px;
-  border-radius: 4px;
-  background: rgb(255 255 255 / 0.1);
+  margin-bottom: 12px;
   cursor: pointer;
 }
 .aip__track::before {
   content: "";
   position: absolute;
-  inset: -8px 0;
+  inset: -9px 0;
 }
+.aip__rail,
 .aip__fill {
   position: absolute;
   inset: 0;
-  border-radius: inherit;
+  -webkit-mask: var(--segs);
+  mask: var(--segs);
+}
+.aip__track {
+  --segs: linear-gradient(
+    90deg,
+    #000 calc(20% - 2px),
+    transparent 0 calc(20% + 2px),
+    #000 0 calc(40% - 2px),
+    transparent 0 calc(40% + 2px),
+    #000 0 calc(60% - 2px),
+    transparent 0 calc(60% + 2px),
+    #000 0 calc(80% - 2px),
+    transparent 0 calc(80% + 2px),
+    #000 0
+  );
+}
+.aip__rail {
+  border-radius: 4px;
+  background: rgb(255 255 255 / 0.12);
+}
+/* The fill is revealed by clip, so the segment gaps stay put. */
+.aip__fill {
   background: var(--grad-grade);
-  transform-origin: 0 50%;
-  animation: aip-fill var(--loop) linear infinite both;
+  clip-path: inset(0 100% 0 0);
+  animation: aip-fill var(--program) linear infinite both;
 }
 @keyframes aip-fill {
   from {
-    transform: scaleX(0);
+    clip-path: inset(0 100% 0 0);
   }
   to {
-    transform: none;
+    clip-path: inset(0 0 0 0);
   }
 }
-/* Playhead on a full-width layer, so it moves by transform. */
 .aip__head {
   position: absolute;
   inset: 0;
   pointer-events: none;
-  animation: aip-head var(--loop) linear infinite both;
+  animation: aip-head var(--program) linear infinite both;
 }
 .aip__head::before {
   content: "";
   position: absolute;
   top: 50%;
-  left: -5px;
-  width: 10px;
-  height: 10px;
-  margin-top: -5px;
+  left: -6px;
+  width: 12px;
+  height: 12px;
+  margin-top: -6px;
   border-radius: 50%;
   background: var(--mist);
-  box-shadow: 0 0 10px rgb(255 255 255 / 0.6);
+  box-shadow:
+    0 0 0 3px rgb(79 216 232 / 0.25),
+    0 0 12px rgb(255 255 255 / 0.5);
 }
 @keyframes aip-head {
   from {
@@ -1423,161 +1342,508 @@
     transform: translateX(100%);
   }
 }
-.aip__tick {
-  position: absolute;
-  top: -3px;
-  bottom: -3px;
-  width: 2px;
-  margin-left: -1px;
-  border-radius: 1px;
-  background: rgb(255 255 255 / 0.35);
-}
-.aip__chapters {
-  position: relative;
-  height: 14px;
-  margin-top: 8px;
-}
-.aip__chapter {
-  position: absolute;
-  top: 0;
-  padding: 0;
-  border: 0;
-  background: none;
-  color: var(--fog);
-  font-family: var(--font-mono);
-  font-size: 10.5px;
-  letter-spacing: 0.04em;
-  white-space: nowrap;
-  cursor: pointer;
-  translate: -4px 0;
-  animation: var(--ch) var(--loop) linear infinite both;
-}
-.aip__chapter:hover,
-.aip__chapter:focus-visible {
-  color: var(--mist);
-}
-.aip__chapter--1 {
-  --ch: aip-ch1;
-}
-.aip__chapter--2 {
-  --ch: aip-ch2;
-}
-.aip__chapter--3 {
-  --ch: aip-ch3;
-}
-@keyframes aip-ch1 {
-  0%,
-  13.7% {
-    color: var(--fog);
-  }
-  13.8%,
-  29.5% {
-    color: #4fd8e8;
-  }
-  29.6%,
-  100% {
-    color: var(--fog);
-  }
-}
-@keyframes aip-ch2 {
-  0%,
-  29.5% {
-    color: var(--fog);
-  }
-  29.6%,
-  48.9% {
-    color: #ffd88a;
-  }
-  49%,
-  100% {
-    color: var(--fog);
-  }
-}
-@keyframes aip-ch3 {
-  0%,
-  48.9% {
-    color: var(--fog);
-  }
-  49%,
-  94.6% {
-    color: #ff8f4f;
-  }
-  94.7%,
-  100% {
-    color: var(--fog);
-  }
-}
 /* Running clock: an animated integer counter, no script needed. */
 @property --aip-s {
   syntax: "<integer>";
   inherits: false;
   initial-value: 0;
 }
-.aip__time {
-  flex: none;
-  color: var(--fog);
-  font-family: var(--font-mono);
-  font-size: 11px;
-  font-variant-numeric: tabular-nums;
-}
 .aip__now {
   color: var(--mist);
   counter-reset: aip var(--aip-s);
-  animation: aip-clock var(--loop) steps(10, jump-end) infinite both;
+  animation: aip-clock var(--program) steps(50, jump-end) infinite both;
 }
 .aip__now::before {
-  content: "0:0" counter(aip);
+  content: "0:" counter(aip, decimal-leading-zero);
 }
 @keyframes aip-clock {
   from {
     --aip-s: 0;
   }
   to {
-    --aip-s: 10;
+    --aip-s: 50;
   }
 }
 
-/* Narrow player: the chapter names no longer fit at their ticks, so they
-   sit in a row under the track instead (still highlighted in step). */
 .aip {
   container: aip / inline-size;
 }
-@container aip (max-width: 500px) {
+
+/* ---------- AI pipeline: the engine and the topic's three steps ---------- */
+.aip__ai {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+.aip__live {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 9px 4px 8px;
+  border-radius: 999px;
+  background:
+    linear-gradient(#0a1513, #0a1513) padding-box,
+    var(--grad-grade) border-box;
+  border: 1px solid transparent;
+  color: var(--mist);
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+}
+.aip__live i {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #7fe3c4;
+  box-shadow: 0 0 0 0 rgb(127 227 196 / 0.6);
+  animation: aip-live 1.6s ease-out infinite;
+}
+@keyframes aip-live {
+  70%,
+  100% {
+    box-shadow: 0 0 0 6px rgb(127 227 196 / 0);
+  }
+}
+.aip__engine-now {
+  flex: none;
+  color: var(--fog);
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.04em;
+}
+.aip__beats {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+/* Each step: waiting, then working (cyan), then done (seafoam, ticked),
+   in the scene's own beats. The base style is "done" (the still). */
+.aip__beat {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 9px 3px 4px;
+  border: 1px solid rgb(127 227 196 / 0.25);
+  border-radius: 999px;
+  background: rgb(127 227 196 / 0.06);
+  color: #a8ecd8;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+  animation: var(--beat) var(--loop) step-end infinite both;
+}
+.aip__beat-n {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 16px;
+  height: 16px;
+  border: 1px solid currentColor;
+  border-radius: 50%;
+  font-family: var(--font-mono);
+  font-size: 9px;
+}
+.aip__beat-n b {
+  font-weight: 500;
+}
+.aip__beat-n .icon {
+  position: absolute;
+  inset: -1px;
+  width: 16px;
+  height: 16px;
+  padding: 3px;
+  border-radius: 50%;
+  background: #7fe3c4;
+  color: #08110f;
+  animation: var(--tick) var(--loop) step-end infinite both;
+}
+.aip__beat--1 {
+  --beat: aip-b1;
+  --tick: aip-t1;
+}
+.aip__beat--2 {
+  --beat: aip-b2;
+  --tick: aip-t2;
+}
+.aip__beat--3 {
+  --beat: aip-b3;
+  --tick: aip-t3;
+}
+@keyframes aip-b1 {
+  0% {
+    color: var(--fog);
+    background-color: transparent;
+    border-color: rgb(255 255 255 / 0.1);
+  }
+  13.8% {
+    color: var(--mist);
+    background-color: rgb(79 216 232 / 0.14);
+    border-color: rgb(79 216 232 / 0.6);
+  }
+  29.6% {
+    color: #a8ecd8;
+    background-color: rgb(127 227 196 / 0.06);
+    border-color: rgb(127 227 196 / 0.25);
+  }
+  94.7%,
+  100% {
+    color: var(--fog);
+    background-color: transparent;
+    border-color: rgb(255 255 255 / 0.1);
+  }
+}
+@keyframes aip-b2 {
+  0% {
+    color: var(--fog);
+    background-color: transparent;
+    border-color: rgb(255 255 255 / 0.1);
+  }
+  29.6% {
+    color: var(--mist);
+    background-color: rgb(79 216 232 / 0.14);
+    border-color: rgb(79 216 232 / 0.6);
+  }
+  49% {
+    color: #a8ecd8;
+    background-color: rgb(127 227 196 / 0.06);
+    border-color: rgb(127 227 196 / 0.25);
+  }
+  94.7%,
+  100% {
+    color: var(--fog);
+    background-color: transparent;
+    border-color: rgb(255 255 255 / 0.1);
+  }
+}
+@keyframes aip-b3 {
+  0% {
+    color: var(--fog);
+    background-color: transparent;
+    border-color: rgb(255 255 255 / 0.1);
+  }
+  49% {
+    color: var(--mist);
+    background-color: rgb(79 216 232 / 0.14);
+    border-color: rgb(79 216 232 / 0.6);
+  }
+  80% {
+    color: #a8ecd8;
+    background-color: rgb(127 227 196 / 0.06);
+    border-color: rgb(127 227 196 / 0.25);
+  }
+  94.7%,
+  100% {
+    color: var(--fog);
+    background-color: transparent;
+    border-color: rgb(255 255 255 / 0.1);
+  }
+}
+@keyframes aip-t1 {
+  0% {
+    opacity: 0;
+  }
+  29.6% {
+    opacity: 1;
+  }
+  94.7%,
+  100% {
+    opacity: 0;
+  }
+}
+@keyframes aip-t2 {
+  0% {
+    opacity: 0;
+  }
+  49% {
+    opacity: 1;
+  }
+  94.7%,
+  100% {
+    opacity: 0;
+  }
+}
+@keyframes aip-t3 {
+  0% {
+    opacity: 0;
+  }
+  80% {
+    opacity: 1;
+  }
+  94.7%,
+  100% {
+    opacity: 0;
+  }
+}
+.aip__time {
+  flex: none;
+  margin-left: auto;
+  color: var(--fog);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+/* Title card: what runs the feature. */
+.aip__engine {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.8cqw;
+  padding: 0.4cqw 1.3cqw;
+  border: 1px solid rgb(255 216 138 / 0.3);
+  border-radius: 999px;
+  color: #ffd88a;
+  font-family: var(--font-mono);
+  font-size: max(8px, 1.45cqw);
+  letter-spacing: 0.06em;
+  animation: aip-rise var(--loop) cubic-bezier(0.16, 1, 0.3, 1) 0.24s infinite
+    both;
+}
+
+@container aip (max-width: 600px) {
+  .aip__engine-now {
+    display: none;
+  }
+}
+@container aip (max-width: 430px) {
   .aip__bar {
-    gap: 10px;
-    padding: 8px 10px 18px;
+    padding: 12px 10px 10px;
   }
-  .aip__chapters {
-    display: flex;
-    gap: 14px;
-    height: auto;
-  }
-  .aip__chapter {
-    position: static;
-    translate: none;
-    font-size: 10px;
-  }
+  .aip__live,
   .aip__time {
-    font-size: 10px;
+    display: none;
+  }
+  .aip__beats {
+    justify-content: space-between;
+    gap: 4px;
+  }
+  .aip__beat {
+    gap: 4px;
+    padding: 2px 7px 2px 3px;
+    font-size: 10.5px;
+  }
+}
+
+/* ---------- Topic playlist ---------- */
+.tp {
+  margin-top: 20px;
+}
+.tp__head {
+  display: flex;
+  justify-content: space-between;
+  margin: 0 0 8px;
+  padding: 0 12px 8px;
+  border-bottom: 1px solid var(--line);
+  color: var(--fog);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.tp__list {
+  display: grid;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.tp__btn {
+  position: relative;
+  display: grid;
+  grid-template-columns: 26px minmax(0, 1fr) auto;
+  align-items: start;
+  gap: 0 12px;
+  width: 100%;
+  padding: 9px 12px 11px;
+  border: 1px solid transparent;
+  border-radius: 12px;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    background-color 0.3s,
+    border-color 0.3s;
+}
+.tp__btn:hover {
+  background: rgb(255 255 255 / 0.035);
+}
+.tp__btn:focus-visible {
+  outline: 2px solid #4fd8e8;
+  outline-offset: 1px;
+}
+.tp__item.is-on .tp__btn {
+  border-color: rgb(255 255 255 / 0.1);
+  background: rgb(255 255 255 / 0.05);
+}
+.tp__n {
+  padding-top: 3px;
+  color: var(--fog);
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+}
+.tp__item.is-done .tp__num {
+  color: var(--seafoam);
+}
+.tp__eq {
+  display: none;
+  align-items: flex-end;
+  gap: 2px;
+  height: 12px;
+  margin-top: 1px;
+}
+.tp__item.is-on .tp__num {
+  display: none;
+}
+.tp__item.is-on .tp__eq {
+  display: inline-flex;
+}
+.tp__eq i {
+  width: 3px;
+  height: 100%;
+  border-radius: 1px;
+  background: var(--grad-grade);
+  transform-origin: 50% 100%;
+  animation: tp-eq 0.9s ease-in-out infinite alternate;
+}
+.tp__eq i:nth-child(2) {
+  animation-delay: -0.3s;
+}
+.tp__eq i:nth-child(3) {
+  animation-delay: -0.6s;
+}
+@keyframes tp-eq {
+  from {
+    transform: scaleY(0.25);
+  }
+  to {
+    transform: none;
+  }
+}
+.tp__main {
+  min-width: 0;
+}
+.tp__t {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 8px;
+  color: rgb(230 236 233 / 0.74);
+  font-size: 15px;
+  font-weight: 650;
+  line-height: 1.3;
+  transition: color 0.3s;
+}
+.tp__item.is-on .tp__t {
+  color: var(--mist);
+}
+.tp__kind {
+  padding: 1px 7px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--fog);
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+}
+.tp__kind.is-ai {
+  border-color: transparent;
+  background: var(--grad-grade);
+  color: #08110f;
+}
+/* The playing topic opens to show what it does and how. */
+.tp__more {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.45s var(--ease-out);
+}
+.tp__item.is-on .tp__more {
+  grid-template-rows: 1fr;
+}
+.tp__desc {
+  min-height: 0;
+  overflow: hidden;
+  color: rgb(230 236 233 / 0.66);
+  font-size: 13.5px;
+  line-height: 1.45;
+  text-wrap: pretty;
+}
+.tp__desc::before {
+  content: "";
+  display: block;
+  height: 4px;
+}
+.tp__desc em {
+  display: block;
+  margin-top: 2px;
+  color: #ffd88a;
+  font-family: var(--font-accent);
+  font-size: 1.08em;
+}
+.tp__dur {
+  padding-top: 3px;
+  color: var(--fog);
+  font-family: var(--font-mono);
+  font-size: 11px;
+}
+.tp__bar {
+  position: absolute;
+  left: 50px;
+  right: 12px;
+  bottom: 5px;
+  height: 2px;
+  overflow: hidden;
+  border-radius: 2px;
+}
+.tp__item.is-on .tp__bar {
+  background: rgb(255 255 255 / 0.08);
+}
+.tp__bar i {
+  position: absolute;
+  inset: 0;
+  background: var(--grad-grade);
+  transform: scaleX(0);
+  transform-origin: 0 50%;
+}
+.tp__item.is-on .tp__bar i {
+  animation: tp-fill var(--loop) linear infinite both;
+}
+@keyframes tp-fill {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: none;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .ai,
   .ai *,
-  .ai-step,
-  .ai-step *,
   .aip,
-  .aip * {
+  .aip *,
+  .tp * {
     animation: none !important;
   }
-  /* The still frame: the finished result and its caption, with no title
-     card and no player controls (there is nothing to play). */
+  /* The still frame: each topic's finished result and its caption. Topics
+     change from the playlist; there is nothing to play, so no bar. */
   .aip__intro,
-  .aip__bar {
+  .aip__bar,
+  .tp__bar {
     display: none;
   }
   .aip__result {
     opacity: 1;
+  }
+  .tp__more {
+    transition: none;
   }
 }

@@ -1,62 +1,13 @@
-import { useEffect, useMemo, useRef } from "react";
+import { Component, useEffect, useMemo, useRef } from "react";
 import SectionHead from "./SectionHead";
 import Icon from "./Icon";
 import Reveal from "./Reveal";
 import { toolMeta } from "../lib/icons";
 import { usePauseOffscreen, useScrollFrame } from "../lib/ticker";
 import { Scramble } from "./Kinetic";
-import { MaskDemo, ReframeDemo, RotoDemo } from "./ToolAI";
 import AIPlayer from "./AIPlayer";
+import { programs } from "./toolPrograms";
 
-// What each tool is for (a general product role, not a claim about any
-// specific project), and one real AI feature of it, played as a demo.
-const toolInfo = {
-  premiere: {
-    verb: "Cut",
-    use: "Editing & assembly",
-    feature: "Auto Reframe",
-    desc: "Premiere's AI finds the subject and keeps it in frame, turning a wide shot into a vertical 9:16 cut.",
-    steps: ["Detect the subject", "Track the motion", "Reframe to 9:16"],
-    chapters: ["Detect", "Track", "Reframe"],
-    captions: [
-      "The AI scans every frame and finds the subject.",
-      "It tracks him as he moves, frame by frame.",
-      "Then reframes the wide shot into a vertical 9:16 cut.",
-    ],
-    result: "Vertical cut ready",
-    Demo: ReframeDemo,
-  },
-  aftereffects: {
-    verb: "Animate",
-    use: "Motion graphics & VFX",
-    feature: "Roto Brush",
-    desc: "After Effects' AI separates the subject from the background on every frame, so titles and effects can sit behind it.",
-    steps: ["Paint the subject", "Propagate the mask", "Composite behind"],
-    chapters: ["Paint", "Propagate", "Composite"],
-    captions: [
-      "One brush stroke tells the AI what to keep.",
-      "It traces her edge and follows it through every frame.",
-      "Now the title can sit behind her.",
-    ],
-    result: "Title behind subject",
-    Demo: RotoDemo,
-  },
-  resolve: {
-    verb: "Grade",
-    use: "Colour grading & finishing",
-    feature: "Magic Mask",
-    desc: "Resolve's Neural Engine masks a person from a single stroke, so the subject and the background are graded separately.",
-    steps: ["Stroke the person", "Neural mask", "Grade subject and background"],
-    chapters: ["Stroke", "Mask", "Grade"],
-    captions: [
-      "One stroke on the person is all it needs.",
-      "The Neural Engine finds and masks them.",
-      "Then subject and background are graded separately.",
-    ],
-    result: "Graded in two looks",
-    Demo: MaskDemo,
-  },
-};
 const toolGlow = {
   premiere: "153 153 255",
   aftereffects: "153 153 255",
@@ -76,17 +27,43 @@ function buildLanes(count) {
   });
 }
 
+/** If a player ever fails, the card keeps its tool info instead of the
+ * error taking the whole page down. */
+class Safe extends Component {
+  state = { failed: false };
+  static getDerivedStateFromError() {
+    return { failed: true };
+  }
+  render() {
+    return this.state.failed ? this.props.fallback : this.props.children;
+  }
+}
+
 /**
- * One tool as a big card: its AI demo, played like a product video, on the
- * left; on the right the tool,
- * its job, the feature, what it does, and the three steps of the demo
- * filling in as it plays.
+ * One tool as a big card: a 50 s explainer of five of its important
+ * topics, played like a course video, with the tool and its topic
+ * playlist beside it.
  */
 function Tool({ name, i }) {
   const meta = toolMeta[name];
-  const info = meta && toolInfo[meta.brand];
-  if (!info) return null;
-  const { Demo } = info;
+  const prog = meta && programs[meta.brand];
+  if (!prog) return null;
+  const head = (
+    <>
+      <div className="tool__head">
+        <span className="tool__icon">
+          <Icon brand={meta.brand} size={30} />
+        </span>
+        <span className="tool__verb">{prog.verb}</span>
+        <span className="tool__no label" aria-hidden="true">
+          0{i + 1}
+        </span>
+      </div>
+      <span className="tool__name">{meta.name}</span>
+      <span className="label tool__use">{prog.use}</span>
+      <p className="tool__desc">{prog.desc}</p>
+    </>
+  );
   return (
     <Reveal
       as="li"
@@ -95,48 +72,9 @@ function Tool({ name, i }) {
       style={{ "--glow": toolGlow[meta.brand] }}
     >
       <span className="tool__glow" aria-hidden="true" />
-      <div className="tool__stage">
-        <AIPlayer
-          Demo={Demo}
-          n={i + 1}
-          feature={info.feature}
-          product={meta.name}
-          captions={info.captions}
-          chapters={info.chapters}
-          result={info.result}
-        />
-      </div>
-      <div className="tool__info">
-        <div className="tool__head">
-          <span className="tool__icon">
-            <Icon brand={meta.brand} size={30} />
-          </span>
-          <span className="tool__verb">{info.verb}</span>
-          <span className="tool__no label" aria-hidden="true">
-            0{i + 1}
-          </span>
-        </div>
-        <span className="tool__name">{meta.name}</span>
-        <span className="label tool__use">{info.use}</span>
-        <p className="tool__feature">
-          <span className="tool__ai">AI</span>
-          {info.feature}
-        </p>
-        <p className="tool__desc">{info.desc}</p>
-        <ol className="ai-steps" aria-label={`${info.feature} steps`}>
-          {info.steps.map((step, k) => (
-            <li className={`ai-step ai-step--${k + 1}`} key={step}>
-              <span className="ai-step__n" aria-hidden="true">
-                {k + 1}
-              </span>
-              <span className="ai-step__t">{step}</span>
-              <span className="ai-step__bar" aria-hidden="true">
-                <i />
-              </span>
-            </li>
-          ))}
-        </ol>
-      </div>
+      <Safe fallback={<div className="tool__info">{head}</div>}>
+        <AIPlayer product={meta.name} head={head} topics={prog.topics} />
+      </Safe>
       <span className="tool__shade" aria-hidden="true" />
     </Reveal>
   );
@@ -169,6 +107,8 @@ export default function Craft({ number, profile }) {
         if (p === it.p) return;
         it.p = p;
         it.el.style.scale = p ? String(1 - p * 0.06) : "";
+        // A card covered by the next one (all but its top edge) stops playing.
+        it.el.toggleAttribute("data-paused", p >= 0.9);
         if (it.shade) it.shade.style.opacity = String(p * 0.55);
       });
     },
@@ -184,6 +124,7 @@ export default function Craft({ number, profile }) {
       const cards = Array.from(list?.children ?? []);
       d.items.forEach((it) => {
         it.el.style.scale = "";
+        it.el.removeAttribute("data-paused");
         if (it.shade) it.shade.style.opacity = "";
       });
       d.on = !!list && wide && !still;

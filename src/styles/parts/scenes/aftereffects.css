@@ -1,0 +1,1333 @@
+/* =====================================================================
+   After Effects scenes 2–5 (scenes/aftereffects.jsx), on the shared 10 s
+   scene loop: 0–12% title card, A 13.8–29.6%, B 29.6–49%, C 49–94.7%
+   (result badge from 80%), reset under the wipe. Base styles are the
+   finished result (the reduced-motion still).
+   ===================================================================== */
+
+/* ---------- Content-Aware Fill ---------- */
+.ai .ae2-val {
+  fill: var(--mist);
+}
+.ai .ae2-small {
+  font-size: 6.5px;
+  fill: var(--fog);
+}
+.ae2-thumb {
+  fill: none;
+  stroke: rgb(255 255 255 / 0.18);
+  stroke-width: 0.6;
+}
+.ae2-mask {
+  fill: rgb(255 97 80 / 0.3);
+  opacity: 0;
+}
+.ae2-edge {
+  fill: none;
+  stroke: #4fd8e8;
+  stroke-width: 1.6;
+  stroke-linejoin: round;
+  stroke-dasharray: 1;
+  opacity: 0;
+}
+.ae2-sample {
+  fill: rgb(79 216 232 / 0.14);
+  stroke: #4fd8e8;
+  stroke-width: 1;
+  stroke-dasharray: 3 2;
+  opacity: 0;
+}
+.ae2-seams {
+  opacity: 0;
+}
+.ae2-seams rect {
+  fill: none;
+  stroke: #7fe3c4;
+  stroke-width: 0.8;
+}
+.ae2-hi {
+  fill: none;
+  stroke: url(#ae2-chip);
+  stroke-width: 1.4;
+  opacity: 0;
+}
+.ae2-prog {
+  transform-origin: 356px 0;
+}
+.ae2-frames,
+.ae2-f {
+  opacity: 0;
+}
+/* The sign hides once the fill covers it (no seams can show it). */
+.ae2-sign {
+  opacity: 0;
+  animation: ae2-sign var(--loop) step-end infinite both;
+}
+@keyframes ae2-sign {
+  0% {
+    opacity: 1;
+  }
+  50%,
+  100% {
+    opacity: 0;
+  }
+}
+
+.ae2-edge {
+  animation: ae2-edge var(--loop) ease-in-out infinite both;
+}
+@keyframes ae2-edge {
+  0%,
+  12%,
+  14% {
+    stroke-dashoffset: 1;
+    opacity: 1;
+  }
+  26%,
+  49% {
+    stroke-dashoffset: 0;
+    opacity: 1;
+  }
+  54%,
+  100% {
+    stroke-dashoffset: 0;
+    opacity: 0;
+  }
+}
+.ae2-mask {
+  animation: ae2-mask var(--loop) ease infinite both;
+}
+@keyframes ae2-mask {
+  0%,
+  21% {
+    opacity: 0;
+  }
+  27%,
+  44% {
+    opacity: 1;
+  }
+  50%,
+  100% {
+    opacity: 0;
+  }
+}
+/* Each tile is a patch of the clean plate, carried in from where it was
+   sampled (offsets per tile, staggered by delay). */
+.ae2-tile {
+  animation: ae2-tile var(--loop) cubic-bezier(0.65, 0, 0.35, 1) infinite both;
+}
+/* Once landed (and the sign hidden beneath), the patches match the plate,
+   so they retire and the clean plate carries on alone. */
+.ae2-tile {
+  opacity: 0;
+}
+@keyframes ae2-tile {
+  0%,
+  31% {
+    opacity: 0;
+    transform: translate(var(--fx), var(--fy));
+  }
+  33.5% {
+    opacity: 1;
+    transform: translate(var(--fx), var(--fy));
+  }
+  40%,
+  56% {
+    opacity: 1;
+    transform: none;
+  }
+  56.5%,
+  100% {
+    opacity: 0;
+    transform: none;
+  }
+}
+.ae2-sample {
+  animation: ae2-sample var(--loop) ease infinite both;
+}
+@keyframes ae2-sample {
+  0%,
+  29% {
+    opacity: 0;
+  }
+  31%,
+  35% {
+    opacity: 1;
+  }
+  38%,
+  100% {
+    opacity: 0;
+  }
+}
+.ae2-seams {
+  animation: ae2-seams var(--loop) ease infinite both;
+}
+@keyframes ae2-seams {
+  0%,
+  40% {
+    opacity: 0;
+  }
+  46%,
+  50% {
+    opacity: 1;
+  }
+  57%,
+  100% {
+    opacity: 0;
+  }
+}
+/* Reference frames light up in turn while they feed the fill. */
+.ae2-hi {
+  animation: ae2-hi var(--loop) step-end infinite both;
+}
+@keyframes ae2-hi {
+  0%,
+  30% {
+    opacity: 0;
+    transform: none;
+  }
+  30.5% {
+    opacity: 1;
+    transform: none;
+  }
+  36% {
+    opacity: 1;
+    transform: translateX(38px);
+  }
+  42% {
+    opacity: 1;
+    transform: translateX(76px);
+  }
+  48.5%,
+  100% {
+    opacity: 0;
+    transform: translateX(76px);
+  }
+}
+.ae2-prog {
+  animation: ae2-prog var(--loop) linear infinite both;
+}
+@keyframes ae2-prog {
+  0%,
+  30% {
+    transform: scaleX(0);
+  }
+  48%,
+  96% {
+    transform: none;
+  }
+  98%,
+  100% {
+    transform: scaleX(0);
+  }
+}
+.ae2-layer {
+  animation: ae2-layer var(--loop) cubic-bezier(0.16, 1, 0.3, 1) infinite both;
+}
+@keyframes ae2-layer {
+  0%,
+  51% {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  58%,
+  94% {
+    opacity: 1;
+    transform: none;
+  }
+  97%,
+  100% {
+    opacity: 0;
+    transform: none;
+  }
+}
+/* The shot moves on; the fill holds on every frame. */
+.ae2-pan {
+  animation: ae2-pan var(--loop) cubic-bezier(0.45, 0, 0.55, 1) infinite both;
+}
+@keyframes ae2-pan {
+  0%,
+  55% {
+    transform: none;
+  }
+  93%,
+  97% {
+    transform: translateX(-12px);
+  }
+  99%,
+  100% {
+    transform: none;
+  }
+}
+.ae2-frames {
+  animation: ae2-frames var(--loop) linear infinite both;
+}
+@keyframes ae2-frames {
+  0%,
+  53% {
+    opacity: 0;
+  }
+  55%,
+  92% {
+    opacity: 1;
+  }
+  94%,
+  100% {
+    opacity: 0;
+  }
+}
+.ae2-f--1 {
+  animation: ae2-f1 var(--loop) step-end infinite both;
+}
+.ae2-f--2 {
+  animation: ae2-f2 var(--loop) step-end infinite both;
+}
+.ae2-f--3 {
+  animation: ae2-f3 var(--loop) step-end infinite both;
+}
+@keyframes ae2-f1 {
+  0% {
+    opacity: 1;
+  }
+  66%,
+  100% {
+    opacity: 0;
+  }
+}
+@keyframes ae2-f2 {
+  0% {
+    opacity: 0;
+  }
+  66% {
+    opacity: 1;
+  }
+  78%,
+  100% {
+    opacity: 0;
+  }
+}
+@keyframes ae2-f3 {
+  0% {
+    opacity: 0;
+  }
+  78%,
+  100% {
+    opacity: 1;
+  }
+}
+
+/* ---------- 3D Camera Tracker ---------- */
+.ai .ae3-val {
+  fill: var(--mist);
+}
+.ai .ae3-small {
+  font-size: 6.5px;
+  fill: var(--fog);
+}
+.ai .ae3-word {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-stretch: 75%;
+  font-size: 34px;
+  letter-spacing: 0.01em;
+  fill: url(#ae3-text);
+}
+.ai .ae3-word--back {
+  fill: #6b2a26;
+}
+.ae3-grid {
+  fill: none;
+  stroke: #4fd8e8;
+  stroke-width: 0.8;
+  stroke-dasharray: 1;
+  opacity: 0.2;
+}
+.ae3-pts {
+  opacity: 0;
+}
+.ae3-dots {
+  fill: none;
+  stroke: #7fe3c4;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  opacity: 0.75;
+}
+.ae3-target {
+  transform-origin: 196px 168px;
+  opacity: 0;
+}
+.ae3-text {
+  transform-origin: 196px 168px;
+}
+.ae3-bar {
+  transform-origin: 408px 0;
+}
+.ae3-n--1,
+.ae3-n--2 {
+  opacity: 0;
+}
+.ae3-path {
+  fill: none;
+  stroke: url(#ae3-chip);
+  stroke-width: 1.4;
+  stroke-linecap: round;
+  stroke-dasharray: 1;
+}
+
+/* Parallax: the camera pans, near layers travel further. */
+.ae3-far {
+  animation: ae3-far var(--loop) linear infinite both;
+}
+.ae3-mid {
+  animation: ae3-mid var(--loop) linear infinite both;
+}
+.ae3-near {
+  animation: ae3-near var(--loop) linear infinite both;
+}
+@keyframes ae3-far {
+  0% {
+    transform: translateX(7px);
+  }
+  97%,
+  100% {
+    transform: translateX(-7px);
+  }
+}
+@keyframes ae3-mid {
+  0% {
+    transform: translateX(18px);
+  }
+  97%,
+  100% {
+    transform: translateX(-18px);
+  }
+}
+@keyframes ae3-near {
+  0% {
+    transform: translateX(34px);
+  }
+  97%,
+  100% {
+    transform: translateX(-34px);
+  }
+}
+.ae3-pts {
+  animation: ae3-pts var(--loop) ease infinite both;
+}
+.ae3-pts--mid {
+  animation-delay: 0.25s;
+}
+.ae3-pts--near {
+  animation-delay: 0.5s;
+}
+@keyframes ae3-pts {
+  0%,
+  14% {
+    opacity: 0;
+  }
+  17%,
+  50% {
+    opacity: 1;
+  }
+  57%,
+  100% {
+    opacity: 0;
+  }
+}
+.ae3-grid {
+  animation: ae3-grid var(--loop) ease-in-out infinite both;
+}
+@keyframes ae3-grid {
+  0%,
+  30% {
+    stroke-dashoffset: 1;
+    opacity: 0.85;
+  }
+  42%,
+  52% {
+    stroke-dashoffset: 0;
+    opacity: 0.85;
+  }
+  60%,
+  94% {
+    stroke-dashoffset: 0;
+    opacity: 0.2;
+  }
+  97%,
+  100% {
+    stroke-dashoffset: 0;
+    opacity: 0;
+  }
+}
+.ae3-target {
+  animation: ae3-target var(--loop) cubic-bezier(0.34, 1.56, 0.64, 1) infinite
+    both;
+}
+@keyframes ae3-target {
+  0%,
+  38% {
+    opacity: 0;
+    transform: scale(0.3);
+  }
+  43%,
+  52% {
+    opacity: 1;
+    transform: none;
+  }
+  58%,
+  100% {
+    opacity: 0;
+    transform: none;
+  }
+}
+.ae3-text {
+  animation: ae3-text var(--loop) cubic-bezier(0.16, 1, 0.3, 1) infinite both;
+}
+@keyframes ae3-text {
+  0%,
+  50% {
+    opacity: 0;
+    transform: scaleY(0.05);
+  }
+  50.5% {
+    opacity: 1;
+    transform: scaleY(0.05);
+  }
+  58%,
+  95% {
+    opacity: 1;
+    transform: none;
+  }
+  97.5%,
+  100% {
+    opacity: 0;
+    transform: none;
+  }
+}
+.ae3-bar--a {
+  animation: ae3-bar-a var(--loop) linear infinite both;
+}
+.ae3-bar--b {
+  animation: ae3-bar-b var(--loop) linear infinite both;
+}
+@keyframes ae3-bar-a {
+  0%,
+  14% {
+    transform: scaleX(0);
+  }
+  29%,
+  96% {
+    transform: none;
+  }
+  98%,
+  100% {
+    transform: scaleX(0);
+  }
+}
+@keyframes ae3-bar-b {
+  0%,
+  30% {
+    transform: scaleX(0);
+  }
+  47%,
+  96% {
+    transform: none;
+  }
+  98%,
+  100% {
+    transform: scaleX(0);
+  }
+}
+.ae3-n--1 {
+  animation: ae3-n1 var(--loop) step-end infinite both;
+}
+.ae3-n--2 {
+  animation: ae3-n2 var(--loop) step-end infinite both;
+}
+.ae3-n--3 {
+  animation: ae3-n3 var(--loop) step-end infinite both;
+}
+@keyframes ae3-n1 {
+  0% {
+    opacity: 1;
+  }
+  19%,
+  100% {
+    opacity: 0;
+  }
+}
+@keyframes ae3-n2 {
+  0% {
+    opacity: 0;
+  }
+  19% {
+    opacity: 1;
+  }
+  25%,
+  100% {
+    opacity: 0;
+  }
+}
+@keyframes ae3-n3 {
+  0% {
+    opacity: 0;
+  }
+  25%,
+  100% {
+    opacity: 1;
+  }
+}
+.ae3-err {
+  animation: ae3-err var(--loop) step-end infinite both;
+}
+@keyframes ae3-err {
+  0% {
+    opacity: 0;
+  }
+  46%,
+  100% {
+    opacity: 1;
+  }
+}
+.ae3-path {
+  animation: ae3-path var(--loop) ease-in-out infinite both;
+}
+@keyframes ae3-path {
+  0%,
+  38% {
+    stroke-dashoffset: 1;
+  }
+  52%,
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+.ae3-camera {
+  animation: ae3-camera var(--loop) ease infinite both;
+}
+@keyframes ae3-camera {
+  0%,
+  50% {
+    opacity: 0;
+  }
+  53%,
+  100% {
+    opacity: 1;
+  }
+}
+
+/* ---------- Graph Editor ---------- */
+.ai .ae4-small {
+  font-size: 6.5px;
+  fill: var(--fog);
+}
+.ai .ae4-val,
+.ai .ae4-btn-t {
+  fill: var(--mist);
+}
+.ai .ae4-btn-k {
+  font-size: 7px;
+  fill: var(--fog);
+}
+.ae4-trail {
+  fill: none;
+  stroke-width: 4.4;
+  stroke-linecap: round;
+}
+.ae4-trail--lin {
+  stroke: #4fd8e8;
+  opacity: 0.2;
+}
+.ae4-trail--ease {
+  stroke: #ffd88a;
+  opacity: 0.9;
+}
+.ae4-wipe {
+  transform-origin: 50px 0;
+}
+.ae4-lin {
+  fill: none;
+  stroke: #4fd8e8;
+  stroke-width: 1.6;
+  stroke-linejoin: round;
+  opacity: 0.22;
+}
+.ae4-ease {
+  fill: none;
+  stroke: url(#ae4-curve);
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  stroke-dasharray: 1;
+}
+.ae4-handle path {
+  stroke: #ffd88a;
+  stroke-width: 1.2;
+}
+.ae4-handle circle {
+  fill: #ffd88a;
+}
+.ae4-handle--l {
+  transform-origin: 44px 184px;
+}
+.ae4-handle--r {
+  transform-origin: 312px 184px;
+}
+.ae4-ball {
+  transform: translateX(244px);
+}
+.ae4-squash {
+  transform-origin: 67px 62px;
+}
+.ae4-ph {
+  transform: translateX(268px);
+}
+.ae4-kf--lin {
+  opacity: 0;
+}
+.ae4-btn {
+  transform-origin: 410px 85px;
+}
+.ae4-btn-hi {
+  opacity: 0;
+}
+
+/* The ball: linear in A (an abrupt stop), eased in C (a soft settle). */
+.ae4-ball {
+  animation: ae4-ball var(--loop) infinite both;
+}
+@keyframes ae4-ball {
+  0%,
+  14% {
+    transform: none;
+    opacity: 1;
+    animation-timing-function: linear;
+  }
+  28%,
+  29.6% {
+    transform: translateX(244px);
+    opacity: 1;
+  }
+  31% {
+    transform: translateX(244px);
+    opacity: 0;
+  }
+  31.1% {
+    transform: none;
+    opacity: 0;
+  }
+  33%,
+  51% {
+    transform: none;
+    opacity: 1;
+    animation-timing-function: cubic-bezier(0.6, 0, 0.4, 1);
+  }
+  73%,
+  95% {
+    transform: translateX(244px);
+    opacity: 1;
+  }
+  97.5% {
+    transform: translateX(244px);
+    opacity: 0;
+  }
+  98%,
+  100% {
+    transform: none;
+    opacity: 0;
+  }
+}
+.ae4-squash {
+  animation: ae4-squash var(--loop) ease-out infinite both;
+}
+@keyframes ae4-squash {
+  0%,
+  27.6% {
+    transform: none;
+  }
+  28.2% {
+    transform: scale(0.8, 1.2);
+  }
+  30.5%,
+  72% {
+    transform: none;
+  }
+  73.5% {
+    transform: scale(0.94, 1.06);
+  }
+  77%,
+  100% {
+    transform: none;
+  }
+}
+/* Spacing trails are revealed as the ball passes. */
+.ae4-wipe--lin {
+  animation: ae4-wipe-lin var(--loop) infinite both;
+}
+@keyframes ae4-wipe-lin {
+  0%,
+  14% {
+    transform: scaleX(0.035);
+    animation-timing-function: linear;
+  }
+  28%,
+  100% {
+    transform: scaleX(0.988);
+  }
+}
+.ae4-wipe--ease {
+  animation: ae4-wipe-ease var(--loop) infinite both;
+}
+@keyframes ae4-wipe-ease {
+  0%,
+  51% {
+    transform: scaleX(0.035);
+    animation-timing-function: cubic-bezier(0.6, 0, 0.4, 1);
+  }
+  73%,
+  100% {
+    transform: scaleX(0.988);
+  }
+}
+.ae4-trail--lin {
+  animation: ae4-tl var(--loop) ease infinite both;
+}
+@keyframes ae4-tl {
+  0%,
+  13% {
+    opacity: 0;
+  }
+  14.5%,
+  47% {
+    opacity: 0.85;
+  }
+  52%,
+  94% {
+    opacity: 0.2;
+  }
+  97%,
+  100% {
+    opacity: 0;
+  }
+}
+.ae4-trail--ease {
+  animation: ae4-te var(--loop) ease infinite both;
+}
+@keyframes ae4-te {
+  0%,
+  50% {
+    opacity: 0;
+  }
+  52%,
+  94% {
+    opacity: 0.9;
+  }
+  97%,
+  100% {
+    opacity: 0;
+  }
+}
+/* Speed graph: flat (linear) gives way to the eased bell. */
+.ae4-lin {
+  animation: ae4-lin var(--loop) ease infinite both;
+}
+@keyframes ae4-lin {
+  0%,
+  33% {
+    opacity: 0.9;
+  }
+  40%,
+  100% {
+    opacity: 0.22;
+  }
+}
+.ae4-ease {
+  animation: ae4-ease var(--loop) cubic-bezier(0.65, 0, 0.35, 1) infinite both;
+}
+@keyframes ae4-ease {
+  0%,
+  33% {
+    stroke-dashoffset: 1;
+    opacity: 1;
+  }
+  44%,
+  96% {
+    stroke-dashoffset: 0;
+    opacity: 1;
+  }
+  98%,
+  100% {
+    stroke-dashoffset: 0;
+    opacity: 0;
+  }
+}
+.ae4-handle {
+  animation: ae4-handle var(--loop) cubic-bezier(0.16, 1, 0.3, 1) infinite both;
+}
+@keyframes ae4-handle {
+  0%,
+  33% {
+    transform: scaleX(0);
+  }
+  41%,
+  96% {
+    transform: none;
+  }
+  98%,
+  100% {
+    transform: scaleX(0);
+  }
+}
+/* Playhead: time runs evenly; the dot rides the speed curve. */
+.ae4-ph {
+  animation: ae4-ph var(--loop) infinite both;
+}
+@keyframes ae4-ph {
+  0%,
+  14% {
+    transform: none;
+    animation-timing-function: linear;
+  }
+  28%,
+  29.6% {
+    transform: translateX(268px);
+  }
+  30% {
+    transform: none;
+  }
+  51% {
+    transform: none;
+    animation-timing-function: linear;
+  }
+  73%,
+  100% {
+    transform: translateX(268px);
+  }
+}
+.ae4-ph-dot {
+  animation: ae4-dot var(--loop) linear infinite both;
+}
+/* Sampled from the bell curve at each playhead time. */
+@keyframes ae4-dot {
+  0%,
+  13.9% {
+    transform: none;
+  }
+  14%,
+  28% {
+    transform: translateY(-44px);
+  }
+  28.4% {
+    transform: none;
+  }
+  51% {
+    transform: none;
+  }
+  53% {
+    transform: translateY(-1.6px);
+  }
+  55% {
+    transform: translateY(-7.3px);
+  }
+  57% {
+    transform: translateY(-19.7px);
+  }
+  58% {
+    transform: translateY(-29.2px);
+  }
+  59% {
+    transform: translateY(-40px);
+  }
+  60% {
+    transform: translateY(-49.1px);
+  }
+  61% {
+    transform: translateY(-54.4px);
+  }
+  62% {
+    transform: translateY(-56px);
+  }
+  63% {
+    transform: translateY(-54.4px);
+  }
+  64% {
+    transform: translateY(-49.1px);
+  }
+  65% {
+    transform: translateY(-40px);
+  }
+  66% {
+    transform: translateY(-29.2px);
+  }
+  67% {
+    transform: translateY(-19.7px);
+  }
+  69% {
+    transform: translateY(-7.3px);
+  }
+  71% {
+    transform: translateY(-1.6px);
+  }
+  73%,
+  100% {
+    transform: none;
+  }
+}
+.ae4-kf--lin {
+  animation: ae4-kfl var(--loop) step-end infinite both;
+}
+.ae4-kf--ease {
+  animation: ae4-kfe var(--loop) step-end infinite both;
+}
+@keyframes ae4-kfl {
+  0% {
+    opacity: 1;
+  }
+  33%,
+  100% {
+    opacity: 0;
+  }
+}
+@keyframes ae4-kfe {
+  0% {
+    opacity: 0;
+  }
+  33%,
+  100% {
+    opacity: 1;
+  }
+}
+.ae4-btn {
+  animation: ae4-btn var(--loop) ease-out infinite both;
+}
+@keyframes ae4-btn {
+  0%,
+  30% {
+    transform: none;
+  }
+  31% {
+    transform: scale(0.94);
+  }
+  33.5%,
+  100% {
+    transform: none;
+  }
+}
+.ae4-btn-hi {
+  animation: ae4-btnhi var(--loop) ease infinite both;
+}
+@keyframes ae4-btnhi {
+  0%,
+  30% {
+    opacity: 0;
+  }
+  31%,
+  46% {
+    opacity: 0.35;
+  }
+  52%,
+  100% {
+    opacity: 0;
+  }
+}
+.ae4-inf {
+  animation: ae4-inf var(--loop) ease infinite both;
+}
+@keyframes ae4-inf {
+  0%,
+  34% {
+    opacity: 0;
+  }
+  39%,
+  96% {
+    opacity: 1;
+  }
+  98%,
+  100% {
+    opacity: 0;
+  }
+}
+
+/* ---------- Expressions ---------- */
+.ai .ae5-ln {
+  fill: rgb(255 255 255 / 0.25);
+}
+.ai .ae5-code,
+.ai .ae5-name {
+  fill: var(--mist);
+}
+.ai .ae5-fn {
+  fill: #ffd88a;
+}
+.ai .ae5-num {
+  fill: #4fd8e8;
+}
+.ai .ae5-comment {
+  font-size: 6.5px;
+  fill: var(--fog);
+}
+.ai .ae5-link {
+  font-size: 7px;
+  fill: #4fd8e8;
+}
+.ae5-cover {
+  transform: translateX(70px);
+}
+.ae5-caret {
+  fill: #4fd8e8;
+}
+.ae5-caret-on {
+  opacity: 0;
+}
+.ae5-spiral {
+  fill: none;
+  stroke: #4fd8e8;
+  stroke-width: 1.4;
+}
+.ae5-line {
+  fill: none;
+  stroke: #4fd8e8;
+  stroke-width: 1;
+  stroke-linecap: round;
+  stroke-dasharray: 1;
+  opacity: 0.85;
+}
+.ae5-trace {
+  opacity: 0.3;
+}
+.ae5-trace__line {
+  fill: none;
+  stroke: #4fd8e8;
+  stroke-width: 1;
+  stroke-linecap: round;
+  stroke-dasharray: 0.5 3;
+}
+
+/* Typing: a cover slides off the code one character at a time. */
+.ae5-cover {
+  animation: ae5-type var(--loop) infinite both;
+}
+@keyframes ae5-type {
+  0%,
+  15% {
+    transform: none;
+    animation-timing-function: steps(13, end);
+  }
+  27% {
+    transform: translateX(62.4px);
+  }
+  28%,
+  96% {
+    transform: translateX(70px);
+  }
+  98%,
+  100% {
+    transform: none;
+  }
+}
+.ae5-caret-on {
+  animation: ae5-caret var(--loop) step-end infinite both;
+}
+@keyframes ae5-caret {
+  0% {
+    opacity: 0;
+  }
+  14.5% {
+    opacity: 1;
+  }
+  49%,
+  100% {
+    opacity: 0;
+  }
+}
+.ae5-caret {
+  animation: ae5-blink 0.8s step-end infinite;
+}
+@keyframes ae5-blink {
+  50% {
+    opacity: 0;
+  }
+}
+.ai .ae5-comment,
+.ae5-fx {
+  animation: ae5-in var(--loop) ease infinite both;
+}
+@keyframes ae5-in {
+  0%,
+  30% {
+    opacity: 0;
+  }
+  34%,
+  96% {
+    opacity: 1;
+  }
+  98%,
+  100% {
+    opacity: 0;
+  }
+}
+/* wiggle(2, 30): two random moves a second, about 30 px each. */
+.ae5-logo {
+  animation: ae5-wig var(--loop) cubic-bezier(0.45, 0, 0.55, 1) infinite both;
+}
+@keyframes ae5-wig {
+  0%,
+  30% {
+    transform: none;
+  }
+  34% {
+    transform: translate(-18px, 10px);
+  }
+  38% {
+    transform: translate(14px, -16px);
+  }
+  42% {
+    transform: translate(22px, 8px);
+  }
+  46% {
+    transform: translate(-8px, 20px);
+  }
+  50% {
+    transform: translate(-22px, -6px);
+  }
+  54% {
+    transform: translate(6px, -20px);
+  }
+  58% {
+    transform: translate(18px, 14px);
+  }
+  62% {
+    transform: translate(-12px, 6px);
+  }
+  66% {
+    transform: translate(12px, -12px);
+  }
+  70% {
+    transform: translate(-18px, -14px);
+  }
+  74% {
+    transform: translate(16px, 4px);
+  }
+  78% {
+    transform: translate(-4px, 18px);
+  }
+  82% {
+    transform: translate(14px, -8px);
+  }
+  86% {
+    transform: translate(-10px, -4px);
+  }
+  90% {
+    transform: translate(4px, 10px);
+  }
+  94%,
+  100% {
+    transform: none;
+  }
+}
+/* Pick-whipped layers take the same motion, a beat behind. */
+.ae5-follow {
+  animation: ae5-follow var(--loop) cubic-bezier(0.45, 0, 0.55, 1) infinite both;
+}
+.ae5-follow--ring {
+  animation-delay: 0.12s;
+}
+.ae5-follow--dot {
+  animation-delay: 0.24s;
+}
+@keyframes ae5-follow {
+  0%,
+  56% {
+    transform: none;
+  }
+  62% {
+    transform: translate(-12px, 6px);
+  }
+  66% {
+    transform: translate(12px, -12px);
+  }
+  70% {
+    transform: translate(-18px, -14px);
+  }
+  74% {
+    transform: translate(16px, 4px);
+  }
+  78% {
+    transform: translate(-4px, 18px);
+  }
+  82% {
+    transform: translate(14px, -8px);
+  }
+  86% {
+    transform: translate(-10px, -4px);
+  }
+  90% {
+    transform: translate(4px, 10px);
+  }
+  94%,
+  100% {
+    transform: none;
+  }
+}
+.ae5-trace {
+  animation: ae5-trace-o var(--loop) ease infinite both;
+}
+@keyframes ae5-trace-o {
+  0%,
+  29% {
+    opacity: 0;
+  }
+  31%,
+  56% {
+    opacity: 0.9;
+  }
+  64%,
+  94% {
+    opacity: 0.3;
+  }
+  97%,
+  100% {
+    opacity: 0;
+  }
+}
+.ae5-whip {
+  animation: ae5-whip var(--loop) ease infinite both;
+}
+@keyframes ae5-whip {
+  0%,
+  50% {
+    opacity: 0;
+  }
+  53%,
+  95% {
+    opacity: 1;
+  }
+  97.5%,
+  100% {
+    opacity: 0;
+  }
+}
+.ae5-line {
+  animation: ae5-line var(--loop) ease-in-out infinite both;
+}
+@keyframes ae5-line {
+  0%,
+  51% {
+    stroke-dashoffset: 1;
+    opacity: 0.85;
+  }
+  57%,
+  94% {
+    stroke-dashoffset: 0;
+    opacity: 0.85;
+  }
+  97%,
+  100% {
+    stroke-dashoffset: 0;
+    opacity: 0;
+  }
+}
+/* After the shorthands above, so the delay sticks. */
+.ae5-whip--2,
+.ae5-line--2 {
+  animation-delay: 0.3s;
+}

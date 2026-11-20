@@ -7,14 +7,14 @@
  * screen, with the finished result as a still frame under reduced motion.
  */
 
-const G = {
+export const G = {
   cool: ["#a8ecd8", "#4fd8e8"],
   grade: ["#4fd8e8", "#7fe3c4", "#f6d77a", "#ffb547", "#ff7a59"],
   warm: ["#ffc861", "#ff8f4f", "#ff6150"],
   night: ["#4fd8e8", "#6fb6ff", "#a08cff"],
 };
 
-function Lin({ id, stops, x2 = 1, y2 = 0, opacity }) {
+export function Lin({ id, stops, x2 = 1, y2 = 0, opacity }) {
   return (
     <linearGradient id={id} x1="0" y1="0" x2={x2} y2={y2}>
       {stops.map((c, i) => (
@@ -30,7 +30,7 @@ function Lin({ id, stops, x2 = 1, y2 = 0, opacity }) {
 }
 
 // The shot every demo is played in, and the status bar under it.
-const SHOT = { x: 16, y: 16, w: 324, h: 182 };
+export const SHOT = { x: 16, y: 16, w: 324, h: 182 };
 
 function ShotFrame({ id }) {
   return (

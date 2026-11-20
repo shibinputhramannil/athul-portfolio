@@ -1,0 +1,1086 @@
+/* =====================================================================
+   DaVinci Resolve scenes 2–5 (scenes/resolve.jsx). The shared 10 s loop:
+     0–12% start (under the title card) · A 13.8–29.6% · B 29.6–49%
+     C 49–94.7% result (badge at 80%) · reset under the wipe.
+   Base styles are each finished result (the reduced-motion still).
+   ===================================================================== */
+
+/* ---------- Shared inspector parts ---------- */
+.dvs-track {
+  fill: rgb(255 255 255 / 0.1);
+}
+.dvs-fill {
+  transform-origin: 360px 0;
+  transform: scaleX(var(--v));
+}
+.dvs-pill {
+  fill: rgb(255 255 255 / 0.04);
+  stroke: rgb(255 255 255 / 0.14);
+  stroke-width: 0.8;
+}
+.dvs-lit {
+  fill: rgb(79 216 232 / 0.12);
+  stroke: #4fd8e8;
+  stroke-width: 1.2;
+}
+
+/* ---------- Speed Warp ---------- */
+.dv2-ghost {
+  fill: rgb(255 200 140 / 0.14);
+  stroke: rgb(255 255 255 / 0.5);
+  stroke-width: 1;
+  stroke-dasharray: 2.5 2;
+}
+.dv2-new {
+  fill: rgb(79 216 232 / 0.16);
+  stroke: rgb(79 216 232 / 0.6);
+  stroke-width: 0.9;
+}
+.dv2-path {
+  fill: none;
+  stroke: url(#dv2-path);
+  stroke-width: 1.4;
+  stroke-dasharray: 1;
+  opacity: 0.55;
+}
+.dv2-arrow {
+  fill: none;
+  stroke: rgb(168 236 216 / 0.55);
+  stroke-width: 1.1;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.dv2-arrow--hot {
+  stroke: #4fd8e8;
+  stroke-width: 1.4;
+}
+.dv2-still {
+  fill: rgb(255 255 255 / 0.28);
+}
+.dv2-flow {
+  opacity: 0;
+}
+.dv2-bx {
+  transform: translateX(178px);
+}
+.dv2-by {
+  transform: translateY(60px);
+}
+.dv2-t--a,
+.dv2-v--a,
+.dv2-p--a {
+  opacity: 0;
+}
+.dv2-speed {
+  transform-origin: 360px 0;
+  transform: scaleX(0.25);
+}
+.dv2-lit {
+  fill: none;
+  stroke: #4fd8e8;
+  stroke-width: 1.4;
+}
+.ai .dv2-p {
+  font-size: 9px;
+  font-weight: 700;
+  fill: var(--fog);
+}
+.ai .dv2-p--b {
+  fill: #4fd8e8;
+}
+.ai .dv2-n {
+  font-family: var(--font-display);
+  font-size: 17px;
+  font-weight: 800;
+  fill: var(--mist);
+}
+.ai .dv2-n--b {
+  fill: #ffd88a;
+}
+.dv2-cell {
+  fill: rgb(230 236 233 / 0.7);
+}
+.dv2-cell--gen {
+  fill: #4fd8e8;
+}
+
+.dv2-spin {
+  animation: dv2-spin 1.4s linear infinite;
+}
+@keyframes dv2-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+/* A: the stutter (five jumps); C: one smooth, slow pass. */
+.dv2-bx {
+  animation: dv2-bx var(--loop) infinite both;
+}
+@keyframes dv2-bx {
+  0%,
+  14.2% {
+    transform: translateX(60px);
+    animation-timing-function: step-end;
+  }
+  18% {
+    transform: translateX(119px);
+    animation-timing-function: step-end;
+  }
+  21.8% {
+    transform: translateX(178px);
+    animation-timing-function: step-end;
+  }
+  25.6% {
+    transform: translateX(237px);
+    animation-timing-function: step-end;
+  }
+  29.4% {
+    transform: translateX(296px);
+    animation-timing-function: step-end;
+  }
+  47% {
+    transform: translateX(60px);
+    animation-timing-function: step-end;
+  }
+  52% {
+    transform: translateX(60px);
+    animation-timing-function: linear;
+  }
+  84%,
+  100% {
+    transform: translateX(296px);
+  }
+}
+.dv2-by {
+  animation: dv2-by var(--loop) infinite both;
+}
+@keyframes dv2-by {
+  0%,
+  14.2% {
+    transform: translateY(170px);
+    animation-timing-function: step-end;
+  }
+  18% {
+    transform: translateY(87.5px);
+    animation-timing-function: step-end;
+  }
+  21.8% {
+    transform: translateY(60px);
+    animation-timing-function: step-end;
+  }
+  25.6% {
+    transform: translateY(87.5px);
+    animation-timing-function: step-end;
+  }
+  29.4% {
+    transform: translateY(170px);
+    animation-timing-function: step-end;
+  }
+  52% {
+    transform: translateY(170px);
+    animation-timing-function: cubic-bezier(0.5, 1, 0.89, 1);
+  }
+  68% {
+    transform: translateY(60px);
+    animation-timing-function: cubic-bezier(0.11, 0, 0.5, 0);
+  }
+  84%,
+  100% {
+    transform: translateY(170px);
+  }
+}
+.dv2-ball {
+  animation: dv2-ball var(--loop) linear infinite both;
+}
+@keyframes dv2-ball {
+  0%,
+  30.5% {
+    opacity: 1;
+  }
+  32%,
+  50% {
+    opacity: 0;
+  }
+  52%,
+  100% {
+    opacity: 1;
+  }
+}
+.dv2-orig {
+  animation: dv2-orig var(--loop) linear infinite both;
+}
+@keyframes dv2-orig {
+  0%,
+  14% {
+    opacity: 0;
+  }
+  16%,
+  94% {
+    opacity: 1;
+  }
+  97%,
+  100% {
+    opacity: 0;
+  }
+}
+.dv2-flow {
+  animation: dv2-flow var(--loop) linear infinite both;
+}
+@keyframes dv2-flow {
+  0%,
+  30% {
+    opacity: 0;
+  }
+  33.5%,
+  46% {
+    opacity: 1;
+  }
+  50%,
+  100% {
+    opacity: 0;
+  }
+}
+.dv2-path {
+  animation: dv2-path var(--loop) ease-in-out infinite both;
+}
+@keyframes dv2-path {
+  0%,
+  31% {
+    stroke-dashoffset: 1;
+    opacity: 0.55;
+  }
+  42%,
+  94% {
+    stroke-dashoffset: 0;
+    opacity: 0.55;
+  }
+  97%,
+  100% {
+    stroke-dashoffset: 0;
+    opacity: 0;
+  }
+}
+.dv2-gen,
+.dv2-n--b {
+  animation: dv2-gen var(--loop) ease-out infinite both;
+}
+@keyframes dv2-gen {
+  0%,
+  49.5% {
+    opacity: 0;
+  }
+  54%,
+  94% {
+    opacity: 1;
+  }
+  97%,
+  100% {
+    opacity: 0;
+  }
+}
+.dv2-cell--gen {
+  animation: dv2-cells var(--loop) ease-out infinite both;
+}
+@keyframes dv2-cells {
+  0%,
+  49.5% {
+    opacity: 0.08;
+  }
+  54%,
+  94% {
+    opacity: 1;
+  }
+  97%,
+  100% {
+    opacity: 0.08;
+  }
+}
+.dv2-t--a,
+.dv2-v--a {
+  animation: dv2-out var(--loop) linear infinite both;
+}
+.dv2-t--b {
+  animation: dv2-in var(--loop) linear infinite both;
+}
+@keyframes dv2-out {
+  0%,
+  49% {
+    opacity: 1;
+  }
+  51%,
+  100% {
+    opacity: 0;
+  }
+}
+@keyframes dv2-in {
+  0%,
+  49% {
+    opacity: 0;
+  }
+  51%,
+  100% {
+    opacity: 1;
+  }
+}
+/* The speed drops to 25% as the shot starts. */
+.dv2-v--a {
+  animation-name: dv2-v-a;
+}
+.dv2-v--b {
+  animation: dv2-v-b var(--loop) linear infinite both;
+}
+@keyframes dv2-v-a {
+  0%,
+  15% {
+    opacity: 1;
+  }
+  16.5%,
+  100% {
+    opacity: 0;
+  }
+}
+@keyframes dv2-v-b {
+  0%,
+  15% {
+    opacity: 0;
+  }
+  16.5%,
+  100% {
+    opacity: 1;
+  }
+}
+.dv2-speed {
+  animation: dv2-speed var(--loop) cubic-bezier(0.65, 0, 0.35, 1) infinite both;
+}
+@keyframes dv2-speed {
+  0%,
+  13.8% {
+    transform: none;
+  }
+  17%,
+  96% {
+    transform: scaleX(0.25);
+  }
+  99%,
+  100% {
+    transform: none;
+  }
+}
+.dv2-lit,
+.dv2-p--b {
+  animation: dv2-proc var(--loop) linear infinite both;
+}
+.dv2-p--a {
+  animation: dv2-proc-a var(--loop) linear infinite both;
+}
+@keyframes dv2-proc {
+  0%,
+  30% {
+    opacity: 0;
+  }
+  32%,
+  100% {
+    opacity: 1;
+  }
+}
+@keyframes dv2-proc-a {
+  0%,
+  30% {
+    opacity: 1;
+  }
+  32%,
+  100% {
+    opacity: 0;
+  }
+}
+
+/* ---------- Depth Map ---------- */
+.dv3-depth,
+.dv3-la,
+.dv3-lb {
+  opacity: 0;
+}
+.dv3-beam {
+  opacity: 0;
+}
+.dv3-lead {
+  fill: none;
+  stroke: rgb(79 216 232 / 0.75);
+  stroke-width: 0.8;
+}
+.dv3-bracket {
+  fill: none;
+  stroke: #ffd88a;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+}
+.dv3-sel {
+  fill: rgb(255 181 71 / 0.12);
+  stroke: #ffb547;
+  stroke-width: 1.2;
+}
+.dv3-fv--a {
+  opacity: 0;
+}
+.ai .dv3-fv--b {
+  fill: #ffd88a;
+}
+
+/* The wipe: the window slides in while its contents counter-slide, so the
+   map stays put and only its edge travels (transforms only). */
+.dv3-win {
+  animation: dv3-wipe var(--loop) cubic-bezier(0.45, 0, 0.55, 1) infinite both;
+}
+.dv3-hold {
+  animation: dv3-hold var(--loop) cubic-bezier(0.45, 0, 0.55, 1) infinite both;
+}
+@keyframes dv3-hold {
+  0%,
+  30% {
+    transform: translateX(324px);
+  }
+  44%,
+  97% {
+    transform: none;
+  }
+  99%,
+  100% {
+    transform: translateX(324px);
+  }
+}
+.dv3-beam {
+  animation: dv3-beam var(--loop) cubic-bezier(0.45, 0, 0.55, 1) infinite both;
+}
+@keyframes dv3-wipe {
+  0%,
+  30% {
+    transform: translateX(-324px);
+  }
+  44%,
+  97% {
+    transform: none;
+  }
+  99%,
+  100% {
+    transform: translateX(-324px);
+  }
+}
+@keyframes dv3-beam {
+  0%,
+  30% {
+    transform: translateX(-324px);
+    opacity: 0;
+  }
+  31% {
+    opacity: 1;
+  }
+  43% {
+    opacity: 1;
+  }
+  44%,
+  100% {
+    transform: none;
+    opacity: 0;
+  }
+}
+.dv3-depth {
+  animation: dv3-depth var(--loop) ease-in-out infinite both;
+}
+@keyframes dv3-depth {
+  0%,
+  51% {
+    opacity: 1;
+  }
+  57%,
+  100% {
+    opacity: 0;
+  }
+}
+.dv3-la {
+  animation: dv3-la var(--loop) ease-out infinite both;
+}
+@keyframes dv3-la {
+  0%,
+  14.5% {
+    opacity: 0;
+    transform: translateY(3px);
+  }
+  17%,
+  28.5% {
+    opacity: 1;
+    transform: none;
+  }
+  30.5%,
+  100% {
+    opacity: 0;
+    transform: none;
+  }
+}
+.dv3-lb {
+  animation: dv3-lb var(--loop) ease-out infinite both;
+}
+@keyframes dv3-lb {
+  0%,
+  38% {
+    opacity: 0;
+    transform: translateY(3px);
+  }
+  40.5%,
+  49% {
+    opacity: 1;
+    transform: none;
+  }
+  52%,
+  100% {
+    opacity: 0;
+    transform: none;
+  }
+}
+.dv3-soft {
+  animation: dv3-soft var(--loop) ease-in-out infinite both;
+}
+@keyframes dv3-soft {
+  0%,
+  54% {
+    opacity: 0;
+  }
+  63%,
+  94% {
+    opacity: 1;
+  }
+  97%,
+  100% {
+    opacity: 0;
+  }
+}
+.dv3-focus,
+.dv3-fv--b {
+  animation: dv3-focus var(--loop) ease-out infinite both;
+}
+.dv3-fv--a {
+  animation: dv3-focus-a var(--loop) ease-out infinite both;
+}
+@keyframes dv3-focus {
+  0%,
+  64% {
+    opacity: 0;
+  }
+  68%,
+  94% {
+    opacity: 1;
+  }
+  97%,
+  100% {
+    opacity: 0;
+  }
+}
+@keyframes dv3-focus-a {
+  0%,
+  64% {
+    opacity: 1;
+  }
+  68%,
+  94% {
+    opacity: 0;
+  }
+  97%,
+  100% {
+    opacity: 1;
+  }
+}
+.dv3-an {
+  animation: dv3-an var(--loop) linear infinite both;
+}
+@keyframes dv3-an {
+  0%,
+  30% {
+    transform: scaleX(0);
+  }
+  44%,
+  97% {
+    transform: scaleX(var(--v));
+  }
+  99%,
+  100% {
+    transform: scaleX(0);
+  }
+}
+.dv3-blur {
+  animation: dv3-blur var(--loop) cubic-bezier(0.65, 0, 0.35, 1) infinite both;
+}
+@keyframes dv3-blur {
+  0%,
+  55% {
+    transform: scaleX(0);
+  }
+  64%,
+  96% {
+    transform: scaleX(var(--v));
+  }
+  99%,
+  100% {
+    transform: scaleX(0);
+  }
+}
+.dv3-sel {
+  transform-origin: 434px 51px;
+  animation: dv3-sel var(--loop) cubic-bezier(0.34, 1.56, 0.64, 1) infinite both;
+}
+@keyframes dv3-sel {
+  0%,
+  54% {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+  58%,
+  94% {
+    opacity: 1;
+    transform: none;
+  }
+  97%,
+  100% {
+    opacity: 0;
+    transform: none;
+  }
+}
+.dv3-dot {
+  animation: dv3-dot 1.2s ease-in-out infinite alternate;
+}
+@keyframes dv3-dot {
+  to {
+    opacity: 0.35;
+  }
+}
+
+/* ---------- Face Refinement ---------- */
+.dv4-blem {
+  fill: #b9705a;
+  opacity: 0;
+}
+.dv4-glow {
+  opacity: 0.6;
+}
+.dv4-box,
+.dv4-dots,
+.dv4-count {
+  opacity: 0;
+}
+.dv4-bracket {
+  fill: none;
+  stroke: #4fd8e8;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+}
+.dv4-mesh {
+  fill: none;
+  stroke: rgb(79 216 232 / 0.6);
+  stroke-width: 0.7;
+  stroke-dasharray: 1;
+  opacity: 0;
+}
+.dv4-dots {
+  fill: #e6fbff;
+}
+.dv4-spark {
+  fill: #fff;
+}
+.dv4-st--a {
+  opacity: 0;
+}
+.dv4-c1 {
+  opacity: 0;
+}
+
+.dv4-head {
+  transform-origin: 178px 170px;
+  animation: dv4-head var(--loop) ease-in-out infinite both;
+}
+@keyframes dv4-head {
+  0%,
+  13% {
+    transform: none;
+  }
+  18% {
+    transform: translate(-4px, 1px) rotate(-2.2deg);
+  }
+  25% {
+    transform: translate(3px, -1px) rotate(1.6deg);
+  }
+  33% {
+    transform: translate(-2px, 0) rotate(-1deg);
+  }
+  42%,
+  56% {
+    transform: none;
+  }
+  72% {
+    transform: translate(2px, -1px) rotate(1.2deg);
+  }
+  88%,
+  100% {
+    transform: none;
+  }
+}
+.dv4-box {
+  transform-origin: 178px 100px;
+  animation: dv4-box var(--loop) cubic-bezier(0.16, 1, 0.3, 1) infinite both;
+}
+@keyframes dv4-box {
+  0%,
+  14% {
+    opacity: 0;
+    transform: scale(1.18);
+  }
+  18%,
+  48% {
+    opacity: 1;
+    transform: none;
+  }
+  52%,
+  100% {
+    opacity: 0;
+    transform: none;
+  }
+}
+.dv4-mesh {
+  animation: dv4-mesh var(--loop) ease-in-out infinite both;
+}
+@keyframes dv4-mesh {
+  0%,
+  30% {
+    stroke-dashoffset: 1;
+    opacity: 1;
+  }
+  42%,
+  48% {
+    stroke-dashoffset: 0;
+    opacity: 1;
+  }
+  52%,
+  100% {
+    stroke-dashoffset: 0;
+    opacity: 0;
+  }
+}
+.dv4-dots,
+.dv4-count {
+  animation: dv4-dots var(--loop) ease-out infinite both;
+}
+@keyframes dv4-dots {
+  0%,
+  31% {
+    opacity: 0;
+  }
+  34%,
+  48% {
+    opacity: 1;
+  }
+  52%,
+  100% {
+    opacity: 0;
+  }
+}
+.dv4-blem {
+  animation: dv4-blem var(--loop) ease-in-out infinite both;
+}
+@keyframes dv4-blem {
+  0%,
+  52% {
+    opacity: 1;
+  }
+  59%,
+  94% {
+    opacity: 0;
+  }
+  97%,
+  100% {
+    opacity: 1;
+  }
+}
+.dv4-glow {
+  animation: dv4-glow var(--loop) ease-in-out infinite both;
+}
+@keyframes dv4-glow {
+  0%,
+  53% {
+    opacity: 0;
+  }
+  61%,
+  94% {
+    opacity: 0.6;
+  }
+  97%,
+  100% {
+    opacity: 0;
+  }
+}
+.dv4-spark {
+  animation: dv4-spark var(--loop) cubic-bezier(0.34, 1.56, 0.64, 1) infinite
+    both;
+}
+.dv4-spark--r {
+  animation-delay: 0.12s;
+}
+@keyframes dv4-spark {
+  0%,
+  61% {
+    opacity: 0;
+    transform: scale(0) rotate(-45deg);
+  }
+  65%,
+  94% {
+    opacity: 1;
+    transform: none;
+  }
+  97%,
+  100% {
+    opacity: 0;
+    transform: none;
+  }
+}
+.dv4-lips {
+  animation: dv4-lips var(--loop) ease-in-out infinite both;
+}
+@keyframes dv4-lips {
+  0%,
+  65% {
+    opacity: 0;
+  }
+  72%,
+  94% {
+    opacity: 1;
+  }
+  97%,
+  100% {
+    opacity: 0;
+  }
+}
+.dv4-s1 {
+  animation: dv4-s1 var(--loop) cubic-bezier(0.65, 0, 0.35, 1) infinite both;
+}
+.dv4-s2 {
+  animation: dv4-s2 var(--loop) cubic-bezier(0.65, 0, 0.35, 1) infinite both;
+}
+.dv4-s3 {
+  animation: dv4-s3 var(--loop) cubic-bezier(0.65, 0, 0.35, 1) infinite both;
+}
+@keyframes dv4-s1 {
+  0%,
+  53% {
+    transform: scaleX(0);
+  }
+  61%,
+  96% {
+    transform: scaleX(var(--v));
+  }
+  99%,
+  100% {
+    transform: scaleX(0);
+  }
+}
+@keyframes dv4-s2 {
+  0%,
+  59% {
+    transform: scaleX(0);
+  }
+  66%,
+  96% {
+    transform: scaleX(var(--v));
+  }
+  99%,
+  100% {
+    transform: scaleX(0);
+  }
+}
+@keyframes dv4-s3 {
+  0%,
+  65% {
+    transform: scaleX(0);
+  }
+  72%,
+  96% {
+    transform: scaleX(var(--v));
+  }
+  99%,
+  100% {
+    transform: scaleX(0);
+  }
+}
+.dv4-st--a,
+.dv4-c1 {
+  animation: dv4-early var(--loop) linear infinite both;
+}
+.dv4-st--b {
+  animation: dv4-late var(--loop) linear infinite both;
+}
+.dv4-c2 {
+  animation: dv4-after var(--loop) linear infinite both;
+}
+@keyframes dv4-early {
+  0%,
+  29.6% {
+    opacity: 1;
+  }
+  31%,
+  100% {
+    opacity: 0;
+  }
+}
+@keyframes dv4-late {
+  0%,
+  29.6% {
+    opacity: 0;
+  }
+  31%,
+  100% {
+    opacity: 1;
+  }
+}
+@keyframes dv4-after {
+  0%,
+  53% {
+    opacity: 0;
+  }
+  55%,
+  100% {
+    opacity: 1;
+  }
+}
+.dv4-c1 {
+  animation-name: dv4-before;
+}
+@keyframes dv4-before {
+  0%,
+  53% {
+    opacity: 1;
+  }
+  55%,
+  100% {
+    opacity: 0;
+  }
+}
+.dv4-live {
+  animation: dv3-dot 1.2s ease-in-out infinite alternate;
+}
+
+/* ---------- Super Scale ---------- */
+.dv5-scan,
+.dv5-t--a,
+.dv5-r--a {
+  opacity: 0;
+}
+.dv5-crop {
+  fill: none;
+  stroke: rgb(255 255 255 / 0.18);
+  stroke-width: 0.8;
+}
+.dv5-crop--b {
+  stroke: #4fd8e8;
+  stroke-width: 1.2;
+}
+.ai .dv5-r--b {
+  fill: #ffd88a;
+}
+
+.dv5-win {
+  animation: dv5-wipe var(--loop) cubic-bezier(0.45, 0, 0.55, 1) infinite both;
+}
+.dv5-hold {
+  animation: dv5-hold var(--loop) cubic-bezier(0.45, 0, 0.55, 1) infinite both;
+}
+@keyframes dv5-hold {
+  0%,
+  30% {
+    transform: translateX(324px);
+  }
+  46%,
+  97% {
+    transform: none;
+  }
+  99%,
+  100% {
+    transform: translateX(324px);
+  }
+}
+.dv5-scan {
+  animation: dv5-scan var(--loop) cubic-bezier(0.45, 0, 0.55, 1) infinite both;
+}
+@keyframes dv5-wipe {
+  0%,
+  30% {
+    transform: translateX(-324px);
+  }
+  46%,
+  97% {
+    transform: none;
+  }
+  99%,
+  100% {
+    transform: translateX(-324px);
+  }
+}
+@keyframes dv5-scan {
+  0%,
+  30% {
+    transform: translateX(-324px);
+    opacity: 0;
+  }
+  31%,
+  45% {
+    opacity: 1;
+  }
+  46%,
+  100% {
+    transform: none;
+    opacity: 0;
+  }
+}
+.dv5-t--a,
+.dv5-r--a {
+  animation: dv2-out var(--loop) linear infinite both;
+}
+.dv5-t--b,
+.dv5-r--b {
+  animation: dv2-in var(--loop) linear infinite both;
+}
+.dv5-chip {
+  animation: dv2-proc var(--loop) linear infinite both;
+}
+.dv5-s1 {
+  animation: dv5-s1 var(--loop) cubic-bezier(0.65, 0, 0.35, 1) infinite both;
+}
+.dv5-s2 {
+  animation: dv5-s2 var(--loop) cubic-bezier(0.65, 0, 0.35, 1) infinite both;
+}
+@keyframes dv5-s1 {
+  0%,
+  31% {
+    transform: scaleX(0);
+  }
+  39%,
+  96% {
+    transform: scaleX(var(--v));
+  }
+  99%,
+  100% {
+    transform: scaleX(0);
+  }
+}
+@keyframes dv5-s2 {
+  0%,
+  34% {
+    transform: scaleX(0);
+  }
+  42%,
+  96% {
+    transform: scaleX(var(--v));
+  }
+  99%,
+  100% {
+    transform: scaleX(0);
+  }
+}
+.dv5-after,
+.dv5-crop--b {
+  animation: dv2-gen var(--loop) ease-out infinite both;
+}
