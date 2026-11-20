@@ -42,52 +42,10 @@ function ShotFrame({ id }) {
   );
 }
 
-function Status({ p, labels }) {
-  return (
-    <g className="ai-status">
-      <rect
-        className="ai-chip"
-        x="16"
-        y="212"
-        width="22"
-        height="13"
-        rx="6.5"
-        fill={`url(#${p}-progress)`}
-      />
-      <text className="ai-chip__t" x="21.5" y="221.5">
-        AI
-      </text>
-      {labels.map((l, i) => (
-        <text key={l} className={`ai-label ai-label--${i + 1}`} x="46" y="222">
-          {l}
-        </text>
-      ))}
-      <rect
-        className="ai-track"
-        x="16"
-        y="234"
-        width="324"
-        height="3"
-        rx="1.5"
-      />
-      <rect
-        className="ai-progress"
-        x="16"
-        y="234"
-        width="324"
-        height="3"
-        rx="1.5"
-        fill={`url(#${p}-progress)`}
-      />
-    </g>
-  );
-}
-
 // Gradients every demo uses, with ids unique to each demo.
 function SharedDefs({ p }) {
   return (
     <defs>
-      <Lin id={`${p}-progress`} stops={G.grade} />
       <Lin
         id={`${p}-beam`}
         stops={["#4fd8e8", "#4fd8e8", "#4fd8e8"]}
@@ -212,58 +170,60 @@ export function ReframeDemo() {
       </defs>
 
       <g clipPath="url(#pr-shot)">
-        <ReframeScene />
-        <rect
-          className="pr-scan"
-          x="16"
-          y="16"
-          width="44"
-          height="182"
-          fill="url(#pr-beam)"
-        />
-
-        {/* Detection: brackets and a confidence tag that follow the skater. */}
-        <g className="pr-detect">
-          <path
-            className="pr-detect__box"
-            d="M63 108V97H74M106 97H117V108M117 166V177H106M74 177H63V166"
-          />
-          <rect x="63" y="85" width="54" height="10" rx="2" fill="#4fd8e8" />
-          <text className="ai-on" x="66.5" y="92.6">
-            Person 98%
-          </text>
-        </g>
-
-        {/* The 9:16 window: everything outside it dims. */}
-        <g className="pr-crop">
-          <rect x="-561" y="0" width="600" height="220" className="pr-dim" />
-          <rect x="141" y="0" width="600" height="220" className="pr-dim" />
+        <g className="cam cam--pr">
+          <ReframeScene />
           <rect
-            x="39"
-            y="17.5"
-            width="102"
-            height="179"
-            rx="3"
-            fill="none"
-            stroke="url(#pr-crop)"
-            strokeWidth="2.2"
+            className="pr-scan"
+            x="16"
+            y="16"
+            width="44"
+            height="182"
+            fill="url(#pr-beam)"
           />
-          <path
-            d="M73 18V196M107 18V196M40 77H140M40 137H140"
-            className="pr-thirds"
-          />
-          <rect
-            x="44"
-            y="22"
-            width="22"
-            height="10"
-            rx="2"
-            fill="#08110f"
-            opacity="0.8"
-          />
-          <text x="47" y="29.5" className="ai-tag">
-            9:16
-          </text>
+
+          {/* Detection: brackets and a confidence tag that follow the skater. */}
+          <g className="pr-detect">
+            <path
+              className="pr-detect__box"
+              d="M63 108V97H74M106 97H117V108M117 166V177H106M74 177H63V166"
+            />
+            <rect x="63" y="85" width="54" height="10" rx="2" fill="#4fd8e8" />
+            <text className="ai-on" x="66.5" y="92.6">
+              Person 98%
+            </text>
+          </g>
+
+          {/* The 9:16 window: everything outside it dims. */}
+          <g className="pr-crop">
+            <rect x="-561" y="0" width="600" height="220" className="pr-dim" />
+            <rect x="141" y="0" width="600" height="220" className="pr-dim" />
+            <rect
+              x="39"
+              y="17.5"
+              width="102"
+              height="179"
+              rx="3"
+              fill="none"
+              stroke="url(#pr-crop)"
+              strokeWidth="2.2"
+            />
+            <path
+              d="M73 18V196M107 18V196M40 77H140M40 137H140"
+              className="pr-thirds"
+            />
+            <rect
+              x="44"
+              y="22"
+              width="22"
+              height="10"
+              rx="2"
+              fill="#08110f"
+              opacity="0.8"
+            />
+            <text x="47" y="29.5" className="ai-tag">
+              9:16
+            </text>
+          </g>
         </g>
       </g>
       <rect
@@ -299,15 +259,6 @@ export function ReframeDemo() {
       <text className="ai-cap" x="412" y="212" textAnchor="middle">
         Vertical cut
       </text>
-
-      <Status
-        p="pr"
-        labels={[
-          "Detecting the subject",
-          "Tracking the motion",
-          "Reframing to 9:16",
-        ]}
-      />
     </svg>
   );
 }
@@ -339,128 +290,130 @@ export function RotoDemo() {
       </defs>
 
       <g clipPath="url(#ae-shot)">
-        {/* Background plate */}
-        <rect x="16" y="16" width="324" height="182" fill="url(#ae-sky)" />
-        <circle cx="290" cy="48" r="13" fill="#ffd88a" />
-        <g fill="#fff" opacity="0.7">
-          <circle cx="60" cy="40" r="1.2" />
-          <circle cx="110" cy="28" r="1" />
-          <circle cx="150" cy="52" r="1.3" />
-          <circle cx="230" cy="34" r="1" />
-          <circle cx="320" cy="76" r="1.1" />
-        </g>
-        <g fill="#0b1626">
-          <rect x="16" y="120" width="34" height="78" />
-          <rect x="50" y="98" width="28" height="100" />
-          <rect x="250" y="106" width="30" height="92" />
-          <rect x="280" y="128" width="26" height="70" />
-          <rect x="306" y="92" width="34" height="106" />
-        </g>
-        <g fill="#ffc861" opacity="0.55">
-          <rect x="56" y="108" width="5" height="5" />
-          <rect x="66" y="122" width="5" height="5" />
-          <rect x="258" y="116" width="5" height="5" />
-          <rect x="268" y="134" width="5" height="5" />
-          <rect x="314" y="104" width="5" height="5" />
-          <rect x="326" y="120" width="5" height="5" />
-        </g>
-        <rect x="16" y="177" width="324" height="21" fill="#151c33" />
-        <rect
-          className="ae-dim"
-          x="16"
-          y="16"
-          width="324"
-          height="182"
-          fill="#060b14"
-        />
-
-        {/* The title sits between the plate and the rotoscoped dancer. */}
-        <text
-          className="ae-title"
-          x="178"
-          y="142"
-          textAnchor="middle"
-          fill="url(#ae-title)"
-        >
-          MOTION
-        </text>
-
-        <g className="ae-dancer">
-          <path
-            d="M170 150 L166 176 M186 150 L190 176"
-            stroke="#1d2a4a"
-            strokeWidth="7"
-            strokeLinecap="round"
+        <g className="cam cam--ae">
+          {/* Background plate */}
+          <rect x="16" y="16" width="324" height="182" fill="url(#ae-sky)" />
+          <circle cx="290" cy="48" r="13" fill="#ffd88a" />
+          <g fill="#fff" opacity="0.7">
+            <circle cx="60" cy="40" r="1.2" />
+            <circle cx="110" cy="28" r="1" />
+            <circle cx="150" cy="52" r="1.3" />
+            <circle cx="230" cy="34" r="1" />
+            <circle cx="320" cy="76" r="1.1" />
+          </g>
+          <g fill="#0b1626">
+            <rect x="16" y="120" width="34" height="78" />
+            <rect x="50" y="98" width="28" height="100" />
+            <rect x="250" y="106" width="30" height="92" />
+            <rect x="280" y="128" width="26" height="70" />
+            <rect x="306" y="92" width="34" height="106" />
+          </g>
+          <g fill="#ffc861" opacity="0.55">
+            <rect x="56" y="108" width="5" height="5" />
+            <rect x="66" y="122" width="5" height="5" />
+            <rect x="258" y="116" width="5" height="5" />
+            <rect x="268" y="134" width="5" height="5" />
+            <rect x="314" y="104" width="5" height="5" />
+            <rect x="326" y="120" width="5" height="5" />
+          </g>
+          <rect x="16" y="177" width="324" height="21" fill="#151c33" />
+          <rect
+            className="ae-dim"
+            x="16"
+            y="16"
+            width="324"
+            height="182"
+            fill="#060b14"
           />
-          <g className="ae-arm ae-arm--l">
+
+          {/* The title sits between the plate and the rotoscoped dancer. */}
+          <text
+            className="ae-title"
+            x="178"
+            y="142"
+            textAnchor="middle"
+            fill="url(#ae-title)"
+          >
+            MOTION
+          </text>
+
+          <g className="ae-dancer">
             <path
-              d="M167 119 L150 103"
-              stroke="#f2c19a"
-              strokeWidth="5.5"
+              d="M170 150 L166 176 M186 150 L190 176"
+              stroke="#1d2a4a"
+              strokeWidth="7"
               strokeLinecap="round"
             />
-          </g>
-          <g className="ae-arm ae-arm--r">
+            <g className="ae-arm ae-arm--l">
+              <path
+                d="M167 119 L150 103"
+                stroke="#f2c19a"
+                strokeWidth="5.5"
+                strokeLinecap="round"
+              />
+            </g>
+            <g className="ae-arm ae-arm--r">
+              <path
+                d="M189 119 L206 101"
+                stroke="#f2c19a"
+                strokeWidth="5.5"
+                strokeLinecap="round"
+              />
+            </g>
+            <rect
+              x="164"
+              y="111"
+              width="28"
+              height="41"
+              rx="11"
+              fill="url(#ae-shirt)"
+            />
+            <circle cx="178" cy="97" r="12" fill="#f2c19a" />
             <path
-              d="M189 119 L206 101"
-              stroke="#f2c19a"
-              strokeWidth="5.5"
+              d="M166 95 a12 12 0 0 1 24 0 q-6 -4 -12 -2 q-6 -3 -12 2z"
+              fill="#2c1d2e"
+            />
+            <circle cx="174" cy="98" r="1.5" fill="#08110f" />
+            <circle cx="182" cy="98" r="1.5" fill="#08110f" />
+            <path
+              d="M175 102.5 q3 2.4 6 0"
+              stroke="#08110f"
+              strokeWidth="1.3"
+              fill="none"
               strokeLinecap="round"
             />
+
+            {/* The matte the AI finds, and its edge. */}
+            <path className="ae-matte" d={DANCER_OUTLINE} />
+            <path className="ae-edge" d={DANCER_OUTLINE} pathLength="1" />
+            {/* The one brush stroke that starts it. */}
+            <path
+              className="ae-brush"
+              d="M172 102 C186 110, 168 122, 182 132 S170 150, 180 164"
+              pathLength="1"
+            />
           </g>
-          <rect
-            x="164"
-            y="111"
-            width="28"
-            height="41"
-            rx="11"
-            fill="url(#ae-shirt)"
-          />
-          <circle cx="178" cy="97" r="12" fill="#f2c19a" />
-          <path
-            d="M166 95 a12 12 0 0 1 24 0 q-6 -4 -12 -2 q-6 -3 -12 2z"
-            fill="#2c1d2e"
-          />
-          <circle cx="174" cy="98" r="1.5" fill="#08110f" />
-          <circle cx="182" cy="98" r="1.5" fill="#08110f" />
-          <path
-            d="M175 102.5 q3 2.4 6 0"
-            stroke="#08110f"
-            strokeWidth="1.3"
-            fill="none"
-            strokeLinecap="round"
-          />
 
-          {/* The matte the AI finds, and its edge. */}
-          <path className="ae-matte" d={DANCER_OUTLINE} />
-          <path className="ae-edge" d={DANCER_OUTLINE} pathLength="1" />
-          {/* The one brush stroke that starts it. */}
-          <path
-            className="ae-brush"
-            d="M172 102 C186 110, 168 122, 182 132 S170 150, 180 164"
-            pathLength="1"
-          />
-        </g>
-
-        <g className="ae-frames">
-          <rect
-            x="22"
-            y="22"
-            width="52"
-            height="11"
-            rx="2"
-            fill="#08110f"
-            opacity="0.75"
-          />
-          <text className="ai-tag ae-f ae-f--1" x="26" y="30">
-            Frame 01
-          </text>
-          <text className="ai-tag ae-f ae-f--2" x="26" y="30">
-            Frame 24
-          </text>
-          <text className="ai-tag ae-f ae-f--3" x="26" y="30">
-            Frame 48
-          </text>
+          <g className="ae-frames">
+            <rect
+              x="22"
+              y="22"
+              width="52"
+              height="11"
+              rx="2"
+              fill="#08110f"
+              opacity="0.75"
+            />
+            <text className="ai-tag ae-f ae-f--1" x="26" y="30">
+              Frame 01
+            </text>
+            <text className="ai-tag ae-f ae-f--2" x="26" y="30">
+              Frame 24
+            </text>
+            <text className="ai-tag ae-f ae-f--3" x="26" y="30">
+              Frame 48
+            </text>
+          </g>
         </g>
       </g>
       <rect
@@ -532,15 +485,6 @@ export function RotoDemo() {
           City plate
         </text>
       </g>
-
-      <Status
-        p="ae"
-        labels={[
-          "Painting the subject",
-          "Propagating the mask",
-          "Compositing behind",
-        ]}
-      />
     </svg>
   );
 }
@@ -667,52 +611,54 @@ export function MaskDemo() {
       </defs>
 
       <g clipPath="url(#dv-shot)">
-        <Landscape />
-        <g className="dv-bg-grade">
-          <Landscape graded />
-        </g>
-        <g className="dv-person">
-          <Person />
-          <g className="dv-person-grade">
-            <Person graded />
+        <g className="cam cam--dv">
+          <Landscape />
+          <g className="dv-bg-grade">
+            <Landscape graded />
           </g>
-        </g>
+          <g className="dv-person">
+            <Person />
+            <g className="dv-person-grade">
+              <Person graded />
+            </g>
+          </g>
 
-        {/* Neural Engine scan inside the person, then the mask itself. */}
-        <g clipPath="url(#dv-person)" className="dv-scan">
-          <rect x="180" y="96" width="80" height="102" fill="url(#dv-dots)" />
-          <rect
-            className="dv-scanline"
-            x="180"
-            y="96"
-            width="80"
-            height="10"
-            fill="#6fb6ff"
-            opacity="0.45"
+          {/* Neural Engine scan inside the person, then the mask itself. */}
+          <g clipPath="url(#dv-person)" className="dv-scan">
+            <rect x="180" y="96" width="80" height="102" fill="url(#dv-dots)" />
+            <rect
+              className="dv-scanline"
+              x="180"
+              y="96"
+              width="80"
+              height="10"
+              fill="#6fb6ff"
+              opacity="0.45"
+            />
+          </g>
+          <path className="dv-mask" d={PERSON} />
+          <path
+            className="dv-stroke"
+            d="M221 108 C214 120, 228 132, 219 146 S226 170, 218 190"
+            pathLength="1"
           />
-        </g>
-        <path className="dv-mask" d={PERSON} />
-        <path
-          className="dv-stroke"
-          d="M221 108 C214 120, 228 132, 219 146 S226 170, 218 190"
-          pathLength="1"
-        />
 
-        <rect
-          x="22"
-          y="22"
-          width="44"
-          height="11"
-          rx="2"
-          fill="#08110f"
-          opacity="0.75"
-        />
-        <text className="ai-tag dv-tag dv-tag--log" x="27" y="30">
-          Log
-        </text>
-        <text className="ai-tag dv-tag dv-tag--graded" x="27" y="30">
-          Graded
-        </text>
+          <rect
+            x="22"
+            y="22"
+            width="44"
+            height="11"
+            rx="2"
+            fill="#08110f"
+            opacity="0.75"
+          />
+          <text className="ai-tag dv-tag dv-tag--log" x="27" y="30">
+            Log
+          </text>
+          <text className="ai-tag dv-tag dv-tag--graded" x="27" y="30">
+            Graded
+          </text>
+        </g>
       </g>
       <rect
         className="ai-frame"
@@ -738,15 +684,6 @@ export function MaskDemo() {
       <Node y={40} n="01" label="Magic Mask" cls="dv-node--1" />
       <Node y={83} n="02" label="Background" cls="dv-node--2" />
       <Node y={131} n="03" label="Subject" cls="dv-node--3" />
-
-      <Status
-        p="dv"
-        labels={[
-          "Stroke on the person",
-          "Neural Engine masking",
-          "Grading subject and background",
-        ]}
-      />
     </svg>
   );
 }

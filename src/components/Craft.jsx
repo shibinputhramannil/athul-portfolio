@@ -6,6 +6,7 @@ import { toolMeta } from "../lib/icons";
 import { usePauseOffscreen, useScrollFrame } from "../lib/ticker";
 import { Scramble } from "./Kinetic";
 import { MaskDemo, ReframeDemo, RotoDemo } from "./ToolAI";
+import AIPlayer from "./AIPlayer";
 
 // What each tool is for (a general product role, not a claim about any
 // specific project), and one real AI feature of it, played as a demo.
@@ -16,6 +17,13 @@ const toolInfo = {
     feature: "Auto Reframe",
     desc: "Premiere's AI finds the subject and keeps it in frame, turning a wide shot into a vertical 9:16 cut.",
     steps: ["Detect the subject", "Track the motion", "Reframe to 9:16"],
+    chapters: ["Detect", "Track", "Reframe"],
+    captions: [
+      "The AI scans every frame and finds the subject.",
+      "It tracks him as he moves, frame by frame.",
+      "Then reframes the wide shot into a vertical 9:16 cut.",
+    ],
+    result: "Vertical cut ready",
     Demo: ReframeDemo,
   },
   aftereffects: {
@@ -24,6 +32,13 @@ const toolInfo = {
     feature: "Roto Brush",
     desc: "After Effects' AI separates the subject from the background on every frame, so titles and effects can sit behind it.",
     steps: ["Paint the subject", "Propagate the mask", "Composite behind"],
+    chapters: ["Paint", "Propagate", "Composite"],
+    captions: [
+      "One brush stroke tells the AI what to keep.",
+      "It traces her edge and follows it through every frame.",
+      "Now the title can sit behind her.",
+    ],
+    result: "Title behind subject",
     Demo: RotoDemo,
   },
   resolve: {
@@ -32,6 +47,13 @@ const toolInfo = {
     feature: "Magic Mask",
     desc: "Resolve's Neural Engine masks a person from a single stroke, so the subject and the background are graded separately.",
     steps: ["Stroke the person", "Neural mask", "Grade subject and background"],
+    chapters: ["Stroke", "Mask", "Grade"],
+    captions: [
+      "One stroke on the person is all it needs.",
+      "The Neural Engine finds and masks them.",
+      "Then subject and background are graded separately.",
+    ],
+    result: "Graded in two looks",
     Demo: MaskDemo,
   },
 };
@@ -55,7 +77,8 @@ function buildLanes(count) {
 }
 
 /**
- * One tool as a big card: its AI demo on the left; on the right the tool,
+ * One tool as a big card: its AI demo, played like a product video, on the
+ * left; on the right the tool,
  * its job, the feature, what it does, and the three steps of the demo
  * filling in as it plays.
  */
@@ -72,8 +95,16 @@ function Tool({ name, i }) {
       style={{ "--glow": toolGlow[meta.brand] }}
     >
       <span className="tool__glow" aria-hidden="true" />
-      <div className="tool__stage" aria-hidden="true">
-        <Demo />
+      <div className="tool__stage">
+        <AIPlayer
+          Demo={Demo}
+          n={i + 1}
+          feature={info.feature}
+          product={meta.name}
+          captions={info.captions}
+          chapters={info.chapters}
+          result={info.result}
+        />
       </div>
       <div className="tool__info">
         <div className="tool__head">

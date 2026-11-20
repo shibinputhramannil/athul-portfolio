@@ -1,17 +1,18 @@
 /* =====================================================================
    Toolkit AI demos (ToolAI.jsx) and their step lists.
 
-   One 8 s loop with three phases shared by every demo, so the steps beside
+   One 10 s loop shared by every demo, so the player and the steps beside
    each one can follow along:
-     A  2–20%   find the subject
-     B 20–42%   process it
-     C 42–94%   show the result        (94–100% resets)
+     intro  0–12%     title card (it returns over the reset at the end)
+     A   13.8–29.6%   find the subject
+     B   29.6–49%     process it
+     C   49–94.7%     show the result   (94.7–100% resets)
    Base styles are the finished result, shown as a still under reduced
    motion; the animations (fill-mode both) take over while playing. The
    Craft section pauses everything off screen.
    ===================================================================== */
 .tool {
-  --loop: 8s;
+  --loop: 10s;
 }
 /* Cards stack over each other on wide screens, so each needs a solid base
    under its glass (the shared glass treatment is translucent). */
@@ -20,7 +21,6 @@
 }
 .tool__stage {
   position: relative;
-  aspect-ratio: 16 / 9;
   overflow: hidden;
   border: 1px solid rgb(255 255 255 / 0.08);
   border-radius: 14px;
@@ -88,86 +88,6 @@
   fill: var(--mist);
 }
 
-/* ---------- Status bar (shared) ---------- */
-.ai-track {
-  fill: rgb(255 255 255 / 0.08);
-}
-.ai-label {
-  opacity: 0;
-}
-.ai-label--3 {
-  opacity: 1;
-}
-.ai-label--1 {
-  animation: ai-l1 var(--loop) linear infinite both;
-}
-.ai-label--2 {
-  animation: ai-l2 var(--loop) linear infinite both;
-}
-.ai-label--3 {
-  animation: ai-l3 var(--loop) linear infinite both;
-}
-@keyframes ai-l1 {
-  0%,
-  19% {
-    opacity: 1;
-  }
-  21%,
-  95% {
-    opacity: 0;
-  }
-  97%,
-  100% {
-    opacity: 1;
-  }
-}
-@keyframes ai-l2 {
-  0%,
-  19% {
-    opacity: 0;
-  }
-  21%,
-  41% {
-    opacity: 1;
-  }
-  43%,
-  100% {
-    opacity: 0;
-  }
-}
-@keyframes ai-l3 {
-  0%,
-  41% {
-    opacity: 0;
-  }
-  43%,
-  95% {
-    opacity: 1;
-  }
-  97%,
-  100% {
-    opacity: 0;
-  }
-}
-.ai-progress {
-  transform-box: fill-box;
-  transform-origin: 0 50%;
-  animation: ai-prog var(--loop) linear infinite both;
-}
-@keyframes ai-prog {
-  0%,
-  2% {
-    transform: scaleX(0);
-  }
-  94%,
-  96% {
-    transform: none;
-  }
-  100% {
-    transform: scaleX(0);
-  }
-}
-
 /* ---------- Premiere Pro: Auto Reframe ---------- */
 .pr-dim {
   fill: rgb(8 17 15 / 0.62);
@@ -202,10 +122,11 @@
 }
 @keyframes pr-move {
   0%,
+  12%,
   100% {
     transform: translateX(0);
   }
-  50% {
+  56% {
     transform: translateX(198px);
   }
 }
@@ -214,10 +135,11 @@
   animation: pr-flip var(--loop) step-end infinite both;
 }
 @keyframes pr-flip {
-  0% {
+  0%,
+  12% {
     transform: none;
   }
-  50% {
+  56% {
     transform: scaleX(-1);
   }
   100% {
@@ -237,18 +159,19 @@
 }
 @keyframes pr-scan {
   0%,
-  2% {
+  12%,
+  13.76% {
     transform: translateX(-44px);
     opacity: 0;
   }
-  3% {
+  14.64% {
     opacity: 1;
   }
-  16% {
+  26.08% {
     transform: translateX(324px);
     opacity: 1;
   }
-  17%,
+  26.96%,
   100% {
     transform: translateX(324px);
     opacity: 0;
@@ -261,14 +184,15 @@
 }
 @keyframes pr-detect {
   0%,
-  13% {
+  12%,
+  23.44% {
     opacity: 0;
   }
-  16%,
-  93% {
+  26.08%,
+  93.84% {
     opacity: 1;
   }
-  96%,
+  96.48%,
   100% {
     opacity: 0;
   }
@@ -281,14 +205,15 @@
 }
 @keyframes pr-show {
   0%,
-  41% {
+  12%,
+  48.08% {
     opacity: 0;
   }
-  45%,
-  93% {
+  51.6%,
+  93.84% {
     opacity: 1;
   }
-  96%,
+  96.48%,
   100% {
     opacity: 0;
   }
@@ -299,10 +224,11 @@
 }
 @keyframes pr-cam {
   0%,
+  12%,
   100% {
     transform: translate(-39px, -16px);
   }
-  50% {
+  56% {
     transform: translate(-237px, -16px);
   }
 }
@@ -311,14 +237,15 @@
 }
 @keyframes pr-phone {
   0%,
-  44% {
+  12%,
+  50.72% {
     opacity: 0;
   }
-  48%,
-  93% {
+  54.24%,
+  93.84% {
     opacity: 1;
   }
-  96%,
+  96.48%,
   100% {
     opacity: 0;
   }
@@ -373,18 +300,19 @@
 }
 @keyframes ae-dance {
   0%,
-  25%,
-  50%,
-  75%,
+  12%,
+  34%,
+  56%,
+  78%,
   100% {
     transform: translate(0, 0);
   }
-  12.5%,
-  62.5% {
+  23%,
+  67% {
     transform: translate(-6px, -6px);
   }
-  37.5%,
-  87.5% {
+  45%,
+  89% {
     transform: translate(6px, -6px);
   }
 }
@@ -417,15 +345,16 @@
 }
 @keyframes ae-brush {
   0%,
-  2% {
+  12%,
+  13.76% {
     stroke-dashoffset: 1;
     opacity: 0.75;
   }
-  18% {
+  27.84% {
     stroke-dashoffset: 0;
     opacity: 0.75;
   }
-  26%,
+  34.88%,
   100% {
     stroke-dashoffset: 0;
     opacity: 0;
@@ -436,21 +365,22 @@
 }
 @keyframes ae-edge {
   0%,
-  20% {
+  12%,
+  29.6% {
     stroke-dashoffset: 1;
     opacity: 1;
   }
-  36%,
-  42% {
+  43.68%,
+  48.96% {
     stroke-dashoffset: 0;
     opacity: 1;
   }
-  52%,
-  93% {
+  57.76%,
+  93.84% {
     stroke-dashoffset: 0;
     opacity: 0.35;
   }
-  97%,
+  97.36%,
   100% {
     stroke-dashoffset: 0;
     opacity: 0;
@@ -461,14 +391,15 @@
 }
 @keyframes ae-matte {
   0%,
-  22% {
+  12%,
+  31.36% {
     opacity: 0;
   }
-  28%,
-  40% {
+  36.64%,
+  47.2% {
     opacity: 1;
   }
-  48%,
+  54.24%,
   100% {
     opacity: 0;
   }
@@ -478,14 +409,15 @@
 }
 @keyframes ae-frames {
   0%,
-  19% {
+  12%,
+  28.72% {
     opacity: 0;
   }
-  20%,
-  42% {
+  29.6%,
+  48.96% {
     opacity: 1;
   }
-  44%,
+  50.72%,
   100% {
     opacity: 0;
   }
@@ -500,31 +432,34 @@
   animation: ae-f3 var(--loop) step-end infinite both;
 }
 @keyframes ae-f1 {
-  0% {
+  0%,
+  12% {
     opacity: 1;
   }
-  27%,
+  35.76%,
   100% {
     opacity: 0;
   }
 }
 @keyframes ae-f2 {
-  0% {
+  0%,
+  12% {
     opacity: 0;
   }
-  27% {
+  35.76% {
     opacity: 1;
   }
-  34%,
+  41.92%,
   100% {
     opacity: 0;
   }
 }
 @keyframes ae-f3 {
-  0% {
+  0%,
+  12% {
     opacity: 0;
   }
-  34% {
+  41.92% {
     opacity: 1;
   }
   100% {
@@ -536,14 +471,15 @@
 }
 @keyframes ae-dim {
   0%,
-  42% {
+  12%,
+  48.96% {
     opacity: 0;
   }
-  50%,
-  93% {
+  56%,
+  93.84% {
     opacity: 0.45;
   }
-  97%,
+  97.36%,
   100% {
     opacity: 0;
   }
@@ -553,16 +489,17 @@
 }
 @keyframes ae-title {
   0%,
-  44% {
+  12%,
+  50.72% {
     opacity: 0;
     transform: translateY(18px) scale(0.96);
   }
-  56%,
-  93% {
+  61.28%,
+  93.84% {
     opacity: 1;
     transform: none;
   }
-  97%,
+  97.36%,
   100% {
     opacity: 0;
     transform: none;
@@ -577,16 +514,17 @@
 }
 @keyframes ae-l-title {
   0%,
-  44% {
+  12%,
+  50.72% {
     opacity: 0;
     transform: translateY(80px);
   }
-  56%,
-  93% {
+  61.28%,
+  93.84% {
     opacity: 1;
     transform: none;
   }
-  97%,
+  97.36%,
   100% {
     opacity: 0;
     transform: translateY(80px);
@@ -594,14 +532,15 @@
 }
 @keyframes ae-l-bg {
   0%,
-  44% {
+  12%,
+  50.72% {
     transform: none;
   }
-  56%,
-  93% {
+  61.28%,
+  93.84% {
     transform: translateY(38px);
   }
-  98%,
+  98.24%,
   100% {
     transform: none;
   }
@@ -671,16 +610,17 @@
 }
 @keyframes dv-stroke {
   0%,
-  2% {
+  12%,
+  13.76% {
     stroke-dashoffset: 1;
     opacity: 1;
   }
-  18%,
-  30% {
+  27.84%,
+  38.4% {
     stroke-dashoffset: 0;
     opacity: 1;
   }
-  36%,
+  43.68%,
   100% {
     stroke-dashoffset: 0;
     opacity: 0;
@@ -691,14 +631,15 @@
 }
 @keyframes dv-scan {
   0%,
-  19% {
+  12%,
+  28.72% {
     opacity: 0;
   }
-  22%,
-  34% {
+  31.36%,
+  41.92% {
     opacity: 1;
   }
-  38%,
+  45.44%,
   100% {
     opacity: 0;
   }
@@ -708,10 +649,11 @@
 }
 @keyframes dv-scanline {
   0%,
-  20% {
+  12%,
+  29.6% {
     transform: translateY(0);
   }
-  36%,
+  43.68%,
   100% {
     transform: translateY(92px);
   }
@@ -721,14 +663,15 @@
 }
 @keyframes dv-mask {
   0%,
-  28% {
+  12%,
+  36.64% {
     opacity: 0;
   }
-  34%,
-  70% {
+  41.92%,
+  73.6% {
     opacity: 1;
   }
-  78%,
+  80.64%,
   100% {
     opacity: 0;
   }
@@ -738,14 +681,15 @@
 }
 @keyframes dv-bg {
   0%,
-  42% {
+  12%,
+  48.96% {
     opacity: 0;
   }
-  56%,
-  93% {
+  61.28%,
+  93.84% {
     opacity: 1;
   }
-  98%,
+  98.24%,
   100% {
     opacity: 0;
   }
@@ -755,14 +699,15 @@
 }
 @keyframes dv-person {
   0%,
-  58% {
+  12%,
+  63.04% {
     opacity: 0;
   }
-  72%,
-  93% {
+  75.36%,
+  93.84% {
     opacity: 1;
   }
-  98%,
+  98.24%,
   100% {
     opacity: 0;
   }
@@ -775,28 +720,30 @@
 }
 @keyframes dv-log {
   0%,
-  50% {
+  12%,
+  56% {
     opacity: 1;
   }
-  56%,
-  93% {
+  61.28%,
+  93.84% {
     opacity: 0;
   }
-  98%,
+  98.24%,
   100% {
     opacity: 1;
   }
 }
 @keyframes dv-graded {
   0%,
-  50% {
+  12%,
+  56% {
     opacity: 0;
   }
-  56%,
-  93% {
+  61.28%,
+  93.84% {
     opacity: 1;
   }
-  98%,
+  98.24%,
   100% {
     opacity: 0;
   }
@@ -812,42 +759,45 @@
 }
 @keyframes dv-n1 {
   0%,
-  1% {
+  12%,
+  12.88% {
     opacity: 0;
   }
-  3%,
-  40% {
+  14.64%,
+  47.2% {
     opacity: 1;
   }
-  44%,
+  50.72%,
   100% {
     opacity: 0;
   }
 }
 @keyframes dv-n2 {
   0%,
-  42% {
+  12%,
+  48.96% {
     opacity: 0;
   }
-  46%,
-  93% {
+  52.48%,
+  93.84% {
     opacity: 1;
   }
-  97%,
+  97.36%,
   100% {
     opacity: 0;
   }
 }
 @keyframes dv-n3 {
   0%,
-  58% {
+  12%,
+  63.04% {
     opacity: 0;
   }
-  62%,
-  93% {
+  66.56%,
+  93.84% {
     opacity: 1;
   }
-  97%,
+  97.36%,
   100% {
     opacity: 0;
   }
@@ -916,86 +866,699 @@
 }
 @keyframes ai-r1 {
   0%,
-  1% {
+  12%,
+  12.88% {
     opacity: 0.45;
   }
-  2%,
-  96% {
+  13.76%,
+  96.48% {
     opacity: 1;
   }
-  99%,
+  99.12%,
   100% {
     opacity: 0.45;
   }
 }
 @keyframes ai-r2 {
   0%,
-  19% {
+  12%,
+  28.72% {
     opacity: 0.45;
   }
-  20%,
-  96% {
+  29.6%,
+  96.48% {
     opacity: 1;
   }
-  99%,
+  99.12%,
   100% {
     opacity: 0.45;
   }
 }
 @keyframes ai-r3 {
   0%,
-  41% {
+  12%,
+  48.08% {
     opacity: 0.45;
   }
-  42%,
-  96% {
+  48.96%,
+  96.48% {
     opacity: 1;
   }
-  99%,
+  99.12%,
   100% {
     opacity: 0.45;
   }
 }
 @keyframes ai-s1 {
   0%,
-  2% {
+  12%,
+  13.76% {
     transform: scaleX(0);
   }
-  20%,
-  96% {
+  29.6%,
+  96.48% {
     transform: none;
   }
-  99%,
+  99.12%,
   100% {
     transform: scaleX(0);
   }
 }
 @keyframes ai-s2 {
   0%,
-  20% {
+  12%,
+  29.6% {
     transform: scaleX(0);
   }
-  42%,
-  96% {
+  48.96%,
+  96.48% {
     transform: none;
   }
-  99%,
+  99.12%,
   100% {
     transform: scaleX(0);
   }
 }
 @keyframes ai-s3 {
   0%,
-  42% {
+  12%,
+  48.96% {
     transform: scaleX(0);
   }
-  94%,
-  96% {
+  94.72%,
+  96.48% {
     transform: none;
   }
-  99%,
+  99.12%,
   100% {
     transform: scaleX(0);
+  }
+}
+
+/* =====================================================================
+   The player (AIPlayer.jsx): title card, camera, captions, result badge
+   and the player bar. Same 10 s loop.
+   ===================================================================== */
+.aip__video {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  container-type: inline-size;
+  overflow: hidden;
+}
+.tool[data-hold],
+.tool[data-hold] * {
+  animation-play-state: paused !important;
+}
+
+/* ---------- Camera: push in while the AI works, pull back for the result ---------- */
+.cam--pr {
+  transform-origin: 90px 140px;
+  animation: cam-pr var(--loop) cubic-bezier(0.65, 0, 0.35, 1) infinite both;
+}
+.cam--ae {
+  transform-origin: 178px 125px;
+  animation: cam-ae var(--loop) cubic-bezier(0.65, 0, 0.35, 1) infinite both;
+}
+.cam--dv {
+  transform-origin: 220px 128px;
+  animation: cam-dv var(--loop) cubic-bezier(0.65, 0, 0.35, 1) infinite both;
+}
+@keyframes cam-pr {
+  0%,
+  13% {
+    transform: scale(1.06);
+  }
+  20%,
+  27% {
+    transform: scale(1.24);
+  }
+  35%,
+  49% {
+    transform: none;
+  }
+  93%,
+  100% {
+    transform: scale(1.05);
+  }
+}
+@keyframes cam-ae {
+  0%,
+  13% {
+    transform: scale(1.06);
+  }
+  18%,
+  31% {
+    transform: scale(1.32);
+  }
+  41%,
+  49% {
+    transform: none;
+  }
+  93%,
+  100% {
+    transform: scale(1.06);
+  }
+}
+@keyframes cam-dv {
+  0%,
+  13% {
+    transform: scale(1.06);
+  }
+  19%,
+  35% {
+    transform: scale(1.38);
+  }
+  45%,
+  49% {
+    transform: none;
+  }
+  93%,
+  100% {
+    transform: scale(1.05);
+  }
+}
+
+/* ---------- Title card ---------- */
+.aip__intro {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 1.6cqw;
+  background:
+    radial-gradient(
+      60% 70% at 50% 40%,
+      rgb(79 216 232 / 0.16),
+      transparent 70%
+    ),
+    radial-gradient(
+      50% 60% at 80% 100%,
+      rgb(255 122 89 / 0.14),
+      transparent 70%
+    ),
+    repeating-linear-gradient(
+      90deg,
+      rgb(255 255 255 / 0.025) 0 1px,
+      transparent 1px 6cqw
+    ),
+    #050c0b;
+  clip-path: inset(0 0 0 100%);
+  animation: aip-intro var(--loop) infinite both;
+}
+@keyframes aip-intro {
+  0%,
+  9.5% {
+    clip-path: inset(0 0 0 0);
+    animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
+  }
+  12.5%,
+  95.2% {
+    clip-path: inset(0 0 0 100%);
+  }
+  95.3% {
+    clip-path: inset(0 100% 0 0);
+    animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
+  }
+  98.6%,
+  100% {
+    clip-path: inset(0 0 0 0);
+  }
+}
+.aip__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.8cqw;
+  padding: 0.5cqw 1.4cqw;
+  border: 1px solid rgb(255 255 255 / 0.16);
+  border-radius: 999px;
+  background: rgb(255 255 255 / 0.05);
+  color: var(--mist);
+  font-family: var(--font-mono);
+  font-size: max(9px, 1.7cqw);
+  letter-spacing: 0.08em;
+}
+.aip__dot {
+  width: 0.9cqw;
+  height: 0.9cqw;
+  min-width: 6px;
+  min-height: 6px;
+  border-radius: 50%;
+  background: var(--grad-grade);
+  box-shadow: 0 0 10px rgb(79 216 232 / 0.8);
+}
+.aip__title {
+  padding: 0 0.06em 0.06em;
+  font-weight: 900;
+  font-stretch: 75%;
+  font-size: 9.5cqw;
+  line-height: 0.95;
+  text-transform: uppercase;
+  background: var(--grad-grade);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.aip__product {
+  color: var(--fog);
+  font-family: var(--font-accent);
+  font-style: italic;
+  font-size: max(12px, 2.8cqw);
+}
+.aip__chip,
+.aip__title,
+.aip__product {
+  animation: aip-rise var(--loop) cubic-bezier(0.16, 1, 0.3, 1) infinite both;
+}
+.aip__title {
+  animation-delay: 0.08s;
+}
+.aip__product {
+  animation-delay: 0.16s;
+}
+@keyframes aip-rise {
+  0% {
+    opacity: 0;
+    transform: translateY(40%);
+  }
+  5%,
+  12.5% {
+    opacity: 1;
+    transform: none;
+  }
+  95%,
+  100% {
+    opacity: 0;
+    transform: translateY(40%);
+  }
+}
+
+/* ---------- Result badge ---------- */
+.aip__result {
+  position: absolute;
+  top: 8.5%;
+  right: 31%;
+  z-index: 3;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.8cqw;
+  padding: 0.6cqw 1.4cqw 0.6cqw 1cqw;
+  border-radius: 999px;
+  background: var(--grad-grade);
+  box-shadow: 0 8px 24px -8px rgb(79 216 232 / 0.7);
+  color: #08110f;
+  font-family: var(--font-mono);
+  font-size: max(8px, 1.6cqw);
+  font-weight: 500;
+  white-space: nowrap;
+  transform-origin: 80% 50%;
+  animation: aip-result var(--loop) cubic-bezier(0.34, 1.56, 0.64, 1) infinite
+    both;
+}
+@keyframes aip-result {
+  0%,
+  80% {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+  83%,
+  93% {
+    opacity: 1;
+    transform: none;
+  }
+  95%,
+  100% {
+    opacity: 0;
+    transform: none;
+  }
+}
+.aip__spark {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  border-radius: 1px;
+  background: #ffd88a;
+  rotate: 45deg;
+  opacity: 0;
+  animation: aip-spark var(--loop) ease-out infinite both;
+}
+.aip__spark--1 {
+  left: -6%;
+  top: -30%;
+  --sx: -10px;
+  --sy: -10px;
+}
+.aip__spark--2 {
+  right: 4%;
+  top: -40%;
+  --sx: 8px;
+  --sy: -12px;
+}
+.aip__spark--3 {
+  right: -6%;
+  bottom: -20%;
+  --sx: 12px;
+  --sy: 8px;
+  background: #4fd8e8;
+}
+.aip__spark--4 {
+  left: 20%;
+  bottom: -40%;
+  --sx: -6px;
+  --sy: 12px;
+  background: #ff8f4f;
+}
+@keyframes aip-spark {
+  0%,
+  81% {
+    opacity: 0;
+    transform: translate(0, 0) scale(0.4);
+  }
+  83% {
+    opacity: 1;
+  }
+  88%,
+  100% {
+    opacity: 0;
+    transform: translate(var(--sx), var(--sy)) scale(1);
+  }
+}
+
+/* ---------- Narration ---------- */
+/* Centred in the band under the shot (y 214 to 270 of 270). */
+.aip__captions {
+  position: absolute;
+  left: 3.3%;
+  width: 67.5%;
+  top: 89.6%;
+  margin: 0;
+  text-align: center;
+}
+.aip__cap {
+  position: absolute;
+  inset: 0 0 auto;
+  translate: 0 -50%;
+  color: var(--mist);
+  font-size: max(10px, 2.4cqw);
+  font-weight: 500;
+  line-height: 1.3;
+}
+.aip__w {
+  display: inline-block;
+  white-space: pre;
+  animation: var(--cap) var(--loop) cubic-bezier(0.16, 1, 0.3, 1)
+    calc(var(--k) * 70ms) infinite both;
+}
+.aip__cap--1 {
+  --cap: aip-c1;
+}
+.aip__cap--2 {
+  --cap: aip-c2;
+}
+.aip__cap--3 {
+  --cap: aip-c3;
+}
+.aip__cap--1 .aip__w,
+.aip__cap--2 .aip__w {
+  opacity: 0;
+}
+@keyframes aip-c1 {
+  0%,
+  13.8% {
+    opacity: 0;
+    transform: translateY(45%);
+  }
+  15.5%,
+  28.6% {
+    opacity: 1;
+    transform: none;
+  }
+  29.6%,
+  100% {
+    opacity: 0;
+    transform: none;
+  }
+}
+@keyframes aip-c2 {
+  0%,
+  29.6% {
+    opacity: 0;
+    transform: translateY(45%);
+  }
+  31.3%,
+  48% {
+    opacity: 1;
+    transform: none;
+  }
+  49%,
+  100% {
+    opacity: 0;
+    transform: none;
+  }
+}
+@keyframes aip-c3 {
+  0%,
+  49% {
+    opacity: 0;
+    transform: translateY(45%);
+  }
+  50.7%,
+  93% {
+    opacity: 1;
+    transform: none;
+  }
+  95%,
+  100% {
+    opacity: 0;
+    transform: none;
+  }
+}
+
+/* ---------- Player bar ---------- */
+.aip__bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px 22px;
+  border-top: 1px solid rgb(255 255 255 / 0.06);
+  background: rgb(5 12 11 / 0.6);
+}
+.aip__play {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 32px;
+  height: 32px;
+  border: 1px solid rgb(255 255 255 / 0.16);
+  border-radius: 50%;
+  background: rgb(255 255 255 / 0.06);
+  color: var(--mist);
+  cursor: pointer;
+  transition:
+    border-color 0.25s,
+    background-color 0.25s;
+}
+.aip__play:hover {
+  border-color: rgb(79 216 232 / 0.7);
+  background: rgb(255 255 255 / 0.1);
+}
+.aip__scrub {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+}
+.aip__track {
+  position: relative;
+  height: 4px;
+  border-radius: 4px;
+  background: rgb(255 255 255 / 0.1);
+  cursor: pointer;
+}
+.aip__track::before {
+  content: "";
+  position: absolute;
+  inset: -8px 0;
+}
+.aip__fill {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: var(--grad-grade);
+  transform-origin: 0 50%;
+  animation: aip-fill var(--loop) linear infinite both;
+}
+@keyframes aip-fill {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: none;
+  }
+}
+/* Playhead on a full-width layer, so it moves by transform. */
+.aip__head {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  animation: aip-head var(--loop) linear infinite both;
+}
+.aip__head::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: -5px;
+  width: 10px;
+  height: 10px;
+  margin-top: -5px;
+  border-radius: 50%;
+  background: var(--mist);
+  box-shadow: 0 0 10px rgb(255 255 255 / 0.6);
+}
+@keyframes aip-head {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(100%);
+  }
+}
+.aip__tick {
+  position: absolute;
+  top: -3px;
+  bottom: -3px;
+  width: 2px;
+  margin-left: -1px;
+  border-radius: 1px;
+  background: rgb(255 255 255 / 0.35);
+}
+.aip__chapters {
+  position: relative;
+  height: 14px;
+  margin-top: 8px;
+}
+.aip__chapter {
+  position: absolute;
+  top: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--fog);
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  cursor: pointer;
+  translate: -4px 0;
+  animation: var(--ch) var(--loop) linear infinite both;
+}
+.aip__chapter:hover,
+.aip__chapter:focus-visible {
+  color: var(--mist);
+}
+.aip__chapter--1 {
+  --ch: aip-ch1;
+}
+.aip__chapter--2 {
+  --ch: aip-ch2;
+}
+.aip__chapter--3 {
+  --ch: aip-ch3;
+}
+@keyframes aip-ch1 {
+  0%,
+  13.7% {
+    color: var(--fog);
+  }
+  13.8%,
+  29.5% {
+    color: #4fd8e8;
+  }
+  29.6%,
+  100% {
+    color: var(--fog);
+  }
+}
+@keyframes aip-ch2 {
+  0%,
+  29.5% {
+    color: var(--fog);
+  }
+  29.6%,
+  48.9% {
+    color: #ffd88a;
+  }
+  49%,
+  100% {
+    color: var(--fog);
+  }
+}
+@keyframes aip-ch3 {
+  0%,
+  48.9% {
+    color: var(--fog);
+  }
+  49%,
+  94.6% {
+    color: #ff8f4f;
+  }
+  94.7%,
+  100% {
+    color: var(--fog);
+  }
+}
+/* Running clock: an animated integer counter, no script needed. */
+@property --aip-s {
+  syntax: "<integer>";
+  inherits: false;
+  initial-value: 0;
+}
+.aip__time {
+  flex: none;
+  color: var(--fog);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+.aip__now {
+  color: var(--mist);
+  counter-reset: aip var(--aip-s);
+  animation: aip-clock var(--loop) steps(10, jump-end) infinite both;
+}
+.aip__now::before {
+  content: "0:0" counter(aip);
+}
+@keyframes aip-clock {
+  from {
+    --aip-s: 0;
+  }
+  to {
+    --aip-s: 10;
+  }
+}
+
+/* Narrow player: the chapter names no longer fit at their ticks, so they
+   sit in a row under the track instead (still highlighted in step). */
+.aip {
+  container: aip / inline-size;
+}
+@container aip (max-width: 500px) {
+  .aip__bar {
+    gap: 10px;
+    padding: 8px 10px 18px;
+  }
+  .aip__chapters {
+    display: flex;
+    gap: 14px;
+    height: auto;
+  }
+  .aip__chapter {
+    position: static;
+    translate: none;
+    font-size: 10px;
+  }
+  .aip__time {
+    font-size: 10px;
   }
 }
 
@@ -1003,7 +1566,18 @@
   .ai,
   .ai *,
   .ai-step,
-  .ai-step * {
+  .ai-step *,
+  .aip,
+  .aip * {
     animation: none !important;
+  }
+  /* The still frame: the finished result and its caption, with no title
+     card and no player controls (there is nothing to play). */
+  .aip__intro,
+  .aip__bar {
+    display: none;
+  }
+  .aip__result {
+    opacity: 1;
   }
 }
