@@ -83,6 +83,22 @@
 .ai-row--hot {
   stroke: rgb(255 143 79 / 0.6);
 }
+/* Loading placeholder: a soft sweep across the empty shot. */
+.ai--wait {
+  overflow: hidden;
+}
+.ai-shimmer {
+  fill: rgb(79 216 232 / 0.06);
+  animation: ai-shimmer 1.4s ease-in-out infinite;
+}
+@keyframes ai-shimmer {
+  from {
+    transform: translateX(-120px);
+  }
+  to {
+    transform: translateX(324px);
+  }
+}
 .ai .ae-layer text,
 .ai .dv-node text {
   fill: var(--mist);

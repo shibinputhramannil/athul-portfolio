@@ -7,6 +7,34 @@ export const SCENE_MS = 10_000;
 const two = (n) => String(n).padStart(2, "0");
 const clock = (ms) => `${Math.floor(ms / 60000)}:${two((ms / 1000) % 60)}`;
 
+/** Shown in the shot while a topic's scene is still loading. */
+function SceneLoading() {
+  return (
+    <svg className="ai ai--wait" viewBox="0 0 480 270">
+      <rect
+        className="ai-frame"
+        x="16"
+        y="16"
+        width="324"
+        height="182"
+        rx="6"
+      />
+      <rect
+        className="ai-phone"
+        x="352"
+        y="16"
+        width="114"
+        height="182"
+        rx="10"
+      />
+      <rect className="ai-shimmer" x="16" y="16" width="120" height="182" />
+      <text className="ai-wait" x="178" y="111" textAnchor="middle">
+        Loading scene…
+      </text>
+    </svg>
+  );
+}
+
 /** Tells the player when a scene that loaded late has mounted. */
 function Mounted({ onReady, children }) {
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -23,7 +51,7 @@ export function SceneFrame({ topic, k, total, onReady }) {
   const { Scene } = topic;
   return (
     <>
-      <Suspense fallback={null}>
+      <Suspense fallback={<SceneLoading />}>
         <Mounted onReady={onReady}>
           <Scene />
         </Mounted>
@@ -162,7 +190,7 @@ export default function AIPlayer({ product, head, topics }) {
         setNear(true);
         early.disconnect();
       },
-      { rootMargin: "1200px 0px" },
+      { rootMargin: "2400px 0px" },
     );
     early.observe(el);
     // "On screen" means most of the card, or half the screen on short ones.

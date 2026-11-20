@@ -1,4 +1,4 @@
-import { lazy } from "react";
+import { createElement as h, lazy } from "react";
 import { MaskDemo, ReframeDemo, RotoDemo } from "./ToolAI";
 
 // The first topic of each tool ships with the page; the other twelve
@@ -8,8 +8,33 @@ const loaders = {
   aftereffects: () => import("./scenes/aftereffects"),
   resolve: () => import("./scenes/resolve"),
 };
+// A failed fetch (a flaky network, or a page left open across a deploy)
+// retries once, then settles on a quiet placeholder instead of an error.
+const Unavailable = () =>
+  h(
+    "svg",
+    { className: "ai", viewBox: "0 0 480 270" },
+    h("rect", {
+      className: "ai-frame",
+      x: 16,
+      y: 16,
+      width: 324,
+      height: 182,
+      rx: 6,
+    }),
+    h(
+      "text",
+      { className: "ai-wait", x: 178, y: 111, textAnchor: "middle" },
+      "Scene unavailable",
+    ),
+  );
 const later = (brand, name) =>
-  lazy(() => loaders[brand]().then((m) => ({ default: m[name] })));
+  lazy(() =>
+    loaders[brand]()
+      .catch(() => loaders[brand]())
+      .then((m) => ({ default: m[name] ?? Unavailable }))
+      .catch(() => ({ default: Unavailable })),
+  );
 let preloaded = false;
 export function preloadScenes() {
   if (preloaded) return;
