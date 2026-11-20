@@ -53,13 +53,17 @@ export default function Cursor() {
       update(e.target);
       if (!raf) raf = requestAnimationFrame(loop);
     };
+    // What sits under a still pointer changes as the page scrolls, but
+    // hit-testing every scroll frame forces layout mid-scroll; check once
+    // the scroll settles instead.
     let scrollFrame = 0;
     const onScroll = () => {
-      if (scrollFrame || tx < 0) return;
-      scrollFrame = requestAnimationFrame(() => {
-        scrollFrame = 0;
-        update(document.elementFromPoint(tx, ty));
-      });
+      if (tx < 0) return;
+      clearTimeout(scrollFrame);
+      scrollFrame = setTimeout(
+        () => update(document.elementFromPoint(tx, ty)),
+        140,
+      );
     };
     const leave = () => cursor.classList.remove("is-on");
     const down = () => cursor.classList.add("is-down");
@@ -73,7 +77,7 @@ export default function Cursor() {
       cancelAnimationFrame(raf);
       window.removeEventListener("pointermove", move);
       window.removeEventListener("scroll", onScroll);
-      cancelAnimationFrame(scrollFrame);
+      clearTimeout(scrollFrame);
       document.documentElement.removeEventListener("pointerleave", leave);
       window.removeEventListener("pointerdown", down);
       window.removeEventListener("pointerup", up);

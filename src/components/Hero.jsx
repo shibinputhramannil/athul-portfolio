@@ -8,6 +8,15 @@ import p480 from "../assets/profile-480.webp";
 import p720 from "../assets/profile-720.webp";
 import p940 from "../assets/profile-940.webp";
 
+// Read on every scroll frame: one cached query, not a new one each time.
+const reducedMQ =
+  typeof window !== "undefined"
+    ? window.matchMedia("(prefers-reduced-motion: reduce)")
+    : null;
+const scrollDrivenWords =
+  typeof window !== "undefined" &&
+  !!window.CSS?.supports?.("animation-timeline: view()");
+
 const srcSet = `${p480} 480w, ${p720} 720w, ${p940} 940w`;
 const sizes = "(max-width: 760px) 92vw, 46vw";
 
@@ -178,16 +187,27 @@ export default function Hero({ profile, editCount }) {
     const start = performance.now();
     let raf = 0;
     let last = -1;
+    let idle = 0;
+    // Runs every frame only while the stage is on screen; otherwise checks
+    // back a few times a second.
     const tick = (now) => {
+      if (!visible.current) {
+        raf = 0;
+        idle = setTimeout(() => (raf = requestAnimationFrame(tick)), 300);
+        return;
+      }
       const f = Math.floor(((now - start) / 1000) * 24);
-      if (f !== last && visible.current && !still.matches && tcRef.current) {
+      if (f !== last && !still.matches && tcRef.current) {
         last = f;
         tcRef.current.textContent = timecode(f / 24);
       }
       raf = requestAnimationFrame(tick);
     };
     raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
+    return () => {
+      cancelAnimationFrame(raf);
+      clearTimeout(idle);
+    };
   }, []);
 
   // Pointer parallax across the depth layers.
@@ -350,9 +370,7 @@ export default function Hero({ profile, editCount }) {
   // with cached geometry: no layout reads while scrolling.
   useScrollFrame(
     (y, vh) => {
-      const still = window.matchMedia(
-        "(prefers-reduced-motion: reduce)",
-      ).matches;
+      const still = reducedMQ?.matches;
       const g = geo.current;
       const m = motionState.current;
       if (!still) {
@@ -365,7 +383,8 @@ export default function Hero({ profile, editCount }) {
         }
       }
       const summary = summaryRef.current;
-      if (summary) {
+      // Scroll-driven CSS lights the words where supported (About.css).
+      if (summary && (!scrollDrivenWords || still)) {
         const from = vh * 0.88;
         const to = vh * 0.55 - g.sumH;
         const top = g.sumTop - y;

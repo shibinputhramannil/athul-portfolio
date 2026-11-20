@@ -2,7 +2,7 @@
 
 Portfolio site for Adhul U Krishna, video editor.
 
-- **Frontend**: React 19 + Vite (JavaScript), [Motion](https://motion.dev) for animation and [Lenis](https://lenis.darkroom.engineering) for smooth scrolling. It builds to a static site for GitHub Pages.
+- **Frontend**: React 19 + Vite (JavaScript), [Motion](https://motion.dev) for animation. Scrolling is the browser's own, so it runs on the GPU and stays smooth while the page animates (see Performance). It builds to a static site for GitHub Pages.
 - **Backend (optional)**: Django REST Framework in [`backend/`](backend/README.md). It serves the profile and videos from an admin-managed database and receives the contact form. Without it, the site runs entirely on the bundled content, and the contact form is delivered by Netlify Forms (see Contact form below).
 
 ## Design
@@ -29,6 +29,20 @@ Portfolio site for Adhul U Krishna, video editor.
 - **Glass** (`styles/glass.css`): panels, chips and controls are frosted glass. Most of it is layered fills, a light-catching gradient rim and an inner highlight, painted once so it costs nothing while scrolling. Live backdrop blur is kept to small or fixed surfaces: header, cursor lens, hero chips and viewer controls.
 
 Everything settles to a static, fully readable layout under `prefers-reduced-motion`.
+
+## Performance
+
+Scrolling is kept on the compositor (GPU) and off the main thread, measured with Chrome's frame reporter on a full-page wheel scroll:
+
+- **Native scrolling**, not a script-driven smooth scroll (which moved the page from the main thread every frame and dropped about one frame in seven). Wheel steps still glide.
+- **Scroll-linked motion on the compositor** where supported (CSS scroll-driven animations): the toolkit slider (slide, 3D turn, dimming, progress), the header reading-progress bar, the hero summary's word-by-word light-up and the stacked cards' focus-in on phones. Script only flips discrete state (which tab is active, which card plays). Browsers without scroll-driven animations fall back to the scripted versions.
+- **Nothing polls animations**: the explainers advance on a CSS animation's iteration event; reading an animation's time (which forces a style update) only happens on a click.
+- **Decorative loops pause off screen**, per element, and animate only compositor-friendly properties (transform, opacity): no animated box-shadows, colours, clip-paths or SVG `rotate` on scroll paths. SVG rotations use `transform` so they composite.
+- **No layer explosion**: no 3D-transform hacks on hidden letters, one animated layer per caption line (not per word).
+- **Work-reel colour sampling** decodes and shrinks posters off the main thread (`createImageBitmap`) and samples one at a time in idle moments.
+- **No hit-testing or layout reads during scroll** (the custom cursor waits for the scroll to settle; header link positions are measured once).
+
+Result on a full-page scroll: desktop drops about 1.5% of frames (was about 15%), a 4x-throttled phone about 0.4% (was 7%). Lighthouse: desktop 97-100, mobile 83-85; accessibility, best practices and SEO 100; CLS 0.
 
 ## Run it
 

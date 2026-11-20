@@ -189,6 +189,20 @@
   animation: fx-hit var(--loop) linear calc(1.4s + var(--loop) * var(--x) / 100)
     infinite;
 }
+/* The crimson flash is a layer that fades (compositor), not an animated
+   background and shadow (a repaint every frame). */
+.fxp__key::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--crimson);
+  box-shadow: 0 0 14px var(--glow-red);
+  opacity: 0;
+}
+.fxp.is-in .fxp__key::after {
+  animation: fx-flash var(--loop) linear
+    calc(1.4s + var(--loop) * var(--x) / 100) infinite;
+}
 @keyframes fx-sweep {
   to {
     transform: translateX(0);
@@ -196,15 +210,20 @@
 }
 @keyframes fx-hit {
   0% {
-    background: var(--crimson);
-    box-shadow: 0 0 14px var(--glow-red);
     scale: 1.5;
   }
   8%,
   100% {
-    background: var(--seafoam);
-    box-shadow: none;
     scale: 1;
+  }
+}
+@keyframes fx-flash {
+  0% {
+    opacity: 1;
+  }
+  8%,
+  100% {
+    opacity: 0;
   }
 }
 

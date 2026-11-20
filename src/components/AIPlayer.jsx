@@ -104,11 +104,12 @@ export function SceneFrame({ topic, k, total, onReady }) {
  * the engine that runs it and its three steps lighting up in turn. Beside
  * it, the topic playlist with the one playing open and filling.
  *
- * The programme clock is the progress bar's own 50 s CSS animation, so
- * scrolling the card away stops everything at once. Only the playing scene
- * is mounted; when the clock crosses into the next topic its scene mounts
- * and is lined up with the clock. Seeking moves every loop in the card to
- * the same point.
+ * Everything runs on CSS animations, so scrolling the card away (or under
+ * another) stops it all at once. The script never polls them: reading an
+ * animation's time makes the browser update styles, which costs frame
+ * budget while scrolling. Instead a hidden 10 s "slot" animation fires an
+ * iteration event at each topic boundary, and only a seek (a click) or a
+ * scene that arrives late reads the clock and lines everything up.
  */
 export default function AIPlayer({ product, head, topics }) {
   const n = topics.length;
@@ -119,15 +120,17 @@ export default function AIPlayer({ product, head, topics }) {
   const [near, setNear] = useState(false);
   const stageRef = useRef(null);
   const fillRef = useRef(null);
-  const animRef = useRef(null);
+  const slotRef = useRef(null);
+  const sceneRef = useRef(0);
+  const startedRef = useRef(0);
+  const alignNextRef = useRef(false);
+  const seekedRef = useRef(0);
+  sceneRef.current = scene;
 
   const card = () => stageRef.current?.closest(".tool");
+  // Programme time, read only on demand (never per frame).
   const now = () => {
-    let a = animRef.current;
-    if (!a || a.playState === "idle") {
-      a = animRef.current = fillRef.current?.getAnimations()[0] ?? null;
-    }
-    const t = a?.currentTime;
+    const t = fillRef.current?.getAnimations()[0]?.currentTime;
     if (t == null) return null;
     const v = Number(t);
     // Wrapped into [0, total): a just-started animation can briefly report
@@ -137,20 +140,35 @@ export default function AIPlayer({ product, head, topics }) {
   const sceneAt = (t) => Math.min(n - 1, Math.max(0, Math.floor(t / SCENE_MS)));
   // Line up every loop in the card (programme and scene) with time t, as
   // if it had played from the start: an animation's own delay still
-  // applies, so staggers (word by word, tile by tile) survive a seek.
+  // applies, so staggers (word by word, tile by tile) survive a seek. The
+  // slot keeps its lap count, so a seek never fires its event.
   const align = (t) => {
+    const slot = slotRef.current;
     card()
       ?.getAnimations({ subtree: true })
       .forEach((a) => {
         const tm = a.effect?.getTiming?.();
         if (!tm) return;
         if (tm.duration === total) a.currentTime = t;
-        else if (tm.duration === SCENE_MS) a.currentTime = t % SCENE_MS;
+        else if (a.effect.target === slot) {
+          const lap = Math.floor((Number(a.currentTime) || 0) / SCENE_MS);
+          a.currentTime = lap * SCENE_MS + (t % SCENE_MS);
+        } else if (tm.duration === SCENE_MS) a.currentTime = t % SCENE_MS;
       });
+  };
+  const realign = () => {
+    const t = now();
+    if (t != null) align(t);
   };
   const seek = (t) => {
     align(t);
-    setScene(sceneAt(t));
+    seekedRef.current = performance.now();
+    const k = sceneAt(t);
+    if (k !== sceneRef.current) {
+      alignNextRef.current = true;
+      startedRef.current = performance.now();
+      setScene(k);
+    }
   };
   const go = (k) => seek(((k + n) % n) * SCENE_MS + 1);
   const onScrub = (e) => {
@@ -159,27 +177,39 @@ export default function AIPlayer({ product, head, topics }) {
     seek(f * total);
   };
 
-  // A scene starts its animations when it mounts: line them up (again when
-  // a scene that was still loading arrives).
-  const realign = () => {
-    const t = now();
-    if (t != null) align(t);
+  // A scene mounted by a seek (or the first one) is lined up with the
+  // clock; one that simply follows the slot's event starts on time.
+  useLayoutEffect(() => {
+    if (!alignNextRef.current || !near) return;
+    alignNextRef.current = false;
+    realign();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [scene, near]);
+  // A scene whose code arrived late (still loading at the boundary) is
+  // lined up when it lands.
+  const onSceneReady = () => {
+    if (performance.now() - startedRef.current > 150) realign();
   };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  useLayoutEffect(realign, [scene]);
+
+  // Each topic boundary: the slot's iteration event moves to the next.
+  useEffect(() => {
+    const slot = slotRef.current;
+    if (!slot) return;
+    const onLap = (e) => {
+      if (e.target !== slot) return;
+      if (performance.now() - seekedRef.current < 200) return;
+      startedRef.current = performance.now();
+      setScene((k) => (k + 1) % n);
+    };
+    slot.addEventListener("animationiteration", onLap);
+    return () => slot.removeEventListener("animationiteration", onLap);
+  }, [n]);
 
   // Each card plays only while it is on screen (so every explainer starts
-  // from its first topic when you reach it) and follows the clock into the
-  // next topic.
+  // from its first topic when you reach it).
   useEffect(() => {
     const el = card();
     if (!el || !("IntersectionObserver" in window)) return;
-    let raf = 0;
-    const tick = () => {
-      const t = now();
-      if (t != null) setScene(sceneAt(t));
-      raf = requestAnimationFrame(tick);
-    };
     el.setAttribute("data-away", "");
     // Near the screen: mount the video and fetch the other topics' scenes
     // well before they are needed.
@@ -187,6 +217,9 @@ export default function AIPlayer({ product, head, topics }) {
       ([e]) => {
         if (!e.isIntersecting) return;
         preloadScenes();
+        // The first scene mounts with the clock (still paused, at its
+        // start): nothing to line up.
+        startedRef.current = performance.now();
         setNear(true);
         // Lets the card's own scroll motion attach (see Toolkit.css).
         el.setAttribute("data-near", "");
@@ -203,8 +236,6 @@ export default function AIPlayer({ product, head, topics }) {
           e.intersectionRect.height >=
             Math.min(e.boundingClientRect.height * 0.6, innerHeight * 0.5);
         el.toggleAttribute("data-away", !seen);
-        cancelAnimationFrame(raf);
-        raf = seen ? requestAnimationFrame(tick) : 0;
       },
       { threshold: [0, 0.2, 0.4, 0.5, 0.6, 0.7, 0.8, 1] },
     );
@@ -212,7 +243,6 @@ export default function AIPlayer({ product, head, topics }) {
     return () => {
       io.disconnect();
       early.disconnect();
-      cancelAnimationFrame(raf);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -229,7 +259,7 @@ export default function AIPlayer({ product, head, topics }) {
                   topic={topic}
                   k={scene}
                   total={n}
-                  onReady={realign}
+                  onReady={onSceneReady}
                 />
               )}
             </div>
@@ -237,9 +267,12 @@ export default function AIPlayer({ product, head, topics }) {
 
           <div className="aip__bar">
             <div className="aip__track" onClick={onScrub} aria-hidden="true">
-              <span className="aip__rail" />
-              <span className="aip__fill" ref={fillRef} />
+              <span className="aip__segs">
+                <span className="aip__rail" />
+                <span className="aip__fill" ref={fillRef} />
+              </span>
               <span className="aip__head" />
+              <span className="aip__slot" ref={slotRef} />
             </div>
             <div className="aip__ai">
               <span className="aip__live">
@@ -263,7 +296,24 @@ export default function AIPlayer({ product, head, topics }) {
                 ))}
               </ol>
               <span className="aip__time" aria-hidden="true">
-                <span className="aip__now" /> / {clock(total)}
+                <span className="aip__now">
+                  0:
+                  <span className="aip__dig aip__dig--tens">
+                    <i>
+                      {[0, 1, 2, 3, 4].map((d) => (
+                        <b key={d}>{d}</b>
+                      ))}
+                    </i>
+                  </span>
+                  <span className="aip__dig aip__dig--ones">
+                    <i>
+                      {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map((d) => (
+                        <b key={d}>{d}</b>
+                      ))}
+                    </i>
+                  </span>
+                </span>{" "}
+                / {clock(total)}
               </span>
             </div>
           </div>

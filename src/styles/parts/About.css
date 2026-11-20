@@ -170,7 +170,9 @@
   left: 55%;
   top: 52%;
   width: min(78svh, 50vw);
-  translate: -50% -50%;
+  /* Centred with margins, not translate: an SVG with an independent
+     transform property can't have its rotation composited. */
+  margin: calc(min(78svh, 50vw) / -2) 0 0 calc(min(78svh, 50vw) / -2);
   fill: none;
   stroke: rgb(142 210 190 / 0.14);
   stroke-width: 1;
@@ -181,9 +183,11 @@
   stroke: rgb(234 58 50 / 0.18);
   stroke-dasharray: 40 14;
 }
+/* `transform`, not `rotate`: on an SVG element only this runs on the
+   compositor (no repaint every frame). */
 @keyframes orbit {
   to {
-    rotate: 360deg;
+    transform: rotate(360deg);
   }
 }
 
@@ -829,6 +833,35 @@
   /* Unlit words stay at 0.4 so they still read (3.4:1 on --ink, WCAG large text). */
   opacity: clamp(0.4, calc(var(--p, 0) * var(--n) * 1.15 - var(--i)), 1);
   transition: opacity 0.2s linear;
+}
+/* Where supported, each word lights over its own slice of the summary's
+   pass through the screen (top at 88% of the screen to bottom at 55%, the
+   same as the script), on the compositor: no script or restyling on
+   scroll frames. */
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) {
+    .js .profile__summary {
+      view-timeline: --summary block;
+    }
+    .js .profile__word {
+      --a: calc((var(--i) + 0.4) / (1.15 * var(--n)));
+      --b: calc((var(--i) + 1) / (1.15 * var(--n)));
+      opacity: 0.4;
+      transition: none;
+      animation: word-lit linear both;
+      animation-timeline: --summary;
+      animation-range: cover calc(12vh + (100% - 67vh) * var(--a)) cover
+        calc(12vh + (100% - 67vh) * var(--b));
+    }
+  }
+}
+@keyframes word-lit {
+  from {
+    opacity: 0.4;
+  }
+  to {
+    opacity: 1;
+  }
 }
 .stats {
   grid-column: 1 / -1;

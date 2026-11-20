@@ -1,6 +1,12 @@
 import { Fragment, useEffect, useRef } from "react";
 import { usePauseOffscreen, useScrollFrame } from "../lib/ticker";
 
+// Read on every scroll frame: one cached query, not a new one each time.
+const reducedMQ =
+  typeof window !== "undefined"
+    ? window.matchMedia("(prefers-reduced-motion: reduce)")
+    : null;
+
 /**
  * Two crossing marquee tapes between scenes: one crimson, one outlined.
  * Their speed picks up with scroll velocity, then eases back.
@@ -20,8 +26,7 @@ export default function Tapes({ skills }) {
   useScrollFrame((y) => {
     const el = ref.current;
     const s = speed.current;
-    if (!el || window.matchMedia("(prefers-reduced-motion: reduce)").matches)
-      return;
+    if (!el || reducedMQ?.matches) return;
     const now = performance.now();
     const v = s.t ? Math.abs(y - s.y) / Math.max(1, now - s.t) : 0;
     s.y = y;

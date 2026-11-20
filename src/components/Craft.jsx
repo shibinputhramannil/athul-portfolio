@@ -155,20 +155,27 @@ export default function Craft({ number, profile }) {
       const x = Math.round((seg + t * t * (3 - 2 * t)) * 1000) / 1000;
       if (x === s.x) return;
       s.x = x;
-      s.list.style.transform = `translate3d(${(-x * s.shift).toFixed(1)}px, 0, 0)`;
-      s.items.forEach((it, k) => {
-        const d = clamp(k - x, -1, 1);
-        const a = Math.abs(d);
-        it.el.style.scale = a ? String(1 - a * 0.08) : "";
-        it.el.style.rotate = a ? `y ${(-d * 9).toFixed(2)}deg` : "";
-        if (it.shade) it.shade.style.opacity = String(a * 0.6);
-        it.el.toggleAttribute("data-paused", a > 0.5);
-      });
-      if (s.fill)
-        s.fill.style.transform = `scaleX(${(x / (n - 1)).toFixed(4)})`;
+      // With scroll-driven CSS (s.css) the visuals run on the compositor;
+      // otherwise they are written here.
+      if (!s.css) {
+        s.list.style.transform = `translate3d(${(-x * s.shift).toFixed(1)}px, 0, 0)`;
+        s.items.forEach((it, k) => {
+          const d = clamp(k - x, -1, 1);
+          const a = Math.abs(d);
+          it.el.style.scale = a ? String(1 - a * 0.08) : "";
+          it.el.style.rotate = a ? `y ${(-d * 9).toFixed(2)}deg` : "";
+          if (it.shade) it.shade.style.opacity = String(a * 0.6);
+        });
+        if (s.fill)
+          s.fill.style.transform = `scaleX(${(x / (n - 1)).toFixed(4)})`;
+      }
       const active = Math.round(x);
       if (active !== s.active) {
         s.active = active;
+        // Only the card in front plays.
+        s.items.forEach((it, k) =>
+          it.el.toggleAttribute("data-paused", k !== active),
+        );
         s.tabs.forEach((tab, k) => {
           tab.classList.toggle("is-on", k === active);
           if (k === active) tab.setAttribute("aria-current", "true");
@@ -203,7 +210,7 @@ export default function Craft({ number, profile }) {
       if (!wide || still) {
         if (s.on || kit.classList.contains("kit--pin")) {
           reset();
-          kit.classList.remove("kit--pin");
+          kit.classList.remove("kit--pin", "kit--sda");
           stage.style.height = "";
           stage.style.removeProperty("--pin-h");
         }
@@ -223,6 +230,11 @@ export default function Craft({ number, profile }) {
       const on = cards.length > 1 && cardH + 120 <= avail;
       kit.classList.toggle("kit--pin", on);
       s.on = on;
+      s.css =
+        on &&
+        cards.length === 3 &&
+        !!window.CSS?.supports?.("animation-timeline: view()");
+      kit.classList.toggle("kit--sda", s.css);
       s.x = -1;
       s.active = -1;
       if (!on) {
@@ -260,6 +272,18 @@ export default function Craft({ number, profile }) {
   // Keyframe sweeps pause off screen; the panel timecode only runs on screen.
   const sectionRef = useRef(null);
   usePauseOffscreen(sectionRef);
+  // The skills panel also pauses on its own once scrolled past, while the
+  // section (and its toolkit) is still on screen.
+  useEffect(() => {
+    const el = sectionRef.current?.querySelector(".fxp");
+    if (!el || !("IntersectionObserver" in window)) return;
+    const io = new IntersectionObserver(
+      ([e]) => el.toggleAttribute("data-paused", !e.isIntersecting),
+      { rootMargin: "100px 0px" },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
   useEffect(() => {
     const el = sectionRef.current;
     if (!el || window.matchMedia("(prefers-reduced-motion: reduce)").matches)

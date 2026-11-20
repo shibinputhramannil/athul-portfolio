@@ -73,6 +73,22 @@
 .site-header.is-scrolled .site-header__progress {
   opacity: 1;
 }
+/* Where supported the bar follows the page scroll on the compositor. */
+@supports (animation-timeline: scroll()) {
+  .site-header .site-header__progress {
+    animation: header-progress linear both;
+    animation-timeline: scroll(root block);
+    animation-play-state: running !important;
+  }
+}
+@keyframes header-progress {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: none;
+  }
+}
 
 /* ---------- Brand ---------- */
 .brand {

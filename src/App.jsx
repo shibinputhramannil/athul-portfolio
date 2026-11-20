@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
 import { usePortfolioData } from "./lib/data";
-import { startSmoothScroll } from "./lib/scroll";
 import { useMagnet } from "./hooks/useMagnet";
 import FloatingBg from "./components/FloatingBg";
 import Cursor from "./components/Cursor";
@@ -20,7 +19,6 @@ export default function App() {
   const { profile, videos } = usePortfolioData();
   const [viewing, setViewing] = useState(null); // index into videos
 
-  useEffect(() => startSmoothScroll(), []);
   // Tell the opener (index.html) the page is on screen, so it can reframe
   // onto the hero instead of onto an empty page.
   useEffect(() => {

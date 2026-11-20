@@ -54,13 +54,40 @@ function hslToRgb(h, s, l) {
   return [f(h + 1 / 3), f(h), f(h - 1 / 3)].map((v) => Math.round(v * 255));
 }
 
-function sampleTone(img) {
+// Waits for a quiet moment, so sampling never lands in a scroll frame.
+const idle = () =>
+  new Promise((r) =>
+    "requestIdleCallback" in window
+      ? requestIdleCallback(() => r(), { timeout: 1500 })
+      : setTimeout(r, 80),
+  );
+// One poster at a time, so a batch never stacks up into one long task.
+let queue = Promise.resolve();
+
+async function sampleTone(img) {
+  const W = 24;
+  const H = 40;
+  // Decode and shrink off the main thread where possible: drawing the
+  // full-size poster here would decode it synchronously.
+  let src = img;
+  try {
+    if (window.createImageBitmap)
+      src = await createImageBitmap(img, {
+        resizeWidth: W,
+        resizeHeight: H,
+        resizeQuality: "low",
+      });
+  } catch {
+    src = img;
+  }
+  await idle();
   const c = document.createElement("canvas");
-  c.width = 24;
-  c.height = 40;
+  c.width = W;
+  c.height = H;
   const ctx = c.getContext("2d", { willReadFrequently: true });
-  ctx.drawImage(img, 0, 0, c.width, c.height);
-  const { data } = ctx.getImageData(0, 0, c.width, c.height);
+  ctx.drawImage(src, 0, 0, W, H);
+  src.close?.();
+  const { data } = ctx.getImageData(0, 0, W, H);
   let r = 0;
   let g = 0;
   let b = 0;
@@ -89,11 +116,13 @@ export function loadTone(src) {
     img.crossOrigin = "anonymous";
     img.decoding = "async";
     img.onload = () => {
-      try {
-        resolve(sampleTone(img));
-      } catch {
-        resolve(FALLBACK); // cross-origin poster without CORS headers
-      }
+      // Queued one at a time; a cross-origin poster without CORS headers
+      // throws on read and falls back.
+      queue = queue.then(() =>
+        sampleTone(img)
+          .then(resolve)
+          .catch(() => resolve(FALLBACK)),
+      );
     };
     img.onerror = () => resolve(FALLBACK);
     img.src = src;
@@ -120,10 +149,13 @@ export function useTones(videos) {
   const [tones, setTones] = useState({});
   useEffect(() => {
     let live = true;
-    Promise.all(videos.map((v) => loadTone(v.poster))).then((list) => {
-      if (!live) return;
-      setTones(Object.fromEntries(videos.map((v, i) => [v.id, list[i]])));
-    });
+    Promise.all(videos.map((v) => loadTone(v.poster)))
+      // Applied in a quiet moment: it re-renders the whole Work section.
+      .then((list) => idle().then(() => list))
+      .then((list) => {
+        if (!live) return;
+        setTones(Object.fromEntries(videos.map((v, i) => [v.id, list[i]])));
+      });
     return () => {
       live = false;
     };

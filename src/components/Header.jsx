@@ -1,4 +1,8 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
+
+const scrollDriven =
+  typeof window !== "undefined" &&
+  !!window.CSS?.supports?.("animation-timeline: scroll()");
 import Icon from "./Icon";
 import LocalTime from "./LocalTime";
 import { useScrollFrame } from "../lib/ticker";
@@ -22,6 +26,8 @@ export default function Header({ nav, profile }) {
   const firstLinkRef = useRef(null);
   const [current, setCurrent] = useState("about");
   const [ind, setInd] = useState(null);
+  const navPos = useRef(new Map());
+  const currentRef = useRef(null);
   const [mac, setMac] = useState(false);
   const [open, setOpen] = useState(false);
 
@@ -65,7 +71,8 @@ export default function Header({ nav, profile }) {
         s.hidden = hidden;
       }
       const p = Math.round(Math.min(1, y / geo.current.max) * 1000) / 1000;
-      if (p !== s.p && progressRef.current) {
+      // Scroll-driven CSS draws the bar where supported (Header.css).
+      if (!scrollDriven && p !== s.p && progressRef.current) {
         progressRef.current.style.transform = `scaleX(${p})`;
         s.p = p;
       }
@@ -98,15 +105,29 @@ export default function Header({ nav, profile }) {
 
   // Highlight that slides to the current link.
   useLayoutEffect(() => {
-    const place = () => {
-      const link = listRef.current?.querySelector(`[data-nav="${current}"]`);
-      if (link) setInd({ x: link.offsetLeft, w: link.offsetWidth });
+    // Link positions are measured on resize and once the fonts land, never
+    // as the section changes mid-scroll (a forced layout every time).
+    const measure = () => {
+      const m = new Map();
+      listRef.current
+        ?.querySelectorAll("[data-nav]")
+        .forEach((a) =>
+          m.set(a.dataset.nav, { x: a.offsetLeft, w: a.offsetWidth }),
+        );
+      navPos.current = m;
+      const p = m.get(currentRef.current);
+      if (p) setInd(p);
     };
-    place();
-    window.addEventListener("resize", place);
-    document.fonts?.ready.then(place);
-    return () => window.removeEventListener("resize", place);
-  }, [current, nav]);
+    measure();
+    window.addEventListener("resize", measure);
+    document.fonts?.ready.then(measure);
+    return () => window.removeEventListener("resize", measure);
+  }, [nav]);
+  useEffect(() => {
+    currentRef.current = current;
+    const p = navPos.current.get(current);
+    if (p) setInd(p);
+  }, [current]);
 
   // Phone menu: locks the page, closes on Esc, and hands focus in and back.
   useEffect(() => {

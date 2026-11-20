@@ -22,7 +22,7 @@
   transform-origin: 0 100%;
 }
 .js .split__c {
-  transform: translate3d(0, 108%, 0) rotate(7deg);
+  transform: translate(0, 108%) rotate(7deg);
   transition: transform 0.95s cubic-bezier(0.16, 1, 0.3, 1)
     calc(var(--d, 0ms) + var(--i) * var(--st, 24ms));
 }
