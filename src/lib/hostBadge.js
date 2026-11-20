@@ -2,7 +2,7 @@
  * Some hosts inject a fixed badge into the bottom-right corner of the page
  * (Netlify's "Powered by Netlify" on the free plan). The badge is part of the
  * hosting plan, so instead of hiding it we measure it and expose its height
- * as --host-inset; the footer, the phone dock and the toasts sit above it.
+ * as --host-inset; the toasts sit above it.
  */
 const BADGE_IDS = ["nl-badge-frame"];
 

@@ -3,7 +3,7 @@ import { AnimatePresence, motion } from "motion/react";
 import Icon from "./Icon";
 import { onToast } from "../lib/toast";
 
-/** Glass toasts, bottom centre (above the mobile dock), announced politely. */
+/** Glass toasts, bottom centre, announced politely. */
 export default function Toaster() {
   const [items, setItems] = useState([]);
 

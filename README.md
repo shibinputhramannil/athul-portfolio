@@ -21,11 +21,12 @@ Portfolio site for Adhul U Krishna, video editor.
   - **The viewer** (`Viewer.jsx`): a full-screen player with sound, custom controls, timecode, editor shortcuts (K play/pause, J/L shuttle, N/P next and previous edit, M mute, F full screen, Esc close) and an "Up next" card.
 - **Scene 03 · Craft** (`Craft.jsx`): skills as an effect-controls stack whose keyframes flash as a playhead passes, and tilting tool tiles.
 - **Experience, Contact**: clapperboard section slates (`SectionHead.jsx`), each title over an outlined echo split into the same letter boxes so it stays in register. Experience is a set of editorial rows (dates, studio and role, the work) whose hairlines draw in the scene's grade. Contact has a project-brief form and an audio track (`Waveform.jsx`) that a playhead lights up.
-- **Footer** (`Footer.jsx`): a gradient wordmark with a call to action, links to every scene, contact details, the editor's local time (IST) and the copyright bar.
+- **Header** (`Header.jsx`): a brand lockup, sentence-case section links with a sliding glass highlight and a dot in the scene's colour, search (Ctrl/⌘ K) and a call to action. Flat over the first screen; once the page scrolls it condenses into a floating glass bar with a reading-progress line, hides while scrolling down and returns on the way up. Below 920px the links move into a full-screen menu (large links rising in turn, email, local time, call to action) that locks the page, closes on Esc and returns focus.
+- **Footer** (`Footer.jsx`): name and blurb with a live IST clock, Navigate / Services / Contact columns (with copy email), the legal line, and the page ends on a giant near-black "ADHUL" wordmark cut off by the bottom edge. Its letters rise in on arrival; on desktop a spotlight follows the pointer and shows the colour grade inside the letters.
 - **Colour grade** (`styles/color.css`): a teal-and-orange palette (cyan, seafoam, amber, coral, crimson, plus a violet night tone) with matching gradients. The gradients are balanced: every stop sits in one lightness band (OKLCH L 0.70–0.90) with real colour, a pale-gold bridge keeps teal-to-orange from turning khaki, and browsers that support it blend them in OKLab. Each scene has its own accent, so headings, rules and the header indicator change colour as you move through the page. Headings use a per-letter slice of one gradient, so words stay one continuous blend while the letters animate.
 - **Command palette** (`CommandPalette.jsx`, Ctrl/⌘ K or `/`): jump to any scene, play any edit, copy the email, write an email or share the portfolio from the keyboard. Glass toasts (`Toaster.jsx`) confirm actions.
 - **Text in motion**: a rolling word in the opening line ("cut for Reels / Shorts / Stories / Ads"), key skills in the summary that light up in their own gradient as you read, letters that rise in gradient, and labels that decode like timecode.
-- **Glass** (`styles/glass.css`): panels, chips and controls are frosted glass. Most of it is layered fills, a light-catching gradient rim and an inner highlight, painted once so it costs nothing while scrolling. Live backdrop blur is kept to small or fixed surfaces: header, mobile dock, cursor lens, hero chips and viewer controls.
+- **Glass** (`styles/glass.css`): panels, chips and controls are frosted glass. Most of it is layered fills, a light-catching gradient rim and an inner highlight, painted once so it costs nothing while scrolling. Live backdrop blur is kept to small or fixed surfaces: header, cursor lens, hero chips and viewer controls.
 
 Everything settles to a static, fully readable layout under `prefers-reduced-motion`.
 
@@ -98,7 +99,7 @@ npx netlify-cli deploy --prod --dir dist
 
 Connecting the GitHub repository in the Netlify dashboard turns this into a deploy on every push. Netlify hosts only the static frontend; the Django REST backend runs elsewhere if used.
 
-Netlify's free plan adds a "Powered by Netlify" badge in the bottom-right corner. It is part of the plan, so the site doesn't hide it: `src/lib/hostBadge.js` measures it, and the footer, phone dock and toasts move above it.
+Netlify's free plan adds a "Powered by Netlify" badge in the bottom-right corner. It is part of the plan, so the site doesn't hide it: `src/lib/hostBadge.js` measures it and the toasts move above it; the page ends on the decorative footer wordmark, which the badge may sit over.
 
 #### Contact form
 

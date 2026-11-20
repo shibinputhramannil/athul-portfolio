@@ -29,7 +29,6 @@
   --section: clamp(88px, 13vh, 180px);
   --max: 1600px;
   --header-h: 60px;
-  --tabbar-h: 62px;
   --radius: 14px;
   --ease-cut: cubic-bezier(0.2, 0.7, 0.1, 1);
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
@@ -89,12 +88,6 @@ body::before {
     transparent 60%,
     rgb(0 0 0 / 0.45)
   );
-}
-
-@media (max-width: 720px) {
-  body {
-    padding-bottom: calc(var(--tabbar-h) + 16px + env(safe-area-inset-bottom));
-  }
 }
 
 .icon {
