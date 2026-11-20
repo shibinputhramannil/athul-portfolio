@@ -72,6 +72,7 @@ function Tool({ name, i }) {
       style={{ "--glow": toolGlow[meta.brand] }}
     >
       <span className="tool__glow" aria-hidden="true" />
+      <span className="tool__edge" aria-hidden="true" />
       <Safe fallback={<div className="tool__info">{head}</div>}>
         <AIPlayer product={meta.name} head={head} topics={prog.topics} />
       </Safe>
@@ -89,6 +90,44 @@ export default function Craft({ number, profile }) {
   );
   const tcRef = useRef(null);
   const kitRef = useRef(null);
+
+  // Cards lean gently toward the pointer, with a spotlight following it
+  // (fine pointers only; written once a frame, as CSS variables).
+  useEffect(() => {
+    const fine = window.matchMedia("(hover: hover) and (pointer: fine)");
+    const still = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const cards = kitRef.current?.querySelectorAll(":scope > .tool") ?? [];
+    if (!fine.matches || still.matches) return;
+    const offs = [];
+    cards.forEach((el) => {
+      let raf = 0;
+      const move = (e) => {
+        cancelAnimationFrame(raf);
+        raf = requestAnimationFrame(() => {
+          const r = el.getBoundingClientRect();
+          const x = Math.min(1, Math.max(0, (e.clientX - r.left) / r.width));
+          const y = Math.min(1, Math.max(0, (e.clientY - r.top) / r.height));
+          el.style.setProperty("--tx", (x * 2 - 1).toFixed(3));
+          el.style.setProperty("--ty", (y * 2 - 1).toFixed(3));
+          el.style.setProperty("--mx", `${(x * 100).toFixed(1)}%`);
+          el.style.setProperty("--my", `${(y * 100).toFixed(1)}%`);
+        });
+      };
+      const leave = () => {
+        cancelAnimationFrame(raf);
+        el.style.setProperty("--tx", "0");
+        el.style.setProperty("--ty", "0");
+      };
+      el.addEventListener("pointermove", move);
+      el.addEventListener("pointerleave", leave);
+      offs.push(() => {
+        cancelAnimationFrame(raf);
+        el.removeEventListener("pointermove", move);
+        el.removeEventListener("pointerleave", leave);
+      });
+    });
+    return () => offs.forEach((off) => off());
+  }, [profile.tools]);
 
   // Stacked deck (wide screens): the cards stick in turn, and as the next
   // one slides over, the card beneath eases back and dims. Geometry is
