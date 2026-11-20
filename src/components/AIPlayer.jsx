@@ -188,6 +188,8 @@ export default function AIPlayer({ product, head, topics }) {
         if (!e.isIntersecting) return;
         preloadScenes();
         setNear(true);
+        // Lets the card's own scroll motion attach (see Toolkit.css).
+        el.setAttribute("data-near", "");
         early.disconnect();
       },
       { rootMargin: "2400px 0px" },

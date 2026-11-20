@@ -245,13 +245,6 @@
 .tool:hover {
   border-color: rgb(var(--glow) / 0.5);
 }
-/* Wide screens: the cards stack as a deck while the list scrolls past. */
-@media (min-width: 1001px) and (min-height: 700px) {
-  .tool {
-    position: sticky;
-    top: calc(var(--header-h) + 28px + var(--i, 0) * 16px);
-  }
-}
 .tool__glow {
   position: absolute;
   inset: auto -10% -60% auto;

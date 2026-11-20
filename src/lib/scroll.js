@@ -47,3 +47,9 @@ export function scrollToEl(el, offset = 0) {
       behavior: "smooth",
     });
 }
+
+/** Scroll the page to a document position (smoothly, through Lenis if on). */
+export function scrollToY(y) {
+  if (lenis) lenis.scrollTo(y);
+  else window.scrollTo({ top: y, behavior: "smooth" });
+}

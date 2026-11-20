@@ -840,8 +840,8 @@
   inset: 0;
 }
 /* Paused while the card is off screen (data-away), so each explainer
-   starts from its first topic when you reach it. */
-.tool[data-away],
+   starts from its first topic when you reach it. (Only its contents: the
+   card's own scroll-driven motion must keep tracking the scroll.) */
 .tool[data-away] * {
   animation-play-state: paused !important;
 }
@@ -2039,5 +2039,155 @@
   }
   .tool__edge::after {
     display: none;
+  }
+}
+
+/* =====================================================================
+   Card movement on scroll.
+   Wide screens with room for a whole card (.kit--pin, set by Craft.jsx):
+   the toolkit pins and the cards slide across one at a time, the next
+   gliding in with a slight 3D turn as the last eases back and dims, with
+   a rail of tool tabs and progress above. Elsewhere the cards stay
+   stacked and each tilts up and scales into focus as it arrives, then
+   eases back as it leaves (scroll-driven CSS, off the main thread).
+   ===================================================================== */
+.kit__rail {
+  display: none;
+}
+.kit--pin .kit__stage {
+  position: relative;
+}
+.kit--pin .kit__pin {
+  position: sticky;
+  top: var(--header-h);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 20px;
+  height: var(--pin-h, calc(100vh - var(--header-h)));
+  margin-inline: calc(50% - 50vw);
+  padding-inline: calc(50vw - 50%);
+  overflow: hidden;
+  overflow: clip;
+}
+.kit--pin .kit__list {
+  display: flex;
+  column-gap: var(--gutter);
+  perspective: 2200px;
+  will-change: transform;
+}
+.kit--pin .kit__list > .tool {
+  flex: 0 0 100%;
+  transform-origin: 50% 50%;
+}
+/* In the slider the cards are already in place: no lift-in. */
+.js .kit.kit--pin .kit__list > .tool {
+  opacity: 1;
+  translate: none;
+}
+.kit--pin .kit__rail {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.kit__tab {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px 6px 8px;
+  border: 1px solid rgb(255 255 255 / 0.1);
+  border-radius: 999px;
+  background: rgb(255 255 255 / 0.03);
+  color: var(--fog);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    color 0.35s,
+    border-color 0.35s,
+    background-color 0.35s,
+    box-shadow 0.35s;
+}
+.kit__tab:hover {
+  color: var(--mist);
+}
+.kit__tab:focus-visible {
+  outline: 2px solid #4fd8e8;
+  outline-offset: 2px;
+}
+.kit__tab.is-on {
+  border-color: rgb(var(--glow) / 0.6);
+  background: rgb(var(--glow) / 0.12);
+  color: var(--mist);
+  box-shadow: 0 10px 30px -14px rgb(var(--glow) / 0.8);
+}
+.kit__progress {
+  position: relative;
+  flex: 1;
+  height: 2px;
+  margin: 0 8px;
+  overflow: hidden;
+  border-radius: 2px;
+  background: rgb(255 255 255 / 0.1);
+}
+.kit__progress i {
+  position: absolute;
+  inset: 0;
+  background: var(--grad-grade);
+  transform: scaleX(0);
+  transform-origin: 0 50%;
+}
+.kit__count {
+  flex: none;
+  color: var(--fog);
+  font-family: var(--font-mono);
+  font-size: 12px;
+}
+.kit__count b {
+  color: var(--mist);
+  font-weight: 500;
+}
+
+/* Stacked (phones, short screens): each card focuses in as it arrives. */
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) {
+    .kit:not(.kit--pin) .kit__list {
+      perspective: 1400px;
+    }
+    /* Attached only once the card is near (data-near, from AIPlayer), so
+       cards far down the page are never tilted or layered at load. */
+    .kit:not(.kit--pin) .kit__list > .tool[data-near] {
+      animation:
+        kit-in linear both,
+        kit-out linear forwards;
+      animation-timeline: view(), view();
+      animation-range:
+        entry 0% entry 75%,
+        exit 15% exit 100%;
+    }
+    .js .kit:not(.kit--pin) .kit__list > .tool {
+      opacity: 1;
+      translate: none;
+    }
+  }
+}
+@keyframes kit-in {
+  from {
+    opacity: 0.2;
+    scale: 0.88;
+    rotate: x 16deg;
+  }
+  to {
+    opacity: 1;
+    scale: 1;
+    rotate: none;
+  }
+}
+@keyframes kit-out {
+  to {
+    opacity: 0.35;
+    scale: 0.93;
   }
 }

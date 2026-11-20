@@ -3,7 +3,8 @@ import SectionHead from "./SectionHead";
 import Icon from "./Icon";
 import Reveal from "./Reveal";
 import { toolMeta } from "../lib/icons";
-import { usePauseOffscreen, useScrollFrame } from "../lib/ticker";
+import { docTop, usePauseOffscreen, useScrollFrame } from "../lib/ticker";
+import { scrollToY } from "../lib/scroll";
 import { Scramble } from "./Kinetic";
 import AIPlayer from "./AIPlayer";
 import { programs } from "./toolPrograms";
@@ -81,7 +82,7 @@ function Tool({ name, i }) {
   );
 }
 
-const clamp01 = (v) => Math.min(1, Math.max(0, v));
+const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
 
 export default function Craft({ number, profile }) {
   const lanes = useMemo(
@@ -129,65 +130,132 @@ export default function Craft({ number, profile }) {
     return () => offs.forEach((off) => off());
   }, [profile.tools]);
 
-  // Stacked deck (wide screens): the cards stick in turn, and as the next
-  // one slides over, the card beneath eases back and dims. Geometry is
-  // cached on resize; scrolling only writes scale and opacity on change.
-  const deck = useRef({ on: false, items: [] });
+  // Pinned slider (wide screens with room for a whole card): the toolkit
+  // pins and scrolling slides the cards across one at a time. Each card
+  // holds still for a beat, then the next glides in with a slight 3D turn
+  // while the one leaving eases back and dims; only the card in front
+  // plays. Geometry is cached on resize; scrolling only writes transforms.
+  // Elsewhere the cards stay stacked and focus in as they arrive (CSS).
+  const stageRef = useRef(null);
+  const railRef = useRef(null);
+  const pin = useRef({ on: false, items: [], x: -1, active: -1 });
+  const goTo = (k) => {
+    const s = pin.current;
+    if (s.on) scrollToY(s.start + k * s.step + 1);
+  };
   useScrollFrame(
     (y) => {
-      const d = deck.current;
-      if (!d.on) return;
-      d.items.forEach((it, k) => {
-        const next = d.items[k + 1];
-        if (!next) return;
-        const nextTop = Math.max(next.stick, next.top - y);
-        const p =
-          Math.round(clamp01((it.stick + it.h - nextTop) / it.h) * 500) / 500;
-        if (p === it.p) return;
-        it.p = p;
-        it.el.style.scale = p ? String(1 - p * 0.06) : "";
-        // A card covered by the next one (all but its top edge) stops playing.
-        it.el.toggleAttribute("data-paused", p >= 0.9);
-        if (it.shade) it.shade.style.opacity = String(p * 0.55);
+      const s = pin.current;
+      if (!s.on) return;
+      const n = s.items.length;
+      const raw = clamp((y - s.start) / s.step, 0, n - 1);
+      const seg = Math.min(n - 2, Math.floor(raw));
+      // Dwell: hold the first and last fifth of each step, ease between.
+      const t = clamp((raw - seg - 0.2) / 0.6, 0, 1);
+      const x = Math.round((seg + t * t * (3 - 2 * t)) * 1000) / 1000;
+      if (x === s.x) return;
+      s.x = x;
+      s.list.style.transform = `translate3d(${(-x * s.shift).toFixed(1)}px, 0, 0)`;
+      s.items.forEach((it, k) => {
+        const d = clamp(k - x, -1, 1);
+        const a = Math.abs(d);
+        it.el.style.scale = a ? String(1 - a * 0.08) : "";
+        it.el.style.rotate = a ? `y ${(-d * 9).toFixed(2)}deg` : "";
+        if (it.shade) it.shade.style.opacity = String(a * 0.6);
+        it.el.toggleAttribute("data-paused", a > 0.5);
       });
+      if (s.fill)
+        s.fill.style.transform = `scaleX(${(x / (n - 1)).toFixed(4)})`;
+      const active = Math.round(x);
+      if (active !== s.active) {
+        s.active = active;
+        s.tabs.forEach((tab, k) => {
+          tab.classList.toggle("is-on", k === active);
+          if (k === active) tab.setAttribute("aria-current", "true");
+          else tab.removeAttribute("aria-current");
+        });
+        if (s.count) s.count.textContent = `0${active + 1}`;
+      }
     },
     () => {
+      const s = pin.current;
+      const stage = stageRef.current;
       const list = kitRef.current;
-      const d = deck.current;
-      const wide = window.matchMedia(
-        "(min-width: 1001px) and (min-height: 700px)",
-      ).matches;
+      const kit = stage?.parentElement;
+      if (!stage || !list || !kit) return;
+      const cards = Array.from(list.children);
+      const reset = () => {
+        list.style.transform = "";
+        cards.forEach((el) => {
+          el.style.scale = "";
+          el.style.rotate = "";
+          el.removeAttribute("data-paused");
+          const shade = el.querySelector(".tool__shade");
+          if (shade) shade.style.opacity = "";
+        });
+      };
+      const wide = window.matchMedia("(min-width: 1001px)").matches;
       const still = window.matchMedia(
         "(prefers-reduced-motion: reduce)",
       ).matches;
-      const cards = Array.from(list?.children ?? []);
-      d.items.forEach((it) => {
-        it.el.style.scale = "";
-        it.el.removeAttribute("data-paused");
-        if (it.shade) it.shade.style.opacity = "";
-      });
-      d.on = !!list && wide && !still;
-      if (!d.on) {
-        d.items = [];
+      // Phones and reduced motion never pin: leave without reading layout
+      // (this runs on every resize while the page loads).
+      if (!wide || still) {
+        if (s.on || kit.classList.contains("kit--pin")) {
+          reset();
+          kit.classList.remove("kit--pin");
+          stage.style.height = "";
+          stage.style.removeProperty("--pin-h");
+        }
+        s.on = false;
         return;
       }
-      // Natural (unstuck) positions: the list's top plus the cards above.
-      const gap = parseFloat(getComputedStyle(list).rowGap) || 0;
-      let top = list.getBoundingClientRect().top + window.scrollY;
-      d.items = cards.map((el) => {
-        const item = {
-          el,
-          shade: el.querySelector(".tool__shade"),
-          top,
-          h: el.offsetHeight,
-          stick: parseFloat(getComputedStyle(el).top) || 0,
-          p: -1,
-        };
-        top += el.offsetHeight + gap;
-        return item;
-      });
+      reset();
+      const header =
+        parseFloat(
+          getComputedStyle(document.documentElement).getPropertyValue(
+            "--header-h",
+          ),
+        ) || 60;
+      const avail = window.innerHeight - header;
+      const cardH = Math.max(0, ...cards.map((el) => el.offsetHeight));
+      // Only pin when a whole card (plus the tab rail) fits on screen.
+      const on = cards.length > 1 && cardH + 120 <= avail;
+      kit.classList.toggle("kit--pin", on);
+      s.on = on;
+      s.x = -1;
+      s.active = -1;
+      if (!on) {
+        stage.style.height = "";
+        stage.style.removeProperty("--pin-h");
+        return;
+      }
+      const step = Math.round(avail * 0.85);
+      stage.style.setProperty("--pin-h", `${avail}px`);
+      stage.style.height = `${avail + step * (cards.length - 1)}px`;
+      s.start = docTop(stage) - header;
+      s.step = step;
+      s.shift =
+        cards[0].offsetWidth +
+        (parseFloat(getComputedStyle(list).columnGap) || 0);
+      s.list = list;
+      s.items = cards.map((el) => ({
+        el,
+        shade: el.querySelector(".tool__shade"),
+      }));
+      const rail = railRef.current;
+      s.tabs = Array.from(rail?.querySelectorAll(".kit__tab") ?? []);
+      s.fill = rail?.querySelector(".kit__progress i");
+      s.count = rail?.querySelector(".kit__count b");
     },
   );
+  // Keyboard focus moving into a card that is off to the side brings it in.
+  const onFocusIn = (e) => {
+    const s = pin.current;
+    if (!s.on) return;
+    const k = s.items.findIndex((it) => it.el.contains(e.target));
+    if (k >= 0 && k !== s.active) goTo(k);
+  };
 
   // Keyframe sweeps pause off screen; the panel timecode only runs on screen.
   const sectionRef = useRef(null);
@@ -287,11 +355,39 @@ export default function Craft({ number, profile }) {
             <span className="kit__no">({number}.1)</span>{" "}
             <Scramble text="Toolkit" />
           </h3>
-          <ul className="kit__list" ref={kitRef}>
-            {profile.tools.map((t, i) => (
-              <Tool name={t} i={i} key={t} />
-            ))}
-          </ul>
+          <div className="kit__stage" ref={stageRef}>
+            <div className="kit__pin">
+              <div className="kit__rail" ref={railRef}>
+                {profile.tools.map((t, i) => {
+                  const meta = toolMeta[t];
+                  if (!meta) return null;
+                  return (
+                    <button
+                      type="button"
+                      className={`kit__tab${i === 0 ? " is-on" : ""}`}
+                      style={{ "--glow": toolGlow[meta.brand] }}
+                      onClick={() => goTo(i)}
+                      key={t}
+                    >
+                      <Icon brand={meta.brand} size={16} />
+                      {meta.name}
+                    </button>
+                  );
+                })}
+                <span className="kit__progress" aria-hidden="true">
+                  <i />
+                </span>
+                <span className="kit__count" aria-hidden="true">
+                  <b>01</b> / 0{profile.tools.length}
+                </span>
+              </div>
+              <ul className="kit__list" ref={kitRef} onFocus={onFocusIn}>
+                {profile.tools.map((t, i) => (
+                  <Tool name={t} i={i} key={t} />
+                ))}
+              </ul>
+            </div>
+          </div>
         </div>
       </div>
     </section>
